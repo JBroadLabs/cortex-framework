@@ -1,0 +1,433 @@
+roster_version: 0.1.0
+schema_version: 1.0.0
+
+agents:
+  - id: hub-agent
+    name: Hub Agent
+    summary: Orchestrates the end-to-end story lifecycle, enforces protocol handoffs, and coordinates other agents.
+    persona_file: RX.CE-Framework/personas/hub_agent.md
+    responsibilities:
+      - Manage story state transitions and ensure protocol invariants
+      - Coordinate handoffs and unblock agents
+      - Validate readiness to advance between states
+    artifacts_in:
+      - story file (stories/story-*.md)
+      - PROTOCOL.md
+    artifacts_out:
+      - coordination_log.md
+      - updated story state and handoff notes
+    protocol_roles:
+      states: ["[Pending]", "[I]", "[CR]", "[T]", "[Q]", "[Done]"]
+      handoffs:
+        - from: story-composer-agent
+          to: frontend-agent
+          conditions: ["story-created", "ready-for-implementation"]
+        - from: story-composer-agent
+          to: backend-agent
+          conditions: ["story-created", "ready-for-implementation"]
+        - from: system-design-agent
+          to: frontend-agent
+          conditions: ["design-approved"]
+        - from: system-design-agent
+          to: backend-agent
+          conditions: ["design-approved"]
+        - from: frontend-agent
+          to: code-review-agent
+          conditions: ["implementation-complete"]
+        - from: backend-agent
+          to: code-review-agent
+          conditions: ["implementation-complete"]
+        - from: code-review-agent
+          to: frontend-unit-testing-agent
+          conditions: ["review-complete"]
+        - from: code-review-agent
+          to: backend-unit-testing-agent
+          conditions: ["review-complete"]
+        - from: frontend-unit-testing-agent
+          to: testing-agent
+          conditions: ["unit-tests-passing"]
+        - from: backend-unit-testing-agent
+          to: testing-agent
+          conditions: ["unit-tests-passing"]
+        - from: testing-agent
+          to: qa-agent
+          conditions: ["integration-tests-passing"]
+        - from: qa-agent
+          to: hub-agent
+          conditions: ["qa-approved"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Initialize project-level coordination and scaffolding triggers
+      brownfield:
+        responsibilities:
+          - Align orchestration with brownfield constraints and refactor plans
+
+  - id: story-composer-agent
+    name: Story Composer Agent
+    summary: Produces properly structured story files from requirements and design inputs.
+    persona_file: RX.CE-Framework/personas/story_composer_agent.md
+    responsibilities:
+      - Generate story files following the universal schema
+      - Select task types and seed acceptance criteria
+    artifacts_in:
+      - requirements and design inputs
+      - PROTOCOL.md (story schema)
+    artifacts_out:
+      - stories/story-*.md
+    protocol_roles:
+      states: ["[Pending]", "[I]"]
+      handoffs:
+        - from: story-composer-agent
+          to: hub-agent
+          conditions: ["story-created"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Bootstrap initial stories for new features
+      brownfield:
+        responsibilities:
+          - Translate refactor plan into atomic stories
+
+  - id: system-design-agent
+    name: System Design Agent
+    summary: Produces architecture and design artifacts that guide implementation.
+    persona_file: RX.CE-Framework/personas/system_design_agent.md
+    responsibilities:
+      - Create high-level and component-level designs
+      - Validate design constraints and dependencies
+    artifacts_in:
+      - project context and requirements
+    artifacts_out:
+      - design documents and annotations in story files
+    protocol_roles:
+      states: ["[I]", "[CR]"]
+      handoffs:
+        - from: system-design-agent
+          to: hub-agent
+          conditions: ["design-ready"]
+        - from: system-design-agent
+          to: frontend-agent
+          conditions: ["design-approved"]
+        - from: system-design-agent
+          to: backend-agent
+          conditions: ["design-approved"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Define initial architecture and component boundaries
+      brownfield:
+        responsibilities:
+          - Align refactors with current architecture and constraints
+
+  - id: frontend-agent
+    name: Frontend Agent
+    summary: Implements UI components, client-side logic, and state management per story.
+    persona_file: RX.CE-Framework/personas/frontend_agent.md
+    responsibilities:
+      - Implement UI and state management following standards
+      - Update story with implementation notes and context usage
+    artifacts_in:
+      - story file (stories/story-*.md)
+      - design notes
+    artifacts_out:
+      - updated UI code and unit tests
+      - implementation handoff note
+    protocol_roles:
+      states: ["[I]", "[CR]"]
+      handoffs:
+        - from: hub-agent
+          to: frontend-agent
+          conditions: ["ready-for-implementation"]
+        - from: frontend-agent
+          to: code-review-agent
+          conditions: ["implementation-complete"]
+        - from: code-review-agent
+          to: frontend-unit-testing-agent
+          conditions: ["review-complete"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Build new components and initial slices
+      brownfield:
+        responsibilities:
+          - Refactor existing components and state per plan
+
+  - id: backend-agent
+    name: Backend Agent
+    summary: Implements server-side logic, data models, and integration points per story.
+    persona_file: RX.CE-Framework/personas/backend_agent.md
+    responsibilities:
+      - Implement APIs, services, and data models
+      - Update story with implementation notes and context usage
+    artifacts_in:
+      - story file (stories/story-*.md)
+      - design notes
+    artifacts_out:
+      - backend code and unit tests
+      - implementation handoff note
+    protocol_roles:
+      states: ["[I]", "[CR]"]
+      handoffs:
+        - from: hub-agent
+          to: backend-agent
+          conditions: ["ready-for-implementation"]
+        - from: backend-agent
+          to: code-review-agent
+          conditions: ["implementation-complete"]
+        - from: code-review-agent
+          to: backend-unit-testing-agent
+          conditions: ["review-complete"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Build new services and models
+      brownfield:
+        responsibilities:
+          - Refactor existing services and models per plan
+
+  - id: code-review-agent
+    name: Code Review Agent
+    summary: Performs code quality checks and documents feedback in the story’s review notes.
+    persona_file: RX.CE-Framework/personas/code_review_agent.md
+    responsibilities:
+      - Review PR changes for quality and consistency
+      - Document required fixes and approvals
+    artifacts_in:
+      - implementation changes
+      - story file (review notes section)
+    artifacts_out:
+      - review findings and approvals in story
+    protocol_roles:
+      states: ["[CR]"]
+      handoffs:
+        - from: frontend-agent
+          to: code-review-agent
+          conditions: ["implementation-complete"]
+        - from: backend-agent
+          to: code-review-agent
+          conditions: ["implementation-complete"]
+        - from: code-review-agent
+          to: frontend-unit-testing-agent
+          conditions: ["review-complete"]
+        - from: code-review-agent
+          to: backend-unit-testing-agent
+          conditions: ["review-complete"]
+        - from: code-review-agent
+          to: hub-agent
+          conditions: ["critical-issues-found"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Enforce initial coding standards
+      brownfield:
+        responsibilities:
+          - Ensure refactor diffs meet standards and keep behavior
+
+  - id: frontend-unit-testing-agent
+    name: Frontend Unit Testing Agent
+    summary: Writes and runs unit tests for frontend components, reporting results in the story.
+    persona_file: RX.CE-Framework/personas/frontend_unit_testing_agent.md
+    responsibilities:
+      - Author unit tests and validate component behavior
+      - Report test outcomes in story notes
+    artifacts_in:
+      - frontend implementation
+      - story file (review notes section)
+    artifacts_out:
+      - unit test results and coverage notes
+    protocol_roles:
+      states: ["[CR]", "[T]"]
+      handoffs:
+        - from: code-review-agent
+          to: frontend-unit-testing-agent
+          conditions: ["review-complete"]
+        - from: frontend-unit-testing-agent
+          to: testing-agent
+          conditions: ["unit-tests-passing"]
+        - from: frontend-unit-testing-agent
+          to: hub-agent
+          conditions: ["blocking-issues"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Establish initial testing scaffolds
+      brownfield:
+        responsibilities:
+          - Add/adjust tests for refactored components
+
+  - id: backend-unit-testing-agent
+    name: Backend Unit Testing Agent
+    summary: Writes and runs unit tests for backend services and models, reporting results in the story.
+    persona_file: RX.CE-Framework/personas/backend_unit_testing_agent.md
+    responsibilities:
+      - Author unit tests and validate service/model behavior
+      - Report test outcomes in story notes
+    artifacts_in:
+      - backend implementation
+      - story file (review notes section)
+    artifacts_out:
+      - unit test results and coverage notes
+    protocol_roles:
+      states: ["[CR]", "[T]"]
+      handoffs:
+        - from: code-review-agent
+          to: backend-unit-testing-agent
+          conditions: ["review-complete"]
+        - from: backend-unit-testing-agent
+          to: testing-agent
+          conditions: ["unit-tests-passing"]
+        - from: backend-unit-testing-agent
+          to: hub-agent
+          conditions: ["blocking-issues"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Establish test scaffolds for services/models
+      brownfield:
+        responsibilities:
+          - Add/adjust tests for refactored services/models
+
+  - id: testing-agent
+    name: Testing Agent
+    summary: Performs component/integration testing and records results, gating QA entry.
+    persona_file: RX.CE-Framework/personas/testing_agent.md
+    responsibilities:
+      - Execute integration and scenario tests
+      - Record outcomes and remediation recommendations
+    artifacts_in:
+      - unit test outputs
+      - story file (review notes section)
+    artifacts_out:
+      - testing results and remediation notes
+    protocol_roles:
+      states: ["[T]", "[Q]"]
+      handoffs:
+        - from: frontend-unit-testing-agent
+          to: testing-agent
+          conditions: ["unit-tests-passing"]
+        - from: backend-unit-testing-agent
+          to: testing-agent
+          conditions: ["unit-tests-passing"]
+        - from: testing-agent
+          to: qa-agent
+          conditions: ["integration-tests-passing"]
+        - from: testing-agent
+          to: hub-agent
+          conditions: ["blocking-issues"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Define baseline integration test suites
+      brownfield:
+        responsibilities:
+          - Verify refactors preserve behavior
+
+  - id: qa-agent
+    name: QA Agent
+    summary: Performs final quality assurance review against acceptance criteria.
+    persona_file: RX.CE-Framework/personas/qa_agent.md
+    responsibilities:
+      - Validate acceptance criteria and regression risk
+      - Document approvals and defects
+    artifacts_in:
+      - testing results
+      - story file (review notes section)
+    artifacts_out:
+      - QA approvals or defect reports
+    protocol_roles:
+      states: ["[Q]", "[Done]"]
+      handoffs:
+        - from: testing-agent
+          to: qa-agent
+          conditions: ["integration-tests-passing"]
+        - from: qa-agent
+          to: hub-agent
+          conditions: ["qa-approved", "defects-found"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Approve new feature deliveries
+      brownfield:
+        responsibilities:
+          - Validate refactor safety and performance
+
+  - id: ask-agent
+    name: Ask Agent
+    summary: Answers status and context queries, reflecting the current protocol state without modifying it.
+    persona_file: RX.CE-Framework/personas/ask_agent.md
+    responsibilities:
+      - Report story and project state on demand
+      - Provide navigation and context summaries
+    artifacts_in:
+      - story files
+      - PROTOCOL.md
+    artifacts_out:
+      - status report notes (non-state-changing)
+    protocol_roles:
+      states: ["[Pending]", "[I]", "[CR]", "[T]", "[Q]", "[Done]"]
+      handoffs:
+        - from: ask-agent
+          to: hub-agent
+          conditions: ["information-escalation"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Answer scaffolding and setup status
+      brownfield:
+        responsibilities:
+          - Answer refactor and dependency status
+
+  - id: reflector-agent
+    name: Reflector Agent
+    summary: Analyzes process outcomes and proposes continuous improvements without changing state.
+    persona_file: RX.CE-Framework/personas/reflector_agent.md
+    responsibilities:
+      - Perform retrospectives and process analysis
+      - Recommend protocol and practice improvements
+    artifacts_in:
+      - story files and coordination logs
+    artifacts_out:
+      - reflection notes and improvement proposals
+    protocol_roles:
+      states: ["[CR]", "[T]", "[Q]", "[Done]"]
+      handoffs:
+        - from: reflector-agent
+          to: hub-agent
+          conditions: ["improvement-proposal"]
+    modes:
+      greenfield:
+        responsibilities:
+          - Suggest onboarding and scaffolding improvements
+      brownfield:
+        responsibilities:
+          - Suggest refactor planning and safety improvements
+
+  - id: brownfield-architect-agent
+    name: Brownfield Architect Agent
+    summary: Assesses current codebase and composes a refactor plan into atomic stories.
+    persona_file: RX.CE-Framework/personas/brownfield_architect_agent.md
+    responsibilities:
+      - Analyze existing architecture and constraints
+      - Produce refactor plan and safety guidelines
+    artifacts_in:
+      - existing codebase and analysis documents
+    artifacts_out:
+      - analysis/brownfield-architecture.md
+      - refactor plan and seeded stories
+    protocol_roles:
+      states: ["[Pending]", "[I]", "[CR]"]
+      handoffs:
+        - from: brownfield-architect-agent
+          to: story-composer-agent
+          conditions: ["refactor-plan-ready"]
+        - from: brownfield-architect-agent
+          to: hub-agent
+          conditions: ["plan-approved"]
+    modes:
+      greenfield:
+        responsibilities:
+          - N/A (no-op)
+      brownfield:
+        responsibilities:
+          - Lead refactor planning and constraints alignment

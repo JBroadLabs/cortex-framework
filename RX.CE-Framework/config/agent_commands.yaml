@@ -1,0 +1,71 @@
+
+
+version: 1.0.0
+schema: https://rxce.dev/schemas/agent_commands_v1
+
+commands:
+  - id: default
+    trigger: none
+    description: Natural language request without command prefix
+    mode: greenfield
+    primary_agent: hub
+    route:
+      - step: system_design
+        agent: system_design
+      - step: story_composer
+        agent: story_composer
+      - step: implementation
+        agents: [frontend, backend]
+      - step: code_review
+        agent: code_review
+      - step: testing
+        agents: [testing, qa]
+      - step: reflector
+        agent: reflector
+    state_transitions:
+      on_start: Pending
+      on_implementation_start: I
+      on_code_review_start: CR
+      on_testing_start: T
+      on_done: Done
+
+  - id: story
+    trigger: "/story"
+    description: Create story files for incremental development
+    mode: brownfield
+    primary_agent: hub
+    route:
+      - step: brownfield_analysis
+        agent: brownfield_architect
+        optional: true
+      - step: story_composer
+        agent: story_composer
+      - step: prompt_user
+        action: hitl_prompt
+        message: "Implement now? (yes/no/select)"
+    state_transitions:
+      on_story_created: Pending
+      on_user_confirm_implement: I
+
+  - id: refactor
+    trigger: "/refactor"
+    description: Analyze existing codebase and create refactoring plan
+    mode: brownfield
+    primary_agent: hub
+    route:
+      - step: brownfield_analysis
+        agent: brownfield_architect
+      - step: plan_approval
+        action: hitl_gate
+        file: analysis/refactoring-plan.md
+      - step: story_composer
+        agent: story_composer
+    state_transitions:
+      on_plan_pending: Pending
+      on_user_approved: Pending
+
+metadata:
+  strict_matching: true
+  notes:
+    - Agents must load this registry at startup and never parse COMMANDS.md
+    - Platforms that require native config should generate from this file

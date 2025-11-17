@@ -1,0 +1,14 @@
+{
+  "output": {
+    "style": "markdown",
+    "filePath": "analysis/flattened-codebase.md",
+    "removeComments": false,
+    "showLineNumbers": true,
+    "topFilesLength": 20
+  },
+  "ignore": {
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}
