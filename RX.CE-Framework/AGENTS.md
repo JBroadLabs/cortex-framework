@@ -104,7 +104,8 @@ docs/                       # System Design outputs (Greenfield)
 analysis/                   # Brownfield additions
 └── brownfield-architecture.md  # architecture assessment (required in brownfield)
 
-poc-proofpoint.md           # final sign‑off summary (created by Hub at project completion)
+greenfield-proofpoint.md           # Greenfield: final sign‑off summary (created by Hub at project completion)
+brownfield-proofpoint.md           # Brownfield: final sign‑off summary (created by Hub at project completion)
 
 (optional/modules)
 frontend/                   # Frontend Agent and tests

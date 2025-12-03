@@ -91,9 +91,9 @@ The Hub Agent accepts user input in these forms:
 
 **Updates & Evidence**
 
-- **Story First**: Record status changes, handoffs, review findings, testing outcomes, and QA approvals in the Story file.
+- **Story First**: Record status changes, handoffs, review findings, testing outcomes, and QA approvals in the Story file header and notes.
 - **Task Board**: Keep `TASK.md` synchronized with Story statuses.
-- **Optional Snapshot**: If present, `state/story_tracker.json` may reflect current story, phase, and active agent; this is auxiliary, not authoritative.
+- No auxiliary tracker: runtime alignment happens by updating story header fields and `TASK.md` rollup.
 
 **Simple Workflow Monitoring:**
 
@@ -234,6 +234,13 @@ def validate_agent_work(story_file):
 - **Stories**: `stories/story-*.md` (status and validation)
 - **Task Board**: `TASK.md` (central status tracking)
 - **Brownfield Analysis**: `analysis/` directory (context artifacts)
+
+**Runtime Tracking (Story‑Only):**
+
+- On each state transition, update story header fields: `Status`, `Phase`, `Active Agent`, `Updated`.
+- Append a `## Handoffs` entry capturing from/to agents, timestamp, and reason.
+- Log outcomes in `## Review & Testing Notes` and synchronize `TASK.md`.
+- Do not create auxiliary tracker files; Story and `TASK.md` are authoritative.
 
 **Guardrails**:
 

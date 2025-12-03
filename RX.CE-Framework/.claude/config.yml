@@ -1,0 +1,53 @@
+# Framework Configuration
+# Auto-generated. Edit values to customize workflow.
+# Delete this file anytime to restore defaults.
+
+#===================================================================
+# WORKFLOW - Skip stages for faster iteration
+#===================================================================
+
+skip_code_review: false      # true = skip [CR] stage
+skip_testing: false          # true = skip [T] stage
+skip_qa: false               # true = skip [Q] stage
+
+# Examples:
+#   Fast prototyping: Set all to true -> [I] -> [Done]
+#   Trust tests only: skip_code_review=true, skip_qa=true -> [I] -> [T] -> [Done]
+
+
+#===================================================================
+# FEATURES - Toggle major capabilities
+#===================================================================
+
+coding_standards: true           # Enforce code quality via linters
+strict_version_checking: true    # Block if doc versions incompatible
+
+
+#===================================================================
+# TESTING - Quality requirements
+#===================================================================
+
+min_coverage_percent: 80         # Test coverage threshold (0-100)
+
+
+#===================================================================
+# ADVANCED - Rarely changed
+#===================================================================
+
+sharding_threshold: 500          # Lines before doc sharding triggers
+
+
+#===================================================================
+# QUICK REFERENCE
+#===================================================================
+#
+# Common scenarios:
+#   1. Default (as above) - Full workflow, all quality gates
+#   2. Fast (skip_qa: true) - Skip final QA for speed
+#   3. Minimal (all skips: true) - Implementation only, no validation
+#   4. Strict (min_coverage: 90) - Production-grade quality
+#
+# Commands:
+#   claude code: /ask "how does [setting] work?"
+#
+#===================================================================

@@ -53,7 +53,9 @@ Agents must not load brownfield analysis artifacts when `mode=greenfield`.
      - On rejection: return the current story to `[I]` for remediation. If the issue is out-of-scope or discovered as a new defect, create a new story using consistent naming (e.g., `stories/story-002-bug-fix.md`) and link the dependency.
    - Triggered by Hub when ready for final validation (see personas/qa_agent.md)
 8) Project Sign-off
-   - Hub confirms all tasks `[Done]`, creates `greenfield-proofpoint.md`, awaits final approval
+   - Hub confirms all tasks `[Done]` and QA approvals recorded in Story notes
+   - Hub creates `greenfield-proofpoint.md` with header: `Status: [PENDING_APPROVAL]`
+   - Hub MUST pause here and MUST NOT mark completion or emit wrap‑up outputs until status is `[APPROVED]`
 
 ## 5. Implementation Execution Model
 
@@ -94,7 +96,7 @@ When a story transitions to `[CR]` status, **three agents execute simultaneously
     - Last Updated: YYYY‑MM‑DD
   - Human changes status to `[APPROVED]`/`[REJECTED]`. On approval, the Hub triggers sharding. No story creation until docs are `[APPROVED]`.
 - Gate 2 — Final Sign‑Off:
-  - When all stories in `TASK.md` are `[Done]`, the Hub creates `greenfield-proofpoint.md` and awaits final human approval.
+97)  - When all stories in `TASK.md` are `[Done]` and QA approvals are recorded, the Hub creates `greenfield-proofpoint.md` with `Status: [PENDING_APPROVAL]` and awaits final human approval. If `[REJECTED]`, resume remediation and update Story notes with reasons.
 
 ## 8. Deliverables
 1) Proof‑of‑Concept (POC) — Functional prototype aligned to `docs/spec.md`.
@@ -120,4 +122,3 @@ Phase 1 completes when:
 2) QA Agent validates the POC with successful regression suite
 3) All deliverables are produced and internally consistent
 4) `greenfield-proofpoint.md` is marked `[APPROVED]` by a human
-

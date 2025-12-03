@@ -51,6 +51,16 @@ Coding Standards:
 
 Agents MUST create/update stories using `docs/templates/story-template.md`. Load the template verbatim and fill all required sections.
 
+### Runtime Tracking (Story‑Only)
+
+- Hub MUST record runtime state directly in the story header fields:
+  - `Status` and `Phase` reflect the universal state machine
+  - `Active Agent` indicates current owner at this phase
+  - `Started`/`Updated` timestamps capture lifecycle
+- On every handoff, Hub writes a structured entry under `## Handoffs` and logs outcomes under `## Review & Testing Notes`.
+- `TASK.md` is the project‑level rollup; no auxiliary tracker files are required.
+- If any discrepancy occurs, Story files and `TASK.md` are authoritative; Hub updates the header fields to realign.
+
 ## 5. Dependencies & Pausing
 
 - Explicit dependencies: downstream story cannot enter [I] until dependencies are [Done].
@@ -99,15 +109,21 @@ When a story fails and returns to [I]:
 
 Gate 1 — Design Artifact Approval:
 - Trigger: System Design Agent produces initial design docs under `docs/`.
-- Hub adds a header to each doc:
+- Hub writes a header to each doc before review:
   - `Status: [PENDING_APPROVAL]` → human changes to `[APPROVED]` or `[REJECTED]`.
 - On approval: Hub triggers sharding; agents load shards only via `docs/shard-index.md`.
 - Constraint: No sharding or story creation until design docs are `[APPROVED]`.
 
 Gate 2 — Final Project Sign-Off:
-- Trigger: Hub detects all stories are `[Done]` in `TASK.md`.
-- Action: Hub creates `poc-proofpoint.md` (see `docs/templates/`).
-- Constraint: Project completes only when `poc-proofpoint.md` is `[APPROVED]`.
+- Trigger: Hub detects all stories are `[Done]` in `TASK.md` and QA approvals are recorded in Story notes.
+- Action: Hub creates a mode-specific proofpoint and writes header:
+  - Greenfield: `greenfield-proofpoint.md`
+  - Brownfield: `brownfield-proofpoint.md`
+  - Header: `Status: [PENDING_APPROVAL]` → human changes to `[APPROVED]` or `[REJECTED]`.
+- Constraints:
+  - Hub MUST pause at Gate 2 and MUST NOT mark completion or emit wrap‑up outputs until the proofpoint file exists and shows `Status: [APPROVED]`.
+  - If status is `[REJECTED]`, Hub resumes remediation by reopening relevant stories and records reasons under `## Review & Testing Notes`.
+  - Agents MUST treat the proofpoint as the single source of project sign‑off.
 
 ## 10. Mode References (not duplicated here)
 

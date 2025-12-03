@@ -7,6 +7,10 @@ Use this as the starting point when creating new story files. Agents will valida
 # Story [Sprint.Number]: [Title]
 
 **Status**: [Story_Status]
+**Phase**: [Pending/I/CR/T/Q/Done]
+**Active Agent**: [hub/system-design/story-composer/frontend/backend/code-review/frontend-unit-testing/backend-unit-testing/testing/qa]
+**Started**: [YYYY-MM-DD HH:MM]
+**Updated**: [YYYY-MM-DD HH:MM]
 **Task Type**: [Standard_Task_Type]
 **Module**: [Frontend/Backend/Full-Stack]
 **Dependencies**: [None / story-XXX, story-YYY]
@@ -136,3 +140,12 @@ Use this as the starting point when creating new story files. Agents will valida
 ## Review & Testing Notes
 
 [Log of all handoffs and feedback]
+
+---
+
+## Handoffs
+
+**From**: [Agent] → **To**: [Agent]
+**At**: [Timestamp]
+**Reason**: [State transition / prerequisites met]
+**Context Snapshot**: [Brief] 

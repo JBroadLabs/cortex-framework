@@ -82,7 +82,7 @@ Workflow:
    - Initial status `[Pending]` (awaiting approval)
 6) HITL Approval — Hub prompts the user to review and approve the plan; human sets status to `[APPROVED]` or `[REJECTED]`
 7) Implementation (if approved) — Follow the shared workflow from `[I]` → `[Done]`
-8) Final QA & Sign‑Off — QA Agent validates; Hub creates `brownfield-proofpoint.md` and awaits final approval
+8) Final QA & Sign‑Off — QA Agent validates; Hub creates `brownfield-proofpoint.md` with header `Status: [PENDING_APPROVAL]` and MUST pause until `[APPROVED]`; if `[REJECTED]`, resume remediation and record reasons in Story notes
 
 ## 5. Implementation Execution Model
 
@@ -122,7 +122,7 @@ The Hub Agent waits for all parallel agents to complete before advancing the sto
   - Hub requests approval; human sets status to `[APPROVED]` or `[REJECTED]`.
   - On approval: Hub moves corresponding refactor stories to `[Pending]`; implementation may proceed.
 - Gate 2 — Final Sign‑Off:
-  - When all stories in `TASK.md` are `[Done]`, the Hub creates `brownfield-proofpoint.md` and awaits final human approval.
+125)  - When all stories in `TASK.md` are `[Done]` and QA approvals are recorded, the Hub creates `brownfield-proofpoint.md` with `Status: [PENDING_APPROVAL]` and awaits final human approval. The Hub MUST NOT finalize or wrap up until status is `[APPROVED]`.
 
 ## 8. Deliverables
 1) Brownfield Analysis
