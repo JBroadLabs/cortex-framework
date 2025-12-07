@@ -1,18 +1,24 @@
-# Agent-Based Software Development Workflow
+# RX.CE Multi-Agent Development Framework
 
-This project demonstrates an autonomous, agent-based workflow for software development. It utilizes a "Hub and Spoke" model where a central `Hub Agent` coordinates a team of specialized agents to design, develop, and test a application.
+An autonomous, agent-based workflow for software development that uses a "Hub and Spoke" orchestration model. A central Hub Agent coordinates 13 specialized agents to design, develop, test, and deliver applications across two distinct operational modes: Greenfield (new projects) and Brownfield (existing codebases).
 
 ## Project Overview
 
-The core of this project is an automated system that manages the entire development lifecycle, from initial design to final QA. The workflow is orchestrated by a `Hub Agent` that delegates tasks to a set of specialized agents, each with a specific role and responsibility.
+The RX.CE Framework automates the entire development lifecycle through intelligent agent orchestration, strict state management, and mode-aware context isolation. The Hub Agent manages workflow transitions, validates prerequisites, and ensures proper handoffs between specialized agents operating in stateless, context-isolated execution environments.
 
 ### Key Features
 
-- **Autonomous Operation**: Agents operate autonomously between human approval gates, ensuring a streamlined and efficient workflow.
-- **Hub and Spoke Model**: A central `Hub Agent` coordinates tasks, while specialized "spoke" agents perform specific functions like system design, frontend and backend development, and testing.
-- **Strict State Management**: The project follows a strict state machine, with the status of each task tracked in a `TASK.md` file and individual `Story` files.
-- **Human-in-the-Loop (HITL) Gates**: The workflow includes two critical human approval gates for design and final project sign-off, ensuring quality and alignment with project goals.
-- **Self-Improving Context System**: Automatically tracks which documentation is actually useful, generates optimization reports every 10 stories, and enforces version compatibility to prevent stale context errors.
+- **Dual-Mode Architecture**: Explicit mode routing (Greenfield vs Brownfield) with separate context sources, artifacts, and workflows
+- **Hub and Spoke Orchestration**: Central Hub Agent coordinates 13 specialized agents with strict spoke-to-Hub-only communication
+- **Stateless Agent Execution**: Agents start with empty context, load only required sources, and clear context on completion
+- **Universal State Machine**: `[Pending] → [I] → [CR] → [T] → [Q] → [Done]` with configurable stage skips
+- **Parallel Execution at [CR]**: Code Review + Frontend Unit Testing + Backend Unit Testing run simultaneously for faster feedback
+- **Story-Centric Tracking**: Story files and TASK.md are the single source of truth; no auxiliary trackers
+- **Human-in-the-Loop (HITL) Gates**: Two critical approval points with file-based status markers
+  - Gate 1: Design artifacts (Greenfield) or Refactor plan (Brownfield)
+  - Gate 2: Mode-specific proofpoint files (greenfield-proofpoint.md or brownfield-proofpoint.md)
+- **ACE Self-Improvement System**: 95% automated documentation improvement with evidence-based delta proposals every 10 stories
+- **Version Compatibility Enforcement**: Strict version checking prevents context mismatches and blocks incompatible stories
 
 ## 🚀 Quick Start with Claude Code
 
@@ -28,28 +34,31 @@ npm install -g @anthropic-ai/claude-code
 ### Start Building
 
 ```bash
-# New project (Full POC Mode)
+# Greenfield Mode: New project from scratch
 claude code hub "Create a stock trading dashboard with real-time charts"
+# → mode=greenfield → System Design Agent → Full design phase → HITL Gate 1
 
-# Add feature to existing project (Incremental Mode)
+# Brownfield Mode: Add feature to existing codebase
 claude code hub "/story add CSV export button"
-# First time: Runs brownfield analysis (~4 min)
-# After that: Asks to use cached analysis (instant if yes)
+# → mode=brownfield → Brownfield Architect (analysis-only, ~4 min first time)
+# → Story Composer → User decides: implement now or later
+# → Cached analysis used for subsequent /story commands
 
-# Bug fix
-claude code hub "/story fix authentication timeout"
-# Uses cached analysis (instant)
-
-# Refactor existing code (Brownfield Mode)
+# Brownfield Mode: Refactor existing code
 claude code hub "/refactor extract shared authentication logic"
-# Full analysis + refactoring plan (~7 min)
+# → mode=brownfield → Brownfield Architect (full-refactoring, ~7 min)
+# → Generates refactoring-plan.md → HITL approval required
+# → Creates refactor stories with risk levels and rollback plans
 ```
 
-**Mode Comparison:**
-- `/story`: Analysis mode (~4 min first time, instant after)
-- `/refactor`: Full refactoring mode (~7 min, generates improvement plan)
+**Mode Selection:**
+- **Greenfield** (default): Net-new projects, full design phase, monolithic-then-sharded docs
+- **Brownfield** (`/story` or `/refactor`): Existing codebases, analysis artifacts, incremental changes
 
-Both use Brownfield Architect, but `/story` is faster because it only generates what's needed for feature development.
+**Command Routing:**
+- No command → Greenfield full POC workflow
+- `/story [request]` → Brownfield incremental (analysis-only mode, ~4 min first time, cached after)
+- `/refactor [scope]` → Brownfield refactoring (full-refactoring mode, ~7 min, HITL approval required)
 
 That's it! The Hub Agent orchestrates everything automatically.
 
@@ -91,43 +100,62 @@ See full capabilities in [Ask Agent Documentation](.claude/commands/ask.md).
 
 ### What Happens Automatically
 
-✅ **Design & Architecture** - System Design Agent creates comprehensive docs
-✅ **Code Generation** - Frontend and Backend agents implement features
-✅ **Testing** - Unit tests, integration tests, E2E tests run automatically
-✅ **Code Review** - Automated review for quality and standards
-✅ **QA Validation** - Final validation before human approval
-✅ **Progress Tracking** - Real-time status in `TASK.md`
+✅ **Mode-Aware Context Loading** - Hub loads greenfield or brownfield context sources based on mode
+✅ **Design & Architecture** - System Design Agent (Greenfield) or Brownfield Architect (Brownfield)
+✅ **Story Creation** - Hub decomposes design into story files with canonical schema
+✅ **Parallel Code Review** - At [CR]: Code Review + Frontend Unit Testing + Backend Unit Testing run simultaneously
+✅ **Testing** - Integration tests ([T]) and QA validation ([Q]) with regression suites
+✅ **Coding Standards Enforcement** - Implementation and review agents enforce docs/coding-standards.md
+✅ **Progress Tracking** - Story files and TASK.md are the single source of truth
+✅ **Version Compatibility** - Strict checking blocks stories with incompatible doc versions
 
 **You only approve at 2 gates:**
-1. After design documents are created (HITL Gate 1)
-2. After final QA validation (HITL Gate 2)
+1. **HITL Gate 1**: Design docs (Greenfield) or refactor plan (Brownfield) - change status to `[APPROVED]`
+2. **HITL Gate 2**: Mode-specific proofpoint file (greenfield-proofpoint.md or brownfield-proofpoint.md) - change status to `[APPROVED]`
 
 ### Available Commands
 
-- **`hub`** - Primary command (use this for everything)
-- Other commands (`story`, `frontend`, `backend`, etc.) - Manual intervention only
+- **`hub`** - Primary command for all workflows (Greenfield and Brownfield)
+- **`ask`** - Read-only advisory mode for questions and diagnostics
+- Other commands (`frontend`, `backend`, `code-review`, etc.) - Manual intervention only (invoked by Hub)
 
-See [.claude/README.md](.claude/quick_start.md) for complete command reference.
+See [.claude/quick_start.md](.claude/quick_start.md) and [COMMANDS.md](COMMANDS.md) for complete command reference.
 
-### Three Modes of Operation
+### Operational Modes
 
-**Full POC Mode** (for new projects):
+The framework operates in two distinct modes with separate context sources and workflows:
+
+**Greenfield Mode** (Net-new projects):
 ```bash
-claude code hub "Create a [description]"
+claude code hub "Create a stock trading dashboard"
 ```
-→ Complete design phase → Human approval → Implementation
+**Workflow**: System Design Agent → Monolithic docs → HITL Gate 1 → Document sharding → Story creation → Implementation → greenfield-proofpoint.md → HITL Gate 2
 
-**Incremental Mode** (for existing projects):
-```bash
-claude code hub "/story [feature description]"
-```
-→ Story creation → Implement now? → Implementation
+**Context Sources**: `docs/spec.md`, `docs/architecture.md`, `docs/design.md`, `docs/frontend.md`, `docs/backend.md` (pre-approval), then sharded via `docs/shard-index.md` (post-approval)
 
-**Brownfield Mode** (for refactoring):
+---
+
+**Brownfield Mode - Incremental** (`/story`):
 ```bash
-claude code hub "/refactor [scope description]"
+claude code hub "/story add CSV export button"
 ```
-→ Code analysis → Refactoring plan → Human approval → Implementation
+**Workflow**: Brownfield Architect (analysis-only, ~4 min first time) → Story Composer → User decision (implement now?) → Implementation → brownfield-proofpoint.md → HITL Gate 2
+
+**Context Sources**: `analysis/flattened-codebase.md`, `analysis/brownfield-architecture.md`
+
+**Caching**: Analysis cached for subsequent `/story` commands (instant if reused)
+
+---
+
+**Brownfield Mode - Refactoring** (`/refactor`):
+```bash
+claude code hub "/refactor extract shared authentication logic"
+```
+**Workflow**: Brownfield Architect (full-refactoring, ~7 min) → Generates `analysis/refactoring-plan.md` → HITL Gate 1 (human approval required) → Story creation → Implementation → brownfield-proofpoint.md → HITL Gate 2
+
+**Context Sources**: `analysis/flattened-codebase.md`, `analysis/brownfield-architecture.md`, `analysis/refactoring-plan.md`
+
+**Key Features**: Risk assessment, phased strategies, rollback plans
 
 ---
 
@@ -158,7 +186,7 @@ See [docs/CONTEXT_ENGINEERING.md](docs/CONTEXT_ENGINEERING.md) for complete guid
 
 ## 🎯 Built-In Skills System
 
-The framework includes 10 production-grade skills that provide expert guidance automatically:
+The framework includes 12 production-grade skills that provide expert guidance automatically:
 
 ### Available Skills
 
@@ -172,10 +200,12 @@ The framework includes 10 production-grade skills that provide expert guidance a
 
 **Frontend:**
 - **css-styling-expert** - Flexbox, Grid, animations, responsive design, accessibility
+- **state-management** - State architecture, Redux, Context API, Zustand patterns
 
 **Code Quality:**
-- **debugging-methodology** - Systematic debugging, profiling, root cause analysis
+- **code-review** - Best practices, anti-patterns, security vulnerabilities, maintainability
 - **circular-dependency-resolver** - Detect and resolve import cycles, DI issues
+- **implementation-best-practices** - Clean code, SOLID principles, design patterns
 
 **Decision Making:**
 - **critical-thinking** - Decision frameworks, trade-off analysis, problem-solving
@@ -199,10 +229,10 @@ The framework includes 10 production-grade skills that provide expert guidance a
 # → Uses: async-background-jobs, error-handling, integration-patterns
 
 # Fixing circular dependency error
-# → Uses: circular-dependency-resolver, debugging-methodology
+# → Uses: circular-dependency-resolver, code-review
 ```
 
-**Location**: Skills are stored in `~/.claude/skills/` - you can customize or add your own.
+**Location**: Skills are stored in both `RX.CE-Framework/skills/` and `.claude/skills/` - you can customize or add your own.
 
 ---
 
@@ -315,144 +345,305 @@ To get started with this project, you will need to have a development environmen
    ```
 
 
-## Usage Modes
+## Universal State Machine & Workflow
 
-This framework supports three modes of operation:
+All stories follow the same state machine regardless of mode:
 
-### 1. Full POC Mode (Default)
-Traditional workflow with complete design documentation.
-
-**Use for**:
-- New projects from scratch
-- Major architectural changes
-- When comprehensive design docs are needed
-
-**Usage**:
-```bash
-# Just describe what you want to build
-"Create a stock trading dashboard with real-time charts"
+```
+[Pending] → [I] → [CR] → [T] → [Q] → [Done]
+              ↑               ↑
+       Implementation    Parallel Execution
+       (Frontend/       (Code Review +
+        Backend)         Unit Tests)
 ```
 
-**Workflow**: Design → Approval → Implementation → Testing → QA → Final Approval
+### State Definitions
+
+- **[Pending]** - Awaiting initiation, approval, or upstream dependencies
+- **[Paused]** - Temporarily halted due to dependency failure or resource contention
+- **[I]** - Implementation in progress (Frontend/Backend as applicable)
+- **[CR]** - Code review + unit testing (parallelized: Code Review Agent + Frontend Unit Testing + Backend Unit Testing)
+- **[T]** - Integration/component testing
+- **[Q]** - Quality assurance/regression validation
+- **[Done]** - Completed and approved
+
+### Configurable Stage Skips
+
+Customize workflow in `.claude/config.yml`:
+
+```yaml
+skip_code_review: false  # true = skip [CR] stage
+skip_testing: false      # true = skip [T] stage
+skip_qa: false          # true = skip [Q] stage
+```
+
+**Examples**:
+- Fast prototyping: All true → `[I] → [Done]`
+- Trust tests only: `skip_code_review=true, skip_qa=true` → `[I] → [T] → [Done]`
+
+### Parallel Execution at [CR]
+
+When a story transitions to `[CR]`, up to three agents run simultaneously:
+
+```
+[I] Implementation Complete
+    ↓
+[CR] Code Review Stage (PARALLEL)
+    ├─→ Code Review Agent (quality, standards, linters)
+    ├─→ Frontend Unit Testing Agent (if frontend changes)
+    └─→ Backend Unit Testing Agent (if backend changes)
+    ↓
+[T] Integration Testing (if all pass)
+```
+
+The Hub Agent waits for all parallel agents to complete before advancing to `[T]`.
+
+### Context Isolation & Checkpoints
+
+**Rules**:
+1. One story per agent context at a time
+2. Mandatory reset before ANY work (new or remediation): clear loaded docs, working memory, patterns
+3. Checkpoint at `[I] → [CR]`: record loaded docs (with versions), key patterns, decisions
+4. Remediation restore (`[CR] → [I]` or `[T] → [I]`): clear context, restore from checkpoint, apply feedback
+5. Pause save (`[I] → [Paused]`): save progress, note partial work and resume point
 
 ---
 
-### 2. Incremental Mode (`/story` command)
-Quick story creation for adding features to existing codebases.
+## Mode-Specific Workflows
 
-**Use for**:
-- Adding features to existing projects
-- Bug fixes and enhancements
-- When design patterns are already established
-- Rapid iterations
+### Greenfield Mode (Net-New Projects)
 
-**Usage**:
-```bash
-# Use the /story command
-"/story add CSV export button to dashboard"
-"/story fix authentication bug in login"
-"/story add user profile settings page"
-```
+**Trigger**: Default command (no prefix)
 
-**How it works**:
-1. Checks for brownfield analysis (runs if missing, asks to reuse if exists)
-2. Brownfield Architect runs in analysis-only mode (~4 min if needed)
-3. Story Composer creates stories with full codebase context
-4. You decide: implement now or later
-5. Implementation follows full workflow: [I] → [CR] → [T] → [Q] → [Done]
+**End-to-End Workflow**:
+1. **Initiation**: Hub confirms scope, triggers System Design Agent
+2. **Design**: System Design Agent produces monolithic docs in `docs/`:
+   - `spec.md`, `architecture.md`, `design.md`, `frontend.md`, `backend.md`, `coding-standards.md`
+3. **HITL Gate 1**: Human reviews and approves design docs (status: `[PENDING_APPROVAL]` → `[APPROVED]`)
+4. **Document Sharding**: Hub triggers sharding; docs split into directories with `index.md` entrypoints
+5. **Decomposition**: Hub creates story files from approved design using `docs/templates/story-template.md`
+6. **Implementation**: Stories flow through universal state machine with parallel [CR] execution
+7. **Final QA**: QA Agent validates against acceptance criteria and regression suite
+8. **HITL Gate 2**: Hub creates `greenfield-proofpoint.md` (status: `[PENDING_APPROVAL]` → `[APPROVED]`)
 
-**First use (no analysis exists)**:
-```bash
-"/story add notifications"
+**Context Sources**:
+- Pre-approval: Monolithic docs (`docs/*.md`)
+- Post-approval: Sharded docs via `docs/shard-index.md`
 
-→ "ℹ️  Running brownfield analysis (~4 min first time)"
-→ Creates stories with full codebase context
-→ Analysis cached for future /story commands
-```
-
-**Subsequent uses (analysis exists)**:
-```bash
-"/story add dark mode"
-
-→ "📋 Use existing analysis? (yes/no)"
-→ If yes: instant story creation
-→ If no: regenerates analysis (~4 min)
-```
-
-**Workflow**: Brownfield Analysis (analysis mode) → Story Creation → Implementation Decision → [I] → [CR] → [T] → [Q] → [Done]
+**Deliverables**:
+- Core documentation (monolithic → sharded)
+- Story files in `stories/`
+- TASK.md task board
+- Complete test suite
+- greenfield-proofpoint.md
 
 ---
 
-### 3. Brownfield Mode (`/refactor` command)
-Analyze existing code and create refactoring plans with risk assessments.
+### Brownfield Mode - Incremental (`/story`)
 
-**Use for**:
-- Technical debt reduction
-- Legacy code modernization
-- Extracting shared utilities or services
-- Performance optimization
-- Architectural improvements
-- Code consolidation
+**Trigger**: `/story [feature description]`
 
-**Usage**:
-```bash
-# Use the /refactor command
-"/refactor extract shared authentication logic"
-"/refactor modernize API to use async/await"
-"/refactor consolidate duplicate validation code"
-```
+**End-to-End Workflow**:
+1. **Story Command**: User provides `/story [request]`
+2. **Prerequisite Check**: Hub checks for `analysis/brownfield-architecture.md`
+3. **Analysis (First Time)**:
+   - Brownfield Architect runs in **analysis-only mode** (~4 min)
+   - Generates `analysis/flattened-codebase.md` and `analysis/brownfield-architecture.md`
+   - Analysis cached for future commands
+4. **Analysis (Subsequent)**:
+   - Hub asks: "Use existing analysis? (yes/no)"
+   - If yes: instant (uses cached analysis)
+   - If no: regenerates analysis (~4 min)
+5. **Story Creation**: Story Composer creates story files with codebase context
+6. **User Decision**: Hub prompts "Implement now? (yes/no/select)"
+7. **Implementation**: If yes, stories flow through universal state machine
+8. **Final QA**: QA Agent validates with regression suite
+9. **HITL Gate 2**: Hub creates `brownfield-proofpoint.md` (status: `[PENDING_APPROVAL]` → `[APPROVED]`)
 
-**How it works**:
-1. Brownfield Architect runs in full-refactoring mode (~7 min)
-2. Generates comprehensive analysis + phased refactoring plan
-3. Creates refactoring story files with risk levels
-4. You review and approve the plan
-5. If approved, stories move to [Pending]
-6. You decide: implement now or later
-7. Implementation follows full workflow with rollback plans
-
-**Example**:
-```bash
-"/refactor extract shared auth logic"
-
-→ "🔧 Running full refactoring analysis (~7 min)"
-→ Generates brownfield-architecture.md
-→ Generates refactoring-plan.md with 3 phases
-→ Creates 5 refactoring story files
-→ "📋 Review plan: analysis/refactoring-plan.md"
-→ "Approve and implement? (yes/no)"
-```
-
-**Workflow**: Brownfield Analysis (refactor mode) → Refactoring Plan → Human Approval → Implementation → [I] → [CR] → [T] → [Q] → [Done]
+**Context Sources**:
+- `analysis/flattened-codebase.md` (auto-generated codebase snapshot)
+- `analysis/brownfield-architecture.md` (architecture assessment)
 
 **Key Features**:
-- **Auto-installs tools**: Repomix and md-tree install automatically
-- **Technical debt assessment**: Identifies code smells, duplications, security issues
-- **Phased strategies**: Creates low/medium/high risk phases
-- **Risk mitigation**: Includes rollback plans and gradual rollout strategies
-- **Human approval gate**: Review and approve refactoring plan before implementation
+- First use: ~4 min analysis (one-time cost)
+- Subsequent uses: instant if analysis reused
+- No HITL Gate 1 (no design approval needed)
 
 ---
 
-### Command Reference
+### Brownfield Mode - Refactoring (`/refactor`)
 
-| Command | Description | Use Case |
-|---------|-------------|----------|
-| *(no command)* | Full POC workflow | New projects, major features |
-| `/story [request]` | Create story files only | Add features, bug fixes, enhancements |
+**Trigger**: `/refactor [scope description]`
+
+**End-to-End Workflow**:
+1. **Refactor Command**: User provides `/refactor [scope]`
+2. **Brownfield Analysis**: Brownfield Architect runs in **full-refactoring mode** (~7 min):
+   - Flattens codebase
+   - Analyzes code patterns and technical debt
+   - Detects code smells and architectural issues
+   - Identifies refactoring opportunities
+3. **Document Generation**:
+   - `analysis/flattened-codebase.md` (auto-generated snapshot)
+   - `analysis/brownfield-architecture.md` (current state assessment)
+   - `analysis/refactoring-plan.md` (phased strategy with risk levels)
+4. **Sharding** (if needed): Documents >500 lines sharded with index files
+5. **Story Generation**: Creates refactoring story files with:
+   - Risk level assessment (Low/Medium/High)
+   - Rollback plans
+   - Phased strategy
+6. **HITL Gate 1**: Human reviews and approves `analysis/refactoring-plan.md` (status: `[PENDING_APPROVAL]` → `[APPROVED]`)
+7. **Implementation**: If approved, stories flow through universal state machine
+8. **Final QA**: QA Agent validates with regression suite
+9. **HITL Gate 2**: Hub creates `brownfield-proofpoint.md` (status: `[PENDING_APPROVAL]` → `[APPROVED]`)
+
+**Context Sources**:
+- `analysis/flattened-codebase.md`
+- `analysis/brownfield-architecture.md`
+- `analysis/refactoring-plan.md`
+
+**Key Features**:
+- Technical debt assessment
+- Phased refactoring strategies (Low/Medium/High risk)
+- Rollback plans and gradual rollout strategies
+- HITL approval gate before implementation
+
+---
+
+### Command Comparison
+
+| Command | Mode | Duration | Context Generated | HITL Gate 1 | Use Case |
+|---------|------|----------|-------------------|-------------|----------|
+| *(none)* | Greenfield | Varies | Monolithic docs → Sharded docs | Yes (design docs) | New projects |
+| `/story` | Brownfield | ~4 min (first time), instant (cached) | Analysis artifacts | No | Feature additions, bug fixes |
+| `/refactor` | Brownfield | ~7 min | Analysis + Refactoring plan | Yes (refactor plan) | Technical debt, code improvements |
 
 For detailed command usage, see [COMMANDS.md](COMMANDS.md).
 
-## Workflow
+## Agent Roster
 
-The project follows a structured, end-to-end workflow orchestrated by the `Hub Agent`. The workflow consists of the following steps:
+The framework includes 13 specialized agents coordinated by the Hub Agent:
 
-1. **Initiation**: The `Hub Agent` confirms the project scope and triggers the `System Design Agent`.
-2. **Design**: The `System Design Agent` produces the required design artifacts in the `docs/` directory and automatically shards large implementation documents into subdirectories with enhanced index files for efficient context loading.
-3. **Design Approval**: The `Hub Agent` requests human approval for the core design documents.
-4. **Decomposition & Task Board Creation**: Upon approval, the `Hub Agent` decomposes the design into `Story` files and creates a `TASK.md` file to track progress.
-5. **Implementation & Parallel Review/Testing**: The `Hub Agent` schedules the workflow, triggering the appropriate agents for development, code review, and testing.
-6. **Final QA**: Once all stories are complete, the `QA Agent` performs a final validation of the application.
-7. **Project Sign-off**: After successful QA, the `Hub Agent` awaits final human approval.
+| Agent | Role | Active States | Description |
+|-------|------|---------------|-------------|
+| **Hub Agent** | Orchestrator | All | Central coordinator, manages state transitions, validates prerequisites |
+| **System Design Agent** | Design | [I], [CR] | Creates comprehensive design docs for Greenfield projects |
+| **Brownfield Architect** | Analysis | [Pending], [I], [CR] | Analyzes existing codebases, generates refactoring plans |
+| **Story Composer** | Planning | [Pending], [I] | Creates story files from design or brownfield analysis |
+| **Frontend Agent** | Implementation | [I], [CR] | Implements frontend features and components |
+| **Backend Agent** | Implementation | [I], [CR] | Implements backend services and APIs |
+| **Code Review Agent** | Review | [CR] | Reviews code quality, enforces standards, runs linters |
+| **Frontend Unit Testing** | Testing | [CR], [T] | Creates and runs frontend unit tests |
+| **Backend Unit Testing** | Testing | [CR], [T] | Creates and runs backend unit tests |
+| **Testing Agent** | Testing | [T], [Q] | Runs integration and E2E tests |
+| **QA Agent** | Validation | [Q], [Done] | Final validation with regression suites |
+| **Reflector Agent** | Improvement | [CR], [T], [Q], [Done] | Analyzes Context Feedback, generates delta proposals (ACE) |
+| **Ask Agent** | Advisory | All (read-only) | Provides guidance, diagnostics, framework Q&A |
 
-For more detailed information on the agent operating protocol, please refer to the `PROTOCOL.md` file.
+### Agent Communication Protocol
+
+- **Hub-to-Spoke**: Hub invokes specialized agents via command routing
+- **Spoke-to-Hub**: Agents report results in Story files under `## Review & Testing Notes`
+- **No Spoke-to-Spoke**: Direct agent communication prohibited; Hub manages all integration
+- **Stateless Execution**: Agents clear context on completion and reload fresh for each story
+
+For complete agent details, see [AGENTS.md](AGENTS.md) and [PROTOCOL.md](PROTOCOL.md).
+
+---
+
+## Directory Structure
+
+The framework uses a canonical directory structure with mode-specific artifacts:
+
+```
+RX.CE-Framework/                    # Framework core
+├── .claude/                        # Claude Code configuration
+│   ├── commands/                   # Agent command definitions
+│   │   ├── hub.md                  # Hub Agent orchestrator
+│   │   ├── ask.md                  # Advisory agent
+│   │   ├── story-composer.md       # Story creation
+│   │   ├── system-design.md        # Greenfield design
+│   │   ├── brownfield-architect.md # Brownfield analysis
+│   │   ├── frontend.md             # Frontend implementation
+│   │   ├── backend.md              # Backend implementation
+│   │   ├── code-review.md          # Code review
+│   │   ├── frontend-unit-test.md   # Frontend unit tests
+│   │   ├── backend-unit-test.md    # Backend unit tests
+│   │   ├── test.md                 # Integration testing
+│   │   ├── qa.md                   # QA validation
+│   │   └── reflector.md            # ACE self-improvement
+│   ├── config.yml                  # Framework configuration
+│   └── quick_start.md              # Quick start guide
+├── PROTOCOL.md                     # Universal operating contract
+├── AGENTS.md                       # Agent roster and rules
+├── COMMANDS.md                     # Command reference
+├── modes/                          # Mode-specific workflows
+│   ├── Greenfield.md               # Net-new projects
+│   └── Brownfield.md               # Existing codebases
+├── personas/                       # Agent persona definitions
+├── config/                         # Agent command mappings
+├── state/                          # Runtime state and registries
+│   ├── agents_roster.yaml          # Agent eligibility
+│   ├── artifacts.greenfield.json   # Greenfield artifact registry
+│   └── artifacts.brownfield.json   # Brownfield artifact registry
+├── docs/                           # Documentation and templates
+│   ├── templates/                  # Story and handoff schemas
+│   └── CONTEXT_ENGINEERING.md      # ACE system documentation
+├── skills/                         # Implementation skills
+│   ├── api-design/
+│   ├── database-schema-design/
+│   ├── async-background-jobs/
+│   ├── error-handling/
+│   ├── performance-optimization/
+│   └── [12 total skills]
+└── scripts/                        # Utility scripts
+    └── merge-deltas.py             # ACE delta merging
+
+# Project-level structure (generated during usage)
+TASK.md                             # Project task board
+stories/                            # Story files (single source of truth)
+└── story-*.md                      # Individual work units
+
+# Greenfield artifacts
+docs/                               # Design documentation
+├── spec.md                         # Functional specification (monolithic)
+├── architecture.md                 # System architecture (monolithic)
+├── design.md                       # High-level design (monolithic)
+├── frontend.md                     # Frontend plan (monolithic)
+├── backend.md                      # Backend plan (monolithic)
+├── coding-standards.md             # Coding standards (MUST exist)
+├── shard-index.md                  # Shard registry (post-approval)
+├── design/                         # Sharded design (post-approval)
+│   └── index.md                    # Design shard entrypoint
+├── architecture/                   # Sharded architecture (post-approval)
+│   └── index.md                    # Architecture shard entrypoint
+├── frontend/                       # Sharded frontend plan (post-approval)
+│   └── index.md                    # Frontend shard entrypoint
+└── backend/                        # Sharded backend plan (post-approval)
+    └── index.md                    # Backend shard entrypoint
+greenfield-proofpoint.md            # Final sign-off (HITL Gate 2)
+
+# Brownfield artifacts
+analysis/                           # Brownfield analysis
+├── flattened-codebase.md           # Auto-generated codebase snapshot
+├── brownfield-architecture.md      # Architecture assessment
+└── refactoring-plan.md             # Refactoring plan (refactor mode only)
+brownfield-proofpoint.md            # Final sign-off (HITL Gate 2)
+
+# Implementation modules (as applicable)
+frontend/                           # Frontend module
+├── src/                            # Implementation
+└── tests/                          # Unit/integration/E2E tests
+
+backend/                            # Backend module
+├── src/                            # Implementation
+└── tests/                          # Unit/integration/E2E tests
+```
+
+**Key Principles**:
+- **Story files** are the single source of truth for work units
+- **TASK.md** is the project-level rollup
+- **Mode separation**: Greenfield uses `docs/`, Brownfield uses `analysis/`
+- **No auxiliary trackers**: Story files contain all runtime state
+- **Coding standards MUST exist**: `docs/coding-standards.md` is mandatory and enforced
+
+---

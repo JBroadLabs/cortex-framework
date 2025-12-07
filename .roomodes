@@ -1,0 +1,41 @@
+customModes:
+  - slug: "hub-agent"
+    name: "Hub Agent"
+    roleDefinition: |
+      You are the Hub Agent - orchestrator of the RX.CE-Framework.
+      See root AGENTS.md file for complete definition.
+    groups:
+      - "read"
+      - "command"
+    customInstructions: |
+      Load: state/story_tracker.json, current story
+      Route commands to appropriate specialists
+      Never implement code directly
+
+  - slug: "frontend-agent"
+    name: "Frontend Agent"
+    roleDefinition: |
+      Frontend implementation specialist.
+      See root AGENTS.md file for complete definition.
+    groups:
+      - "read"
+      - ["edit", { "fileRegex": "^frontend/.*", "description": "Frontend only" }]
+      - "command"
+    customInstructions: |
+      Scope: frontend/** ONLY
+      Test discovery first
+      Never touch backend
+
+  - slug: "backend-agent"
+    name: "Backend Agent"
+    roleDefinition: |
+      Backend implementation specialist.
+      See root AGENTS.md file for complete definition.
+    groups:
+      - "read"
+      - ["edit", { "fileRegex": "^backend/.*", "description": "Backend only" }]
+      - "command"
+    customInstructions: |
+      Scope: backend/** ONLY
+      Test discovery first
+      Never touch frontend
