@@ -1,11 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir:*)",
-      "Bash(findstr:*)",
-      "Bash(bash scripts/validate-configs.sh:*)"
-    ],
-    "deny": [],
-    "ask": []
+      "Bash(cat:*)",
+      "Bash(python scripts/workflow_engine.py:*)",
+      "Bash(python:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)"
+    ]
   }
 }
