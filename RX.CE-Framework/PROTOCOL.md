@@ -12,7 +12,7 @@ This is the universal operating contract for all agents. It defines core invaria
   - Do not retain memory across stories or sessions.
 - Hub-Orchestrated Handoffs: All inter-agent communication is written in the Story file under `## Review & Testing Notes` using schemas from `docs/templates/handoff-schemas-template.md`. No direct spoke-to-spoke messaging; the Hub Agent manages routing and integration.
 - Command Registry: Agents MUST load triggers and execution mappings from `config/agent_commands.yaml` (platform-native config if required). No hardcoded command logic.
-- Triggering & Routing: The Hub Agent watches TASK.md for status changes, loads `state/agents_roster.yaml` to determine which agents are eligible for the current state, and invokes them via `config/agent_commands.yaml`. Agents never self-trigger; they execute only on Hub invocation. At [CR], the Hub may fan out to parallel agents per roster and waits for all to finish before advancing.
+- Triggering & Routing: The Hub Agent queries the SQLite state machine for status changes, loads `state/agents_roster.yaml` to determine which agents are eligible for the current state, and invokes them via `config/agent_commands.yaml`. Agents never self-trigger; they execute only on Hub invocation. At [CR], the Hub may fan out to parallel agents per roster and waits for all to finish before advancing.
 - Roster Source of Truth: Agents and their roles/states are defined in `state/agents_roster.yaml`. Do not duplicate roster content here.
 
 ## 2. Story State Machine (Universal)
@@ -58,8 +58,8 @@ Agents MUST create/update stories using `docs/templates/story-template.md`. Load
   - `Active Agent` indicates current owner at this phase
   - `Started`/`Updated` timestamps capture lifecycle
 - On every handoff, Hub writes a structured entry under `## Handoffs` and logs outcomes under `## Review & Testing Notes`.
-- `TASK.md` is the project‑level rollup; no auxiliary tracker files are required.
-- If any discrepancy occurs, Story files and `TASK.md` are authoritative; Hub updates the header fields to realign.
+- The SQLite state machine provides project‑level status; no auxiliary tracker files are required.
+- If any discrepancy occurs, Story files and SQLite database are authoritative; Hub updates the header fields to realign.
 
 ## 5. Dependencies & Pausing
 
@@ -115,7 +115,7 @@ Gate 1 — Design Artifact Approval:
 - Constraint: No sharding or story creation until design docs are `[APPROVED]`.
 
 Gate 2 — Final Project Sign-Off:
-- Trigger: Hub detects all stories are `[Done]` in `TASK.md` and QA approvals are recorded in Story notes.
+- Trigger: Hub detects all stories are `[Done]` in the SQLite state machine and QA approvals are recorded in Story notes.
 - Action: Hub creates a mode-specific proofpoint and writes header:
   - Greenfield: `greenfield-proofpoint.md`
   - Brownfield: `brownfield-proofpoint.md`

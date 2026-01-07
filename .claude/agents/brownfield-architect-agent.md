@@ -391,11 +391,6 @@ If rejected → Stories remain in planning state for revision
 
 ### AI Agent Standards
 
-**Tools**:
-- File System Access (Read for analysis, Write for `/analysis/` and `/stories/`)
-- Shell / Terminal (for Repomix and md-tree installation and execution)
-- Code Analysis (pattern detection, duplication analysis, complexity metrics)
-
 **Knowledge & Memory**:
 - **Knowledge**:
   - `personas/*.md`

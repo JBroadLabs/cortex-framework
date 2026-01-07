@@ -1,7 +1,7 @@
 ---
 name: story-composer-agent
 description: Creates properly structured story files from requirements. Invoked by Hub for /story command routing.
-tools: Read, Write, Glob, Grep
+tools: Read, Write, Bash, Grep, Glob
 model: sonnet
 ---
 
@@ -351,10 +351,6 @@ Implementation should follow:
 ---
 
 ### AI Agent Standards
-
-**Tools**:
-- File System Access (Read for codebase analysis, Write for story creation)
-- Code Pattern Analysis
 
 **Knowledge & Memory**:
 - **Knowledge**:

@@ -76,8 +76,8 @@ The Hub Agent accepts user input in these forms:
 
 **Agent Assignment Tracking (Simple)**
 
-- Use the Story file and `TASK.md` as the audit trail (assigned agent, phase, notes, and outcomes).
-- Optional: `state/story_tracker.json` may reflect a minimal runtime snapshot; no additional tracking files are required.
+- Use the Story file and SQLite database as the audit trail (assigned agent, phase, notes, and outcomes).
+- Story state is tracked in the SQLite database at `state/workflow.db`; no additional tracking files are required.
 
 **Phase 3: Parallel Execution Management**
 
@@ -87,19 +87,19 @@ The Hub Agent accepts user input in these forms:
 
 11. **Updates & Evidence**
    - Update Story files with structured progress markers and evidence
-   - Keep `TASK.md` synchronized with Story statuses
+   - Story state is automatically tracked in SQLite database
 
 **Updates & Evidence**
 
 - **Story First**: Record status changes, handoffs, review findings, testing outcomes, and QA approvals in the Story file header and notes.
-- **Task Board**: Keep `TASK.md` synchronized with Story statuses.
-- No auxiliary tracker: runtime alignment happens by updating story header fields and `TASK.md` rollup.
+- **State Machine**: Story state is automatically updated in SQLite database.
+- No auxiliary tracker: runtime alignment happens by updating story header fields and the state machine.
 
 **Simple Workflow Monitoring:**
 
 **Use Existing Infrastructure:**
 - **Story files** contain all tracking information with structured markers
-- **TASK.md** provides project‑level status
+- **SQLite database** provides project‑level status
 - **Framework phases** create natural validation checkpoints
 - **Agent handoffs** happen at well‑defined transition points
 
@@ -153,9 +153,9 @@ def validate_agent_work(story_file):
   - Start Condition: [Immediate / After story-XXX [Done] / After story-XXX [T]]
   ```
 
-**Story Tracker Integration (Optional):**
-- If present, `state/story_tracker.json` may reflect a minimal runtime snapshot
-- Ensure any snapshot matches `TASK.md` and Story files
+**Story State Tracking:**
+- Story state is tracked in the SQLite database at `state/workflow.db`
+- Ensure SQLite database matches Story files
 
 **Configuration Validation**:
 - Confirm workflow skips are properly configured
@@ -167,7 +167,7 @@ def validate_agent_work(story_file):
 **Orchestration Failures** (Why Agents Fail at Coordination):
 - **Missing Dependency Analysis**: Not checking if frontend/backend can work in parallel
 - **Incomplete Context Loading**: Agents receive partial or incorrect context
-- **State Desynchronization**: TASK.md and story files become inconsistent
+- **State Desynchronization**: SQLite database and story files become inconsistent
 - **Agent Role Confusion**: Wrong agent triggered for current phase or story type
 - **Solo Agent Problem**: Hub marks tasks done without triggering other agents
 - **No Work Validation**: Agents mark complete without creating actual deliverables
@@ -194,7 +194,7 @@ def validate_agent_work(story_file):
 
 **Output Artifacts**:
 
-- **TASK.md**: Updated story status and dependencies
+- **SQLite Database**: Updated story status and dependencies
 - **Story Files**: Validation results and transition notes
 - **Status Notifications**: User-facing progress updates
 - **Exception Reports**: Detailed failure information
@@ -212,7 +212,7 @@ def validate_agent_work(story_file):
 
 ❌ **Orchestration Failure**: Unable to trigger required agent or validate prerequisites
 ❌ **Validation Failure**: Dependency conflicts or missing context not resolved
-❌ **State Corruption**: TASK.md or story files become inconsistent
+❌ **State Corruption**: SQLite database or story files become inconsistent
 ❌ **Parallel Execution Failure**: Race conditions, deadlocks, or inconsistent parallel state
 ❌ **Escalation Required**: Agent failures or protocol violations requiring human intervention
 ❌ **Solo Agent Failure**: Hub marks tasks done without triggering other agents
@@ -232,15 +232,15 @@ def validate_agent_work(story_file):
 - **Commands**: `config/agent_commands.yaml` (agent triggers)
 - **Roster**: `state/agents_roster.yaml` (agent eligibility)
 - **Stories**: `stories/story-*.md` (status and validation)
-- **Task Board**: `TASK.md` (central status tracking)
+- **State Machine**: SQLite database (`state/workflow.db`) - central status tracking
 - **Brownfield Analysis**: `analysis/` directory (context artifacts)
 
 **Runtime Tracking (Story‑Only):**
 
 - On each state transition, update story header fields: `Status`, `Phase`, `Active Agent`, `Updated`.
 - Append a `## Handoffs` entry capturing from/to agents, timestamp, and reason.
-- Log outcomes in `## Review & Testing Notes` and synchronize `TASK.md`.
-- Do not create auxiliary tracker files; Story and `TASK.md` are authoritative.
+- Log outcomes in `## Review & Testing Notes` and update SQLite database.
+- Do not create auxiliary tracker files; Story files and SQLite database are authoritative.
 
 **Guardrails**:
 
@@ -262,7 +262,7 @@ def validate_agent_work(story_file):
 - `[I] → [CR]`: advance only when all Story tasks are `[x]`
 - `[CR]` fan‑out: trigger Code Review and applicable FE/BE Unit Testing; wait for all to complete before `[T]`
 - `[T] → [Q]`: Testing Agent outcomes present in the Story
-- `[Q] → [Done]`: QA approval recorded in the Story; update `TASK.md`
+- `[Q] → [Done]`: QA approval recorded in the Story; state automatically updated in SQLite database
 
 **Anti‑Hallucination Controls**
 

@@ -17,7 +17,7 @@ To implement the backend components of a user story, including business logic, d
 
 **Input Triggers / Activation**:
 
-Triggered by the `Hub Agent` when a story's status in `TASK.md` is updated to `[I]`, indicating that implementation can begin.
+Triggered by the `Hub Agent` when a story's status in the SQLite state machine is updated to `[I]`, indicating that implementation can begin.
 
 **Step-by-Step Workflow**:
 
@@ -365,11 +365,6 @@ You MUST append the following section to the story file before completing:
 ---
 ### AI Agent Standards
 
-**Tools**:
-- File System Access (Read/Write)
-- Code Interpreter
-- Shell / Terminal
-
 **Knowledge & Memory**:
 - **Knowledge**:
   - `personas/*.md`
@@ -384,5 +379,5 @@ You MUST append the following section to the story file before completing:
   - Short-term memory of the current story file and its associated code.
 
 **Guardrails**:
-- The agent is restricted to working only within the `/backend/src/` and `/backend/tests/` directories, and the root `TASK.md` file.
+- The agent is restricted to working only within the `/backend/src/` and `/backend/tests/` directories. State tracking is handled by the SQLite database.
 - It must not modify any frontend code or infrastructure configurations.

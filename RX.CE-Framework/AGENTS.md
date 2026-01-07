@@ -79,7 +79,7 @@
 Use this canonical structure to know where agent-generated files must live. Framework scaffolding (e.g., README.md, PROTOCOL.md, config/*, personas/*, templates/*) is intentionally excluded here.
 
 ```
-TASK.md                     # project overview and status (created by Hub)
+state/workflow.db           # SQLite state machine tracking project status (managed by Hub)
 
 stories/                    # Story Composer outputs
 └── story-*.md              # unit of work; canonical source of truth

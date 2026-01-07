@@ -10,7 +10,7 @@ To provide rapid feedback on the quality of backend code by executing the releva
 
 **Input Triggers / Activation**:
 
-Triggered by the `Hub Agent` when a story's status in `TASK.md` is updated to `[CR]`.
+Triggered by the `Hub Agent` when a story's status in the SQLite state machine is updated to `[CR]`.
 
 **Step-by-Step Workflow**:
 

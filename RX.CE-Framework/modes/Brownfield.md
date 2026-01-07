@@ -12,7 +12,7 @@ Brownfield requires an initial analysis of the current codebase to create shared
 Approved inputs loaded by agents when `mode=brownfield`:
 - Analysis artifacts: `analysis/flattened-codebase.md`, `analysis/brownfield-architecture.md`, `analysis/refactoring-plan.md` (refactor mode)
 - Sharded analysis documents (if present): `analysis/**` via local index files
-- Project task board and stories: `TASK.md`, `stories/`
+- Project state: SQLite database (`state/workflow.db`) and story files (`stories/`)
 - Test artifacts: unit/integration/E2E suites and reports
 - Coding standards: `docs/coding-standards.md` (MUST exist; implementation and review agents enforce it)
 
@@ -122,7 +122,7 @@ The Hub Agent waits for all parallel agents to complete before advancing the sto
   - Hub requests approval; human sets status to `[APPROVED]` or `[REJECTED]`.
   - On approval: Hub moves corresponding refactor stories to `[Pending]`; implementation may proceed.
 - Gate 2 — Final Sign‑Off:
-125)  - When all stories in `TASK.md` are `[Done]` and QA approvals are recorded, the Hub creates `brownfield-proofpoint.md` with `Status: [PENDING_APPROVAL]` and awaits final human approval. The Hub MUST NOT finalize or wrap up until status is `[APPROVED]`.
+125)  - When all stories in the SQLite database are `[Done]` and QA approvals are recorded, the Hub creates `brownfield-proofpoint.md` with `Status: [PENDING_APPROVAL]` and awaits final human approval. The Hub MUST NOT finalize or wrap up until status is `[APPROVED]`.
 
 ## 8. Deliverables
 1) Brownfield Analysis
@@ -130,7 +130,7 @@ The Hub Agent waits for all parallel agents to complete before advancing the sto
    - `analysis/brownfield-architecture.md` — Architecture and technical debt assessment
    - `analysis/refactoring-plan.md` — Phased strategy with risk levels (refactor mode)
 2) Core Project Artifacts
-   - `TASK.md` — Master task board
+   - SQLite state machine (`state/workflow.db`) — Project state tracking
    - `stories/` — Feature and refactor story files following PROTOCOL schema
    - `docs/coding-standards.md` — MUST exist; implementation and review agents enforce it
 3) Quality & Testing Artifacts
@@ -141,7 +141,7 @@ The Hub Agent waits for all parallel agents to complete before advancing the sto
 
 ## 9. Phase Completion Criteria
 Phase completes when:
-1) All tasks in `TASK.md` are `[Done]`
+1) All stories in the SQLite database are `[Done]`
 2) QA Agent validates the application with successful regression suite
 3) All deliverables are produced and internally consistent
 4) `brownfield-proofpoint.md` is marked `[APPROVED]` by a human

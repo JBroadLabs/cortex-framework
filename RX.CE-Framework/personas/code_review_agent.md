@@ -10,13 +10,13 @@ To review code for quality, correctness, and adherence to standards, providing c
 
 **Input Triggers / Activation**:
 
-Triggered by the `Hub Agent` when a story's status in `TASK.md` is updated to `[CR]`, indicating that the code is ready for review.
+Triggered by the `Hub Agent` when a story's status in the SQLite state machine is updated to `[CR]`, indicating that the code is ready for review.
 
 **Step-by-Step Workflow**:
 
 1.  **Identify Task for Review**: The `Hub Agent` notifies the `Code Review Agent` that a task is ready for review.
 
-2.  **Gather Context**: Reads the story file, `TASK.md`, and the relevant design documents to understand the implementation's goals.
+2.  **Gather Context**: Reads the story file and the relevant design documents to understand the implementation's goals.
 
 2.5 **Load Coding Standards**:
     a. **Load coding standards file**:

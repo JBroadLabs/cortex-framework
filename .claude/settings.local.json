@@ -5,7 +5,9 @@
       "Bash(python scripts/workflow_engine.py:*)",
       "Bash(python:*)",
       "Bash(ls:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(git add:*)",
+      "Bash(grep:*)"
     ]
   }
 }

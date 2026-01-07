@@ -22,7 +22,6 @@ Triggered by the `Hub Agent` when a story is ready for testing.
     - Note any paused/resumed stories that might affect tests
 
     **Read all relevant sections**:
-    - Read `TASK.md` file
     - Read full story file including:
       * Task completion status (which tasks are [x])
       * Context Checkpoint (what context was used)
@@ -55,7 +54,7 @@ Triggered by the `Hub Agent` when a story is ready for testing.
   - **Max Tokens**: 4096
 
 **Tools**:
-- File System Access (Read-Only for most files, Write for `TASK.md`, story files, and `/tests/`)
+- File System Access (Read-Only for most files, Write for story files and `/tests/`)
 - Test Execution Frameworks (e.g., Jest, Pytest)
 - Code Coverage Tools
 

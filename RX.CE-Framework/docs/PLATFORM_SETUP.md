@@ -173,7 +173,7 @@ Frontend Agent stays in `frontend/`, Backend Agent stays in `backend/`
 
 ### "Agent doing wrong things"
 - Verify correct agent persona is active
-- Check story state in `state/story_tracker.json`
+- Query story state from SQLite database using `engine.get_story_status(story_id)`
 - Review agent definition in root `AGENTS.md`
 
 ### "Can't find design docs"

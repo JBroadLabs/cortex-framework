@@ -8,7 +8,7 @@ Greenfield handles net-new projects from scratch. It emphasizes full design upfr
 Approved inputs loaded by agents when `mode=greenfield`:
 - Monolithic design docs (pre‑sharding): `docs/spec.md`, `docs/architecture.md`, `docs/design.md`, `docs/frontend.md`, `docs/backend.md`, `docs/coding-standards.md`
 - Sharded docs (post HITL approval): `docs/design/`, `docs/architecture/`, `docs/frontend/`, `docs/backend/` via `docs/shard-index.md`
-- Project task board and stories: `TASK.md`, `stories/`
+- Project state: SQLite database (`state/workflow.db`) and story files (`stories/`)
 - Test artifacts: unit/integration/E2E suites and reports
 - Note: In early Greenfield phases, test artifacts may not exist; they are created as implementation and testing proceed.
 Agents must not load brownfield analysis artifacts when `mode=greenfield`.
@@ -38,7 +38,7 @@ Agents must not load brownfield analysis artifacts when `mode=greenfield`.
    - Hub decomposes design into `stories/` (e.g., `stories/story-001.md`) with `[Pending]` status
    - All stories MUST be created from `docs/templates/story-template.md` and include all required sections in the canonical order.
    - Use consistent naming: `stories/story-XXX.md` (zero-padded).
-   - Hub creates and maintains `TASK.md` overview
+   - Hub registers stories in SQLite state machine and maintains project state
    - Default: every 10 stories (configurable), Hub triggers Reflector Agent to analyze Context Feedback across stories and produce evidence-based delta proposals. For small projects, this may be reduced; for large projects, Hub may trigger it on a rolling cadence.
 6) Implementation & Parallel Review/Testing
    - Frontend/Backend implement stories and write unit tests
@@ -96,12 +96,12 @@ When a story transitions to `[CR]` status, **three agents execute simultaneously
     - Last Updated: YYYY‑MM‑DD
   - Human changes status to `[APPROVED]`/`[REJECTED]`. On approval, the Hub triggers sharding. No story creation until docs are `[APPROVED]`.
 - Gate 2 — Final Sign‑Off:
-97)  - When all stories in `TASK.md` are `[Done]` and QA approvals are recorded, the Hub creates `greenfield-proofpoint.md` with `Status: [PENDING_APPROVAL]` and awaits final human approval. If `[REJECTED]`, resume remediation and update Story notes with reasons.
+97)  - When all stories in the SQLite database are `[Done]` and QA approvals are recorded, the Hub creates `greenfield-proofpoint.md` with `Status: [PENDING_APPROVAL]` and awaits final human approval. If `[REJECTED]`, resume remediation and update Story notes with reasons.
 
 ## 8. Deliverables
 1) Proof‑of‑Concept (POC) — Functional prototype aligned to `docs/spec.md`.
 2) Core Documentation
-   - `TASK.md` — Master task board
+   - SQLite state machine (`state/workflow.db`) — Project state tracking
    - `docs/spec.md` — Functional and non‑functional requirements
    - `docs/design/` — Sharded high‑level overview + index
    - `docs/architecture/` — Sharded system architecture + index
@@ -118,7 +118,7 @@ When a story transitions to `[CR]` status, **three agents execute simultaneously
 
 ## 9. Phase 1 Completion Criteria
 Phase 1 completes when:
-1) All tasks in `TASK.md` are `[Done]`
+1) All stories in the SQLite database are `[Done]`
 2) QA Agent validates the POC with successful regression suite
 3) All deliverables are produced and internally consistent
 4) `greenfield-proofpoint.md` is marked `[APPROVED]` by a human

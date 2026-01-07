@@ -17,7 +17,7 @@ To provide rapid feedback on the quality of backend code by executing the releva
 
 **Input Triggers / Activation**:
 
-Triggered by the `Hub Agent` when a story's status in `TASK.md` is updated to `[CR]`.
+Triggered by the `Hub Agent` when a story's status in the SQLite state machine is updated to `[CR]`.
 
 **Step-by-Step Workflow**:
 
@@ -60,11 +60,6 @@ You MUST append the following section to the story file before completing:
 
 ---
 ### AI Agent Standards
-
-
-**Tools**:
-- File System Access (Read-only for story files, Read/Execute for test files)
-- Shell / Terminal
 
 **Knowledge & Memory**:
 - **Knowledge**:

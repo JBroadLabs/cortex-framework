@@ -17,7 +17,7 @@ To implement the frontend components of a user story, including UI elements, sta
 
 **Input Triggers / Activation**:
 
-Triggered by the `Hub Agent` when a story's status in `TASK.md` is updated to `[I]`, indicating that implementation can begin.
+Triggered by the `Hub Agent` when a story's status in the SQLite state machine is updated to `[I]`, indicating that implementation can begin.
 
 **Step-by-Step Workflow**:
 
@@ -352,12 +352,6 @@ You MUST append the following section to the story file before completing:
 
 ---
 ### AI Agent Standards
-
-
-**Tools**:
-- File System Access (Read/Write)
-- Code Interpreter
-- Shell / Terminal
 
 **Knowledge & Memory**:
 - **Knowledge**:

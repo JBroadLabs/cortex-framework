@@ -100,11 +100,10 @@ Triggered by the `Hub Agent` when user uses the `/ask` command.
 
     ```python
     # Check project state
-    project_exists = exists('TASK.md')
+    project_exists = Path('state/workflow.db').exists()
 
     if project_exists:
-        # Read current state (NEVER modify)
-        task_board = read_file('TASK.md')
+        # Read current state from SQLite database (NEVER modify)
         stories = read_all_files('/stories/*.md')
 
         # For specific story questions
@@ -270,12 +269,6 @@ Triggered by the `Hub Agent` when user uses the `/ask` command.
 
 ---
 ### AI Agent Standards
-
-**Tools**:
-- File System Access (READ-ONLY for all files)
-- No write permissions
-- No execution permissions
-- No agent triggering capabilities
 
 **Knowledge & Memory**:
 - **Knowledge**:

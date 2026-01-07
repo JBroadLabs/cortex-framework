@@ -13,7 +13,7 @@ The RX.CE Framework automates the entire development lifecycle through intellige
 - **Stateless Agent Execution**: Agents start with empty context, load only required sources, and clear context on completion
 - **Universal State Machine**: `[Pending] → [I] → [CR] → [T] → [Q] → [Done]` with configurable stage skips
 - **Parallel Execution at [CR]**: Code Review + Frontend Unit Testing + Backend Unit Testing run simultaneously for faster feedback
-- **Story-Centric Tracking**: Story files and TASK.md are the single source of truth; no auxiliary trackers
+- **Story-Centric Tracking**: Story files and SQLite database are the single source of truth; no auxiliary trackers
 - **Human-in-the-Loop (HITL) Gates**: Two critical approval points with file-based status markers
   - Gate 1: Design artifacts (Greenfield) or Refactor plan (Brownfield)
   - Gate 2: Mode-specific proofpoint files (greenfield-proofpoint.md or brownfield-proofpoint.md)
@@ -106,7 +106,7 @@ See full capabilities in [Ask Agent Documentation](.claude/commands/ask.md).
 ✅ **Parallel Code Review** - At [CR]: Code Review + Frontend Unit Testing + Backend Unit Testing run simultaneously
 ✅ **Testing** - Integration tests ([T]) and QA validation ([Q]) with regression suites
 ✅ **Coding Standards Enforcement** - Implementation and review agents enforce docs/coding-standards.md
-✅ **Progress Tracking** - Story files and TASK.md are the single source of truth
+✅ **Progress Tracking** - Story files and SQLite database are the single source of truth
 ✅ **Version Compatibility** - Strict checking blocks stories with incompatible doc versions
 
 **You only approve at 2 gates:**
@@ -433,7 +433,7 @@ The Hub Agent waits for all parallel agents to complete before advancing to `[T]
 **Deliverables**:
 - Core documentation (monolithic → sharded)
 - Story files in `stories/`
-- TASK.md task board
+- SQLite state machine (`state/workflow.db`)
 - Complete test suite
 - greenfield-proofpoint.md
 
@@ -599,7 +599,8 @@ RX.CE-Framework/                    # Framework core
     └── merge-deltas.py             # ACE delta merging
 
 # Project-level structure (generated during usage)
-TASK.md                             # Project task board
+state/
+└── workflow.db                     # SQLite state machine (task/story tracking)
 stories/                            # Story files (single source of truth)
 └── story-*.md                      # Individual work units
 
@@ -641,7 +642,7 @@ backend/                            # Backend module
 
 **Key Principles**:
 - **Story files** are the single source of truth for work units
-- **TASK.md** is the project-level rollup
+- **SQLite database** (`state/workflow.db`) provides project-level state tracking
 - **Mode separation**: Greenfield uses `docs/`, Brownfield uses `analysis/`
 - **No auxiliary trackers**: Story files contain all runtime state
 - **Coding standards MUST exist**: `docs/coding-standards.md` is mandatory and enforced

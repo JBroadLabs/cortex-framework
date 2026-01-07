@@ -189,7 +189,7 @@ Your response:
 4. [Reference PROTOCOL.md for state transitions]
 
 ## Key Files
-- `TASK.md` - High-level task board
+- `state/workflow.db` - SQLite state machine (project state tracking)
 - `/stories/story-*.md` - Individual story files (work tracking)
 - `/docs/[module]/index.md` - Context loading guides
 - `.claude/config.yml` - Framework configuration
@@ -221,7 +221,7 @@ You: "create a story for CSV export"
 
 Copilot: [Follows hub_agent.md workflow]
          [Creates story file]
-         [Updates TASK.md]
+         [Registers story in SQLite state machine]
 ```
 
 **Switch agents:**
@@ -349,7 +349,7 @@ Before implementing:
 ## Key Directories
 - `/stories/` - Story files (work tracking)
 - `/docs/` - Documentation and context guides
-- `TASK.md` - High-level task board
+- `state/workflow.db` - SQLite state machine (project state tracking)
 EOF
 
 # Step 3: Done!
@@ -480,7 +480,7 @@ When activated as an agent:
 
 ## Story File Location
 All stories: `/stories/story-*.md`
-Task board: `TASK.md`
+State tracking: `state/workflow.db` (SQLite database)
 
 ## Configuration
 Framework config: `.claude/config.yml`
@@ -553,7 +553,7 @@ You: "create a story for CSV export"
 
 Roo: [Follows hub_agent.md workflow]
      [Creates stories/story-042.md]
-     [Updates TASK.md]
+     [Registers story in SQLite state machine]
 
      "Story-042 created: CSV Export Feature
      Status: [Pending]
@@ -736,7 +736,7 @@ Codex: [Follows hub_agent.md workflow]
 You: "y"
 
 Codex: [Writes file]
-       [Updates TASK.md]
+       [Registers story in SQLite state machine]
 
        "Story-042 created. Status: [Pending]
        Implement now?"
@@ -834,7 +834,7 @@ You: "Act as Hub Agent and create a story for dark mode toggle"
 Codex: [Reads AGENTS.md]
        [Follows hub_agent.md workflow]
        [Auto-creates story-043.md]
-       [Auto-updates TASK.md]
+       [Registers story in SQLite state machine]
        "Story-043 created. Implement now?"
 
 You: "Yes. Act as Frontend Agent and implement story-043"
@@ -976,7 +976,7 @@ The framework supports three different workflows depending on your project type:
 
 **Agent will:**
 - Create story file in `/stories/`
-- Update `TASK.md`
+- Register story in SQLite state machine
 - Set status to `[Pending]`
 - Ask: "Implement now?"
 
@@ -1102,7 +1102,7 @@ Roo: [Follows hub_agent.md workflow]
      ═══════════════════════════════════════════
 
      Created: stories/story-043.md
-     Updated: TASK.md
+     Registered: SQLite state machine
 
      Implement now? (yes/no)"
 
@@ -1447,7 +1447,7 @@ RX.CE-Framework/
 │   └── ask_agent.md                      ← 12. Framework Q&A (read-only)
 └── config.yml               ← Framework configuration
 
-TASK.md                      ← Story status board
+state/workflow.db            ← SQLite state machine (story tracking)
 /stories/story-*.md          ← Individual stories
 /docs/[module]/index.md      ← Context guides (after design approval)
 ```

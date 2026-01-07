@@ -1,7 +1,7 @@
 ---
 name: qa-agent
 description: Quality assurance validator for acceptance criteria. Final gatekeeper before human sign-off. Invoked by Hub when story status reaches [Q].
-tools: Read, Bash, Grep, Glob
+tools: Read, Write, Bash, Grep, Glob
 model: sonnet
 ---
 
@@ -65,10 +65,6 @@ You MUST append the following section to the story file before completing:
 
 ---
 ### AI Agent Standards
-
-**Tools**:
-- File System Access (Read-only for all files, Write for new Story files)
-- Test Execution Tools
 
 **Knowledge & Memory**:
 - **Knowledge**:

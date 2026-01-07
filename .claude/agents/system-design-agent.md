@@ -285,10 +285,6 @@ Add `## Standards Override` to story file with justification.
 ---
 ### AI Agent Standards
 
-**Tools**:
-- File System Access (Write for `/docs/` directory)
-- Shell / Terminal (for md-tree installation and execution)
-
 **Knowledge & Memory**:
 - **Knowledge**:
   - `personas/*.md`

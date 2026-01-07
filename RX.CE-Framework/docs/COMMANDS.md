@@ -81,7 +81,7 @@ User: "Create a stock trading dashboard with real-time charts"
    - Analyzes architecture and patterns
    - Generates `analysis/brownfield-architecture.md`
 3. Story Composer creates story file(s) using brownfield analysis
-4. Stories marked as `[Pending]` in TASK.md
+4. Stories registered in SQLite state machine with `[Pending]` status
 5. Hub asks: **"Implement now? (yes/no)"**
 
 **Subsequent uses (analysis exists)**:
@@ -145,7 +145,7 @@ User: "Create a stock trading dashboard with real-time charts"
 6. Creates `analysis/refactoring-plan.md` (phased strategy)
 7. Auto-shards documents if >500 lines (installs md-tree if needed)
 8. Generates refactoring story files
-9. Updates TASK.md
+9. Story state is automatically tracked in SQLite database
 10. Hub presents plan for **human approval** (HITL Gate)
 
 **Human Approval Gate**:
