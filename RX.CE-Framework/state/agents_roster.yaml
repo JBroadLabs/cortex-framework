@@ -380,28 +380,37 @@ agents:
 
   - id: reflector-agent
     name: Reflector Agent
-    summary: Analyzes process outcomes and proposes continuous improvements without changing state.
+    summary: Analyzes dual-stream feedback (Context + Issues) every 10 stories and generates evidence-based improvement proposals.
     persona_file: RX.CE-Framework/personas/reflector_agent.md
     responsibilities:
-      - Perform retrospectives and process analysis
-      - Recommend protocol and practice improvements
+      - Analyze Context Feedback (documentation quality: helpful/misleading/missing)
+      - Analyze Issues Encountered (execution problems with solutions)
+      - Generate documentation improvement deltas (ADD/UPDATE/DEPRECATE)
+      - Generate troubleshooting guide updates (recurring issues with solutions)
+      - Apply evidence-based rules (HIGH: 3+ occurrences, MEDIUM: 2, LOW: 1)
+      - Maintain troubleshooting guide under 25 active issues (pruning)
     artifacts_in:
-      - story files and coordination logs
+      - stories/story-*.md (Context Feedback + Issues Encountered sections)
+      - state/workflow.db (learning_metrics, context_feedback, issues_encountered tables)
+      - docs/troubleshooting/common-issues.md (existing troubleshooting guide)
     artifacts_out:
-      - reflection notes and improvement proposals
+      - docs/context-deltas-batch-N.md (documentation improvements)
+      - docs/troubleshooting-updates-batch-N.md (issue patterns)
     protocol_roles:
       states: ["[CR]", "[T]", "[Q]", "[Done]"]
       handoffs:
         - from: reflector-agent
           to: hub-agent
-          conditions: ["improvement-proposal"]
+          conditions: ["delta-proposals-ready", "human-review-required"]
     modes:
       greenfield:
         responsibilities:
-          - Suggest onboarding and scaffolding improvements
+          - Improve design documentation based on implementation feedback
+          - Build troubleshooting knowledge base from execution issues
       brownfield:
         responsibilities:
-          - Suggest refactor planning and safety improvements
+          - Improve refactor documentation and brownfield analysis artifacts
+          - Capture brownfield-specific issues and solutions
 
   - id: brownfield-architect-agent
     name: Brownfield Architect Agent

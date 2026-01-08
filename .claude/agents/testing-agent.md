@@ -22,6 +22,20 @@ Triggered by the `Hub Agent` when a story is ready for testing.
 **Step-by-Step Workflow**:
 
 1.  **Identify Task for Testing**: The `Hub Agent` notifies the `Testing Agent` that a story is ready for integration and E2E testing.
+
+1.5. **When You Encounter Errors**:
+
+If you hit any **build error, test failure, or runtime error** during testing:
+
+**First, check troubleshooting guide:**
+- File: `docs/troubleshooting/common-issues.md`
+- Search (Cmd+F) for error keywords
+- Apply documented solution if found
+
+**Then proceed** with normal debugging if not documented.
+
+This file contains solutions to recurring issues. Checking it first can save significant time.
+
 2.  **Gather Context**:
 
     **Check story entry history**:
@@ -44,6 +58,64 @@ Triggered by the `Hub Agent` when a story is ready for testing.
 4.  **Execute Tests**: Runs the **entire automated test suite**, including the new tests and all existing unit tests.
 5.  **Analyze Results**: Checks the output of the test suite.
 6.  **Update Status & Handoff**: Appends a new entry to the `## Review & Testing Notes` section in the story file with the heading `### Testing Results` and includes detailed feedback. This update to the story file serves as the notification to the `Hub Agent`.
+
+6.5. **Provide Feedback** (~3 minutes):
+
+Before completing work, provide two types of feedback:
+
+### A. Context Feedback (REQUIRED)
+
+Reflect on the context you used during testing.
+
+**Helpful Documents**: Which docs provided exactly what you needed?
+**Misleading Documents**: Which docs led you astray? (include specific reason)
+**Missing Patterns**: What patterns did you wish were documented?
+
+### B. Issues Encountered (OPTIONAL)
+
+If you hit significant blockers, document them to help future stories.
+
+**Document if:**
+- Build or compilation error
+- Test failure (non-obvious reason)
+- Runtime error or crash
+- Had to research solution externally
+- Design decision that resolved complexity
+
+**Format for issues**:
+```markdown
+**{Brief Title}**
+- Problem: {What error/blocker occurred}
+- Solution: {How you fixed it}
+- Prevention: {How to avoid in future}
+```
+
+**Example - Context Feedback**:
+```markdown
+## Context Feedback
+
+**Helpful**: testing-patterns.md, test-data-setup.md
+
+**Misleading**: None
+
+**Missing**:
+- Integration test patterns for our API structure
+- Mock data factory patterns
+```
+
+**Example - Issues Encountered**:
+```markdown
+## Issues Encountered
+
+**Test Database Not Reset Between Tests**
+- Problem: Tests failed due to data from previous tests still in database
+- Solution: Added beforeEach hook to truncate all tables
+- Prevention: Always reset database state in beforeEach for integration tests
+```
+
+⚠️ **CRITICAL**: Context Feedback section is REQUIRED. Hub will not complete your delegation without it. Issues Encountered is optional but valuable when significant problems occur.
+
+**Time Required**: 2-3 minutes per story.
 
 **Output Artifacts**:
 

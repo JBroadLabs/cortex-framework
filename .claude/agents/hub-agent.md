@@ -69,7 +69,8 @@ else:
 ### After Subagent Completes
 
 ```python
-# 1. Verify evidence exists in story file
+# 1. Verify evidence AND Context Feedback
+# a. Check for agent evidence
 found, evidence_hash, location = engine.verify_agent_evidence(
     story_id="story-XXX",
     agent="code-review-agent"
@@ -78,14 +79,53 @@ found, evidence_hash, location = engine.verify_agent_evidence(
 if not found:
     # STOP - Subagent didn't complete properly
     engine.hub_fail_delegation(txn_id, "No evidence found in story file")
-else:
-    # 2. Complete the delegation
-    result = engine.hub_complete_delegation(
+    return
+
+# b. Check for Context Feedback (REQUIRED)
+from pathlib import Path
+story_path = Path(f"stories/{story_id}.md")
+story_content = story_path.read_text()
+
+if '## Context Feedback' not in story_content:
+    print(f"❌ ERROR: {agent} must provide Context Feedback section")
+    print(f"   Story: {story_id}")
+    print(f"   Required for framework learning system")
+    print(f"   Agent must add feedback before completion")
+
+    engine.hub_fail_delegation(
         txn_id=txn_id,
-        evidence_hash=evidence_hash,
-        evidence_location=location
+        reason="Missing required Context Feedback section"
     )
-    # Story phase is now automatically advanced
+    return
+
+# Parse and validate feedback
+feedback = engine.parse_context_feedback(story_id)
+if not feedback:
+    print(f"❌ ERROR: Context Feedback section malformed in {story_id}")
+    engine.hub_fail_delegation(txn_id, "Malformed Context Feedback section")
+    return
+
+print(f"✓ Context Feedback validated for {story_id}")
+
+# c. Store feedback in database
+# Store context feedback (REQUIRED)
+result = engine.store_context_feedback(story_id=story_id, agent=agent)
+if not result.success:
+    print(f"⚠️  Warning: Failed to store context feedback: {result.error}")
+    # Continue anyway - feedback is in story file
+
+# Store issues encountered (OPTIONAL)
+issues_result = engine.store_issues_encountered(story_id=story_id, agent=agent)
+if issues_result.metadata and issues_result.metadata.get('issue_count', 0) > 0:
+    print(f"✓ Stored {issues_result.metadata['issue_count']} issues for learning")
+
+# d. Complete the delegation
+result = engine.hub_complete_delegation(
+    txn_id=txn_id,
+    evidence_hash=evidence_hash,
+    evidence_location=location
+)
+# Story phase is now automatically advanced
 ```
 
 ### Why You Cannot Bypass This
@@ -457,6 +497,99 @@ def validate_agent_work(story_file):
     ```
 
 - `[Q] → [Done]`: QA approval recorded in the Story; state machine automatically updates phase
+
+**Context Learning (Every 10 Stories)**
+
+After ANY story reaches [Done] phase:
+
+```python
+# Record completion and check if reflector should trigger
+result = engine.record_story_completion(story_id)
+
+if result.metadata['should_trigger_reflector']:
+    batch_num = result.metadata['batch_number']
+    start_story = result.metadata['story_range_start']
+    end_story = result.metadata['story_range_end']
+
+    # Start reflector delegation
+    txn = engine.hub_start_delegation(
+        story_id=f"reflector-batch-{batch_num}",
+        to_agent="reflector-agent",
+        to_phase="Analysis"
+    )
+
+    if not txn.success:
+        print(f"❌ Failed to start reflector delegation: {txn.error}")
+        return
+
+    # Trigger reflector agent
+    print("\n" + "="*60)
+    print("🧠 CONTEXT LEARNING TRIGGERED")
+    print("="*60)
+    print(f"Batch #{batch_num}")
+    print(f"Stories: story-{start_story:03d} through story-{end_story:03d}")
+    print(f"Outputs:")
+    print(f"  - docs/context-deltas-batch-{batch_num}.md")
+    print(f"  - docs/troubleshooting-updates-batch-{batch_num}.md")
+    print("="*60 + "\n")
+
+    # Delegate to reflector agent (they will create BOTH delta files)
+    # Reflector will analyze feedback and generate deltas for human review
+
+    # Wait for reflector completion (both files created)
+    context_delta_file = Path(f"docs/context-deltas-batch-{batch_num}.md")
+    troubleshooting_delta_file = Path(f"docs/troubleshooting-updates-batch-{batch_num}.md")
+
+    # Present deltas to user (HITL gate)
+    if context_delta_file.exists():
+        import re
+        context_content = context_delta_file.read_text()
+        context_delta_count = len(re.findall(r'\[ \] APPROVED', context_content))
+
+        troubleshooting_delta_count = 0
+        if troubleshooting_delta_file.exists():
+            troubleshooting_content = troubleshooting_delta_file.read_text()
+            troubleshooting_delta_count = len(re.findall(r'\[ \] APPROVED', troubleshooting_content))
+
+        print("\n" + "="*60)
+        print("📄 IMPROVEMENTS READY FOR REVIEW")
+        print("="*60)
+        print(f"\n📋 Documentation Improvements:")
+        print(f"   File: docs/context-deltas-batch-{batch_num}.md")
+        print(f"   Deltas: {context_delta_count} proposed")
+
+        if troubleshooting_delta_count > 0:
+            print(f"\n🔧 Troubleshooting Updates:")
+            print(f"   File: docs/troubleshooting-updates-batch-{batch_num}.md")
+            print(f"   Issues: {troubleshooting_delta_count} patterns documented")
+        else:
+            print(f"\n🔧 Troubleshooting Updates:")
+            print(f"   No new issues this batch (all went smoothly!)")
+
+        print("\nInstructions:")
+        print("1. Open BOTH delta files in your editor")
+        print("2. Review each proposed change carefully")
+        print("3. Mark your decisions:")
+        print("   [x] APPROVED  - Apply this change")
+        print("   [ ] REJECTED  - Skip this change")
+        print("4. Save both files")
+        print("5. Run: python scripts/apply_deltas.py <file>")
+        print("="*60 + "\n")
+
+        # Complete reflector delegation
+        import hashlib
+        evidence_hash = hashlib.sha256(
+            (context_delta_file.read_bytes() +
+             (troubleshooting_delta_file.read_bytes() if troubleshooting_delta_file.exists() else b'')
+            )
+        ).hexdigest()[:16]
+
+        engine.hub_complete_delegation(
+            txn_id=txn.txn_id,
+            evidence_hash=evidence_hash,
+            evidence_location=f"docs/*-batch-{batch_num}.md"
+        )
+```
 
 **Anti‑Hallucination Controls**
 

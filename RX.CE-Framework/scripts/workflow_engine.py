@@ -879,6 +879,300 @@ class WorkflowEngine:
         finally:
             conn.close()
 
+    # ========================================================================
+    # CONTEXT LEARNING SYSTEM
+    # ========================================================================
+
+    def record_story_completion(self, story_id: str) -> DelegationResult:
+        """
+        Record story completion and check if reflector should trigger.
+
+        Returns: DelegationResult with metadata.should_trigger_reflector = True if count reaches threshold
+        """
+        conn = self._get_conn()
+        try:
+            # Increment counter
+            conn.execute("""
+                UPDATE learning_metrics
+                SET completed_stories = completed_stories + 1,
+                    updated_at = datetime('now')
+                WHERE id = 1
+            """)
+
+            # Get current count and threshold
+            metrics = conn.execute("""
+                SELECT completed_stories, next_reflector_at, last_reflector_batch
+                FROM learning_metrics WHERE id = 1
+            """).fetchone()
+
+            completed = metrics['completed_stories']
+            trigger_at = metrics['next_reflector_at']
+            last_batch = metrics['last_reflector_batch']
+
+            should_trigger = (completed >= trigger_at)
+
+            if should_trigger:
+                # Update for next trigger
+                next_batch = last_batch + 1
+                conn.execute("""
+                    UPDATE learning_metrics
+                    SET last_reflector_batch = ?,
+                        next_reflector_at = next_reflector_at + 10,
+                        last_reflector_run = datetime('now')
+                    WHERE id = 1
+                """, (next_batch,))
+
+                conn.commit()
+
+                return DelegationResult(
+                    success=True,
+                    message=f"Story {story_id} completion recorded ({completed} total) - TRIGGER REFLECTOR",
+                    metadata={
+                        'should_trigger_reflector': True,
+                        'batch_number': next_batch,
+                        'completed_count': completed,
+                        'story_range_start': completed - 9,
+                        'story_range_end': completed
+                    }
+                )
+            else:
+                conn.commit()
+                return DelegationResult(
+                    success=True,
+                    message=f"Story {story_id} completion recorded ({completed}/{trigger_at})",
+                    metadata={
+                        'should_trigger_reflector': False,
+                        'completed_count': completed,
+                        'next_trigger_at': trigger_at
+                    }
+                )
+        except Exception as e:
+            conn.rollback()
+            return DelegationResult(success=False, error=str(e))
+        finally:
+            conn.close()
+
+    def parse_context_feedback(self, story_id: str) -> Optional[Dict]:
+        """
+        Extract Context Feedback section from story file and parse it.
+
+        Returns: {
+            'helpful': ['doc-name-1', 'doc-name-2'],
+            'misleading': [{'doc': 'doc-name', 'reason': 'explanation'}],
+            'missing': ['pattern 1', 'pattern 2']
+        }
+        """
+        from pathlib import Path
+        import re
+
+        story_file = Path('stories') / f"{story_id}.md"
+        if not story_file.exists():
+            return None
+
+        content = story_file.read_text()
+
+        # Extract Context Feedback section
+        feedback_match = re.search(
+            r'## Context Feedback\n(.*?)(?=\n##|\Z)',
+            content,
+            re.DOTALL
+        )
+
+        if not feedback_match:
+            return None
+
+        feedback_text = feedback_match.group(1)
+
+        # Parse helpful docs
+        helpful_match = re.search(r'\*\*Helpful\*\*:\s*([^\n]+)', feedback_text)
+        helpful = []
+        if helpful_match:
+            helpful = [d.strip() for d in helpful_match.group(1).split(',') if d.strip() and d.strip().lower() != 'none']
+
+        # Parse misleading docs (with reasons)
+        misleading_match = re.search(r'\*\*Misleading\*\*:\s*([^\n]+)', feedback_text)
+        misleading = []
+        if misleading_match:
+            misleading_text = misleading_match.group(1).strip()
+            if misleading_text.lower() != 'none':
+                for item in misleading_text.split(','):
+                    item = item.strip()
+                    if '(' in item and ')' in item:
+                        doc_name, reason = item.split('(', 1)
+                        misleading.append({
+                            'doc': doc_name.strip(),
+                            'reason': reason.rstrip(')').strip()
+                        })
+                    elif item:
+                        misleading.append({'doc': item, 'reason': 'no reason given'})
+
+        # Parse missing patterns
+        missing_match = re.search(r'\*\*Missing\*\*:\s*\n(.*?)(?=\n\*\*|\Z)', feedback_text, re.DOTALL)
+        missing = []
+        if missing_match:
+            for line in missing_match.group(1).split('\n'):
+                line = line.strip()
+                if line.startswith('- '):
+                    pattern = line[2:].strip()
+                    if pattern.lower() != 'none':
+                        missing.append(pattern)
+                elif line and line.lower() != 'none':
+                    missing.append(line)
+
+        return {
+            'helpful': helpful,
+            'misleading': misleading,
+            'missing': missing
+        }
+
+    def store_context_feedback(self, story_id: str, agent: str) -> DelegationResult:
+        """
+        Parse and store context feedback from story file.
+        Called by Hub after agent completion.
+        """
+        import json
+
+        feedback = self.parse_context_feedback(story_id)
+
+        if not feedback:
+            return DelegationResult(
+                success=False,
+                error=f"No Context Feedback section found in {story_id}"
+            )
+
+        conn = self._get_conn()
+        try:
+            conn.execute("""
+                INSERT INTO context_feedback
+                (story_id, agent, helpful_docs, misleading_docs, missing_patterns)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                story_id,
+                agent,
+                json.dumps(feedback['helpful']),
+                json.dumps(feedback['misleading']),
+                json.dumps(feedback['missing'])
+            ))
+            conn.commit()
+
+            return DelegationResult(
+                success=True,
+                message=f"Context feedback stored for {story_id}",
+                metadata=feedback
+            )
+        except Exception as e:
+            conn.rollback()
+            return DelegationResult(success=False, error=str(e))
+        finally:
+            conn.close()
+
+    def parse_issues_encountered(self, story_id: str) -> Optional[List[Dict]]:
+        """
+        Extract Issues Encountered section from story file and parse it.
+
+        Returns: List of {
+            'title': 'Issue title',
+            'problem': 'Problem description',
+            'solution': 'Solution applied',
+            'prevention': 'How to prevent'
+        }
+        """
+        from pathlib import Path
+        import re
+
+        story_file = Path('stories') / f"{story_id}.md"
+        if not story_file.exists():
+            return None
+
+        content = story_file.read_text()
+
+        # Extract Issues Encountered section
+        issues_match = re.search(
+            r'## Issues Encountered\n(.*?)(?=\n##|\Z)',
+            content,
+            re.DOTALL
+        )
+
+        if not issues_match:
+            return []  # Section exists but empty is okay
+
+        issues_text = issues_match.group(1).strip()
+
+        if not issues_text or issues_text.lower() == 'none':
+            return []
+
+        issues = []
+
+        # Parse individual issues (format: **Title**\n- Problem:...\n- Solution:...\n- Prevention:...)
+        issue_blocks = re.split(r'\n\*\*([^*]+)\*\*\n', issues_text)
+
+        for i in range(1, len(issue_blocks), 2):
+            if i + 1 < len(issue_blocks):
+                title = issue_blocks[i].strip()
+                content_block = issue_blocks[i + 1]
+
+                # Extract problem, solution, prevention
+                problem_match = re.search(r'- Problem:\s*(.+?)(?=\n-|\Z)', content_block, re.DOTALL)
+                solution_match = re.search(r'- Solution:\s*(.+?)(?=\n-|\Z)', content_block, re.DOTALL)
+                prevention_match = re.search(r'- Prevention:\s*(.+?)(?=\n-|\Z)', content_block, re.DOTALL)
+
+                if problem_match and solution_match:
+                    issues.append({
+                        'title': title,
+                        'problem': problem_match.group(1).strip(),
+                        'solution': solution_match.group(1).strip(),
+                        'prevention': prevention_match.group(1).strip() if prevention_match else ''
+                    })
+
+        return issues
+
+    def store_issues_encountered(self, story_id: str, agent: str) -> DelegationResult:
+        """
+        Parse and store issues encountered from story file.
+        Called by Hub after agent completion.
+        """
+        issues = self.parse_issues_encountered(story_id)
+
+        if issues is None:
+            return DelegationResult(
+                success=True,
+                message=f"No Issues Encountered section in {story_id} (optional)"
+            )
+
+        if not issues:
+            return DelegationResult(
+                success=True,
+                message=f"No issues documented in {story_id} (that's fine)"
+            )
+
+        conn = self._get_conn()
+        try:
+            for issue in issues:
+                conn.execute("""
+                    INSERT INTO issues_encountered
+                    (story_id, agent, issue_title, problem, solution, prevention)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    story_id,
+                    agent,
+                    issue['title'],
+                    issue['problem'],
+                    issue['solution'],
+                    issue['prevention']
+                ))
+            conn.commit()
+
+            return DelegationResult(
+                success=True,
+                message=f"{len(issues)} issues stored for {story_id}",
+                metadata={'issue_count': len(issues)}
+            )
+        except Exception as e:
+            conn.rollback()
+            return DelegationResult(success=False, error=str(e))
+        finally:
+            conn.close()
+
 
 # ============================================================================
 # CLI INTERFACE
@@ -1076,6 +1370,43 @@ def main():
                 print(f"  Context: {checkpoint['context_snapshot'][:100]}...")
         print()
 
+    elif command == "learning_metrics":
+        # Show learning system status
+        conn = engine._get_conn()
+        metrics = conn.execute("SELECT * FROM learning_metrics WHERE id = 1").fetchone()
+        conn.close()
+
+        print("\n" + "="*50)
+        print("CONTEXT LEARNING METRICS")
+        print("="*50)
+        print(f"Completed Stories: {metrics['completed_stories']}")
+        print(f"Next Reflector At: {metrics['next_reflector_at']} stories")
+        print(f"Last Reflector Run: {metrics['last_reflector_run'] or 'Never'}")
+        print(f"Total Batches: {metrics['last_reflector_batch']}")
+        print(f"Deltas Proposed: {metrics['total_deltas_proposed']}")
+        print(f"Deltas Approved: {metrics['total_deltas_approved']}")
+        print("="*50 + "\n")
+
+    elif command == "feedback":
+        # View feedback for a specific story
+        if len(sys.argv) < 3:
+            print("Usage: workflow_engine.py feedback <story_id>")
+            sys.exit(1)
+
+        feedback = engine.parse_context_feedback(sys.argv[2])
+
+        if feedback:
+            print(f"\nContext Feedback for {sys.argv[2]}:")
+            print(f"Helpful: {', '.join(feedback['helpful']) if feedback['helpful'] else 'None'}")
+            print(f"Misleading: {len(feedback['misleading'])} doc(s)")
+            for item in feedback['misleading']:
+                print(f"  - {item['doc']}: {item['reason']}")
+            print(f"Missing: {len(feedback['missing'])} pattern(s)")
+            for pattern in feedback['missing']:
+                print(f"  - {pattern}")
+        else:
+            print(f"No feedback found for {sys.argv[2]}")
+
     else:
         print_usage()
 
@@ -1096,6 +1427,8 @@ Usage:
     workflow_engine.py add-dependency <story> <blocker> <type> [reason]
                                                              - Add dependency (types: explicit, same_module, different_module)
     workflow_engine.py checkpoint <story_id>                 - Show latest checkpoint for a story
+    workflow_engine.py learning_metrics                      - Show context learning system metrics
+    workflow_engine.py feedback <story_id>                   - View context feedback for a story
     workflow_engine.py init                                  - Re-initialize database
     """)
 

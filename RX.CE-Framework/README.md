@@ -159,28 +159,34 @@ claude code hub "/refactor extract shared authentication logic"
 
 ---
 
-## ACE - Agentic Context Engineering (Built-In)
+## Context Learning System (Built-In)
 
-This framework includes **ACE** - a 95% automated self-improvement system for documentation:
+This framework includes an automated **Context Learning System** with dual-stream feedback that continuously improves documentation and captures troubleshooting knowledge:
 
-- **🤖 Automatic Feedback Collection**: Agents log helpful/misleading bullets during implementation (~2 min/story)
-- **📊 Evidence-Based Analysis**: Every 10 stories, Reflector Agent analyzes patterns automatically
-- **🎯 Smart Proposals**: Generates delta proposals (ADD/UPDATE/DEPRECATE) with evidence
-- **✅ Human-Approved**: You review and approve changes in ~5 minutes every 10 stories
-- **🔄 Auto-Applied**: Approved changes merged automatically with version bumps
-- **📌 Version Safety**: Documents versioned; mismatches block implementation
+- **📋 Context Feedback**: Agents provide feedback on documentation quality (helpful/misleading/missing) (~2 min/story)
+- **🔧 Issues Encountered**: Agents document significant problems and solutions they hit (~1 min when issues occur)
+- **📊 Evidence-Based Analysis**: Every 10 stories, Reflector Agent analyzes both feedback streams automatically
+- **🎯 Dual Output**: Generates TWO types of improvements:
+  - Documentation updates (ADD/UPDATE/DEPRECATE)
+  - Troubleshooting guide entries (recurring issues with solutions)
+- **✅ Human-Approved**: You review both delta files in ~5-7 minutes every 10 stories
+- **🔄 Auto-Applied**: Approved changes applied automatically with timestamped backups
+- **📚 Knowledge Base**: Maintains `docs/troubleshooting/common-issues.md` with solutions to recurring problems
 
 **How it works:**
-1. Agents add Context Feedback to each story (~2 min)
-2. Every 10 stories, system analyzes feedback and proposes improvements
-3. You review proposals backed by evidence (~5 min)
-4. Approved changes auto-applied to documentation
-5. Context stays accurate with zero manual maintenance
+1. Agents add Context Feedback to each story (~2 min, REQUIRED)
+2. When significant issues occur, agents document them in Issues Encountered (~1 min, OPTIONAL)
+3. Every 10 stories, system analyzes both feedback streams
+4. Generates two delta files: documentation improvements + troubleshooting updates
+5. You review both files backed by evidence (~5-7 min)
+6. Approved changes auto-applied to documentation and troubleshooting guide
+7. Context stays accurate and troubleshooting knowledge accumulates over time
 
-**Time investment**: ~27 min per 10 stories (vs 20 min manual updates)
-**Automation**: 95% (human only approves evidence-based deltas)
+**Time investment**: ~27-37 min per 10 stories
+**Key Innovation**: Learns from BOTH documentation gaps AND actual execution problems
+**Automation**: Database-backed with full audit trail, backup/rollback support
 
-See [docs/CONTEXT_ENGINEERING.md](docs/CONTEXT_ENGINEERING.md) for complete guide.
+See [docs/CONTEXT_LEARNING.md](docs/CONTEXT_LEARNING.md) for complete user guide.
 
 ---
 
@@ -536,7 +542,7 @@ The framework includes 13 specialized agents coordinated by the Hub Agent:
 | **Backend Unit Testing** | Testing | [CR], [T] | Creates and runs backend unit tests |
 | **Testing Agent** | Testing | [T], [Q] | Runs integration and E2E tests |
 | **QA Agent** | Validation | [Q], [Done] | Final validation with regression suites |
-| **Reflector Agent** | Improvement | [CR], [T], [Q], [Done] | Analyzes Context Feedback, generates delta proposals (ACE) |
+| **Reflector Agent** | Improvement | [CR], [T], [Q], [Done] | Analyzes dual feedback (Context + Issues), generates improvements |
 | **Ask Agent** | Advisory | All (read-only) | Provides guidance, diagnostics, framework Q&A |
 
 ### Agent Communication Protocol
@@ -570,7 +576,7 @@ RX.CE-Framework/                    # Framework core
 │   │   ├── backend-unit-test.md    # Backend unit tests
 │   │   ├── test.md                 # Integration testing
 │   │   ├── qa.md                   # QA validation
-│   │   └── reflector.md            # ACE self-improvement
+│   │   └── reflector.md            # Context learning & troubleshooting
 │   ├── config.yml                  # Framework configuration
 │   └── quick_start.md              # Quick start guide
 ├── PROTOCOL.md                     # Universal operating contract
@@ -587,7 +593,8 @@ RX.CE-Framework/                    # Framework core
 │   └── artifacts.brownfield.json   # Brownfield artifact registry
 ├── docs/                           # Documentation and templates
 │   ├── templates/                  # Story and handoff schemas
-│   └── CONTEXT_ENGINEERING.md      # ACE system documentation
+│   ├── CONTEXT_LEARNING.md         # Context Learning System guide
+│   └── CONTEXT_ENGINEERING.md      # Deprecated (old ACE system)
 ├── skills/                         # Implementation skills
 │   ├── api-design/
 │   ├── database-schema-design/
@@ -595,8 +602,12 @@ RX.CE-Framework/                    # Framework core
 │   ├── error-handling/
 │   ├── performance-optimization/
 │   └── [12 total skills]
-└── scripts/                        # Utility scripts
-    └── merge-deltas.py             # ACE delta merging
+├── scripts/                        # Utility scripts
+│   ├── apply_deltas.py             # Apply approved context/troubleshooting deltas
+│   └── workflow_engine.py          # State machine and learning system
+└── state/                          # Database and schemas
+    ├── schema.sql                  # Database schema (includes learning tables)
+    └── workflow.db                 # SQLite state machine (generated)
 
 # Project-level structure (generated during usage)
 state/

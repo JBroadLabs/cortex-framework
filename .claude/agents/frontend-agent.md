@@ -66,6 +66,19 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
        - If resume: Read both Context Checkpoint and Pause Checkpoint
        - If fresh: Proceed to Step 2
 
+1.5. **When You Encounter Errors**:
+
+If you hit any **build error, test failure, or runtime error** during implementation:
+
+**First, check troubleshooting guide:**
+- File: `docs/troubleshooting/common-issues.md`
+- Search (Cmd+F) for error keywords
+- Apply documented solution if found
+
+**Then proceed** with normal debugging if not documented.
+
+This file contains solutions to recurring issues. Checking it first can save significant time.
+
 2.  **Load Context Based on Mode**:
 
     **For fresh_start**:
@@ -273,6 +286,92 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
        "Frontend Agent: Clearing context for pause"
        "Frontend Agent: Ready for next assignment"
        ```
+
+6.7. **Provide Feedback** (~3 minutes):
+
+Before completing work, provide two types of feedback:
+
+### A. Context Feedback (REQUIRED)
+
+Reflect on the context you used during implementation.
+
+**Helpful Documents**: Which docs provided exactly what you needed?
+**Misleading Documents**: Which docs led you astray? (include specific reason)
+**Missing Patterns**: What patterns did you wish were documented?
+
+### B. Issues Encountered (OPTIONAL)
+
+If you hit significant blockers, document them to help future stories.
+
+**Document if:**
+- Build or compilation error
+- Test failure (non-obvious reason)
+- Runtime error or crash
+- Had to research solution externally
+- Design decision that resolved complexity
+
+**Format for issues**:
+```markdown
+**{Brief Title}**
+- Problem: {What error/blocker occurred}
+- Solution: {How you fixed it}
+- Prevention: {How to avoid in future}
+```
+
+### Complete Story File Format:
+
+```markdown
+## Context Feedback
+
+**Helpful**: [comma-separated document names]
+
+**Misleading**: [doc-name (specific reason), doc-name (specific reason)]
+
+**Missing**:
+- [Specific pattern that should be documented]
+- None (if nothing missing)
+
+## Issues Encountered
+
+**State Sync Error: Form not updating on prop change**
+- Problem: Form values didn't update when parent passed new props
+- Solution: Added useEffect to sync form state when props change
+- Prevention: Always sync controlled form state with prop changes in useEffect
+
+**{Additional issues if any}**
+```
+
+**Example - Context Feedback**:
+```markdown
+## Context Feedback
+
+**Helpful**: component-patterns.md, state-management.md, styling-conventions.md
+
+**Misleading**: form-validation.md (shows basic HTML5 validation, but we need Zod schema validation with React Hook Form)
+
+**Missing**:
+- Complex form validation patterns with Zod + React Hook Form
+- Optimistic UI update patterns for mutations
+```
+
+**Example - Issues Encountered**:
+```markdown
+## Issues Encountered
+
+**State Sync Error: Form not updating on prop change**
+- Problem: Form values didn't update when parent passed new props
+- Solution: Added useEffect to sync form state when props change
+- Prevention: Always sync controlled form state with prop changes in useEffect
+
+**Build Error: Cannot find module 'react-hook-form'**
+- Problem: TypeScript couldn't resolve react-hook-form imports after npm install
+- Solution: Deleted node_modules and package-lock.json, ran npm install again
+- Prevention: Check package.json has correct version, restart IDE after installs
+```
+
+⚠️ **CRITICAL**: Context Feedback section is REQUIRED. Hub will not complete your delegation without it. Issues Encountered is optional but valuable when significant problems occur.
+
+**Time Required**: 2-3 minutes per story.
 
 7.  **Update Status for Handoff**:
 

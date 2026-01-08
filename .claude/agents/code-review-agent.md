@@ -25,6 +25,19 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
 
 2.  **Gather Context**: Reads the story file and the relevant design documents to understand the implementation's goals.
 
+1.5. **When You Encounter Errors**:
+
+If you hit any **build error, test failure, or runtime error** during review:
+
+**First, check troubleshooting guide:**
+- File: `docs/troubleshooting/common-issues.md`
+- Search (Cmd+F) for error keywords
+- Apply documented solution if found
+
+**Then proceed** with normal debugging if not documented.
+
+This file contains solutions to recurring issues. Checking it first can save significant time.
+
 2.5 **Load Coding Standards**:
     a. **Load coding standards file**:
        ```python
@@ -252,6 +265,64 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
 
     **Override Option**: If these violations are acceptable for this story, add a `## Standards Override` section to the story file with justification, then update status back to [CR] for re-review.
     ```
+
+4.5. **Provide Feedback** (~3 minutes):
+
+Before completing work, provide two types of feedback:
+
+### A. Context Feedback (REQUIRED)
+
+Reflect on the context you used during code review.
+
+**Helpful Documents**: Which docs provided exactly what you needed?
+**Misleading Documents**: Which docs led you astray? (include specific reason)
+**Missing Patterns**: What patterns did you wish were documented?
+
+### B. Issues Encountered (OPTIONAL)
+
+If you hit significant blockers, document them to help future stories.
+
+**Document if:**
+- Build or compilation error
+- Test failure (non-obvious reason)
+- Runtime error or crash
+- Had to research solution externally
+- Design decision that resolved complexity
+
+**Format for issues**:
+```markdown
+**{Brief Title}**
+- Problem: {What error/blocker occurred}
+- Solution: {How you fixed it}
+- Prevention: {How to avoid in future}
+```
+
+**Example - Context Feedback**:
+```markdown
+## Context Feedback
+
+**Helpful**: coding-standards.md, security-patterns.md
+
+**Misleading**: None
+
+**Missing**:
+- Common anti-patterns specific to our codebase
+- Performance optimization guidelines for our stack
+```
+
+**Example - Issues Encountered**:
+```markdown
+## Issues Encountered
+
+**Linter Configuration Conflict**
+- Problem: ESLint threw errors about unused vars that were actually used
+- Solution: Added /* eslint-disable */ for generated type files
+- Prevention: Exclude generated files in .eslintignore
+```
+
+⚠️ **CRITICAL**: Context Feedback section is REQUIRED. Hub will not complete your delegation without it. Issues Encountered is optional but valuable when significant problems occur.
+
+**Time Required**: 2-3 minutes per story.
 
 ---
 

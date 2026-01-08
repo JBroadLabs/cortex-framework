@@ -445,3 +445,71 @@ CREATE TABLE remediations (
 
 CREATE INDEX idx_remediations_story ON remediations(story_id);
 CREATE INDEX idx_remediations_active ON remediations(story_id) WHERE resolved_at IS NULL;
+
+-- ============================================================================
+-- CONTEXT LEARNING SYSTEM
+-- ============================================================================
+
+-- Track story completions for reflector triggering
+CREATE TABLE IF NOT EXISTS learning_metrics (
+    id INTEGER PRIMARY KEY CHECK (id = 1),  -- Singleton table
+    completed_stories INTEGER DEFAULT 0,
+    last_reflector_batch INTEGER DEFAULT 0,
+    next_reflector_at INTEGER DEFAULT 10,
+    last_reflector_run TEXT,
+    total_deltas_proposed INTEGER DEFAULT 0,
+    total_deltas_approved INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Initialize singleton row
+INSERT OR IGNORE INTO learning_metrics (id, completed_stories) VALUES (1, 0);
+
+-- Store context feedback from completed stories
+CREATE TABLE IF NOT EXISTS context_feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    story_id TEXT NOT NULL,
+    agent TEXT NOT NULL,
+    helpful_docs TEXT,      -- JSON array of doc names
+    misleading_docs TEXT,   -- JSON array of {doc, reason}
+    missing_patterns TEXT,  -- JSON array of pattern descriptions
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (story_id) REFERENCES stories(story_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_feedback_story ON context_feedback(story_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_created ON context_feedback(created_at);
+
+-- Store issues encountered from completed stories
+CREATE TABLE IF NOT EXISTS issues_encountered (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    story_id TEXT NOT NULL,
+    agent TEXT NOT NULL,
+    issue_title TEXT NOT NULL,
+    problem TEXT NOT NULL,
+    solution TEXT NOT NULL,
+    prevention TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (story_id) REFERENCES stories(story_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_issues_story ON issues_encountered(story_id);
+CREATE INDEX IF NOT EXISTS idx_issues_created ON issues_encountered(created_at);
+
+-- Track delta application history (updated to track both types)
+CREATE TABLE IF NOT EXISTS delta_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    batch_number INTEGER NOT NULL,
+    delta_type TEXT NOT NULL CHECK (delta_type IN ('context', 'troubleshooting')),
+    delta_file_path TEXT NOT NULL,
+    total_deltas INTEGER NOT NULL,
+    approved_deltas INTEGER NOT NULL,
+    rejected_deltas INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'applied', 'rejected', 'archived')),
+    applied_at TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_delta_batch ON delta_history(batch_number);
+CREATE INDEX IF NOT EXISTS idx_delta_type ON delta_history(delta_type);

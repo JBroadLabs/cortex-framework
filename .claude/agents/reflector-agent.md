@@ -216,14 +216,20 @@ stories_analyzed: {start}-{end}
   - "{feedback quote from story}"
   - "{another feedback quote}"
 
-**Proposed Bullet**:
-```yaml
-id: {bullet-id}
-content: |
-  {Content here}
+**Action**:
+```python
+{
+  "operation": "add",  # or "deprecate" or "update"
+  "target_file": "docs/backend/api-patterns.md",
+  "target_section": "## Rate Limiting",  # for ADD only
+  "target_bullet": "- Existing bullet text",  # for DEPRECATE/UPDATE only
+  "new_bullet": "- New bullet text",  # for ADD only
+  "replacement": "- Replacement bullet text",  # for DEPRECATE/UPDATE only
+  "insert_position": "end"  # or "start", for ADD only
+}
 ```
 
-**Status**: [ ] APPROVED [ ] REJECTED
+**Decision**: [ ] APPROVED [ ] REJECTED
 
 ---
 
@@ -297,6 +303,126 @@ When called by Hub Agent with prompt like:
 
    Next: Human review required before merge.
    ```
+
+---
+
+### Step 5: Generate Troubleshooting Updates
+
+**Purpose**: Aggregate Issues Encountered from stories and update troubleshooting guide
+
+**Input**:
+- Issues Encountered sections from stories {start}-{end}
+- Existing `docs/troubleshooting/common-issues.md` (if exists)
+
+**Process**:
+
+1. **Extract all issues** from 10 story files
+2. **Group by similarity** (semantic matching):
+   - "Circular dependency: User ↔ Auth"
+   - "Circular dependency: Order ↔ Payment"
+   → Group as "Circular Dependencies"
+3. **Count frequency**:
+   - HIGH: 3+ occurrences
+   - MEDIUM: 2 occurrences
+   - LOW: 1 occurrence
+4. **Determine updates**:
+   - New HIGH/MEDIUM → ADD to troubleshooting
+   - Existing with new occurrence → UPDATE frequency
+   - LOW from 20+ stories ago → ARCHIVE
+5. **Apply pruning** to keep under 25 issues
+6. **Generate delta proposals**
+
+**Output**: Create `docs/troubleshooting-updates-batch-{N}.md`
+
+**Format** (similar to context-deltas):
+```markdown
+---
+status: PENDING_REVIEW
+batch: {N}
+stories: {start}-{end}
+---
+
+# Troubleshooting Updates - Batch #{N}
+
+**Summary**: {X} new, {Y} updates, {Z} archived
+
+---
+
+## Update 1: ADD - Circular Dependencies
+
+**Frequency**: HIGH (new)
+**Occurrences**: 3 in batch (stories 002, 015, 023)
+
+**Action**:
+```python
+{
+  "operation": "add_issue",
+  "target_file": "docs/troubleshooting/common-issues.md",
+  "section": "HIGH FREQUENCY",
+  "content": "### Circular Dependencies\n\n**Occurred in**: 3 stories (002, 015, 023)\n\n**Symptoms**:\n- Build error: 'Circular dependency detected'...\n\n**Solutions**:\n...\n\n**Prevention**:\n..."
+}
+```
+
+**Decision**: [ ] APPROVED [ ] REJECTED
+
+---
+
+## Update 2: ARCHIVE - Memory Leak
+
+**Reason**: Not seen in 20+ stories
+**Last Occurrence**: Story 018
+
+**Action**:
+```python
+{
+  "operation": "archive_issue",
+  "target_file": "docs/troubleshooting/common-issues.md",
+  "issue_title": "Memory Leak in WebSocket"
+}
+```
+
+**Decision**: [ ] APPROVED [ ] REJECTED
+```
+
+**Pruning Rules** - Keep file under 25 issues:
+1. Archive LOW frequency after 20 stories
+2. Consolidate 3+ similar issues
+3. Promote to patterns if solved (not seen in 50+ stories)
+4. Hard limit: Remove oldest MEDIUM if >25
+
+**Initial File Creation** - If `docs/troubleshooting/common-issues.md` doesn't exist:
+
+```markdown
+# Common Issues & Solutions
+
+**Last Updated**: Batch #{N}
+**Active Issues**: {count}
+**How to Use**: Search (Cmd+F) for error keywords
+
+---
+
+## HIGH FREQUENCY (3+ occurrences)
+
+{HIGH frequency issues}
+
+---
+
+## MEDIUM FREQUENCY (2 occurrences)
+
+{MEDIUM frequency issues}
+
+---
+
+## LOW FREQUENCY (1 occurrence)
+
+{Recent 1-time issues}
+
+---
+
+## Archived
+
+{Issues not seen in 20+ stories}
+```
 
 ---
 

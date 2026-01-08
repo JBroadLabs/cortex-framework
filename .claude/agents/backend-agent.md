@@ -66,6 +66,19 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
        - If resume: Read both Context Checkpoint and Pause Checkpoint
        - If fresh: Proceed to Step 2
 
+1.5. **When You Encounter Errors**:
+
+If you hit any **build error, test failure, or runtime error** during implementation:
+
+**First, check troubleshooting guide:**
+- File: `docs/troubleshooting/common-issues.md`
+- Search (Cmd+F) for error keywords
+- Apply documented solution if found
+
+**Then proceed** with normal debugging if not documented.
+
+This file contains solutions to recurring issues. Checking it first can save significant time.
+
 2.  **Load Context Based on Mode**:
 
     **For fresh_start**:
@@ -284,6 +297,92 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
        "Backend Agent: Clearing context for pause"
        "Backend Agent: Ready for next assignment"
        ```
+
+6.7. **Provide Feedback** (~3 minutes):
+
+Before completing work, provide two types of feedback:
+
+### A. Context Feedback (REQUIRED)
+
+Reflect on the context you used during implementation.
+
+**Helpful Documents**: Which docs provided exactly what you needed?
+**Misleading Documents**: Which docs led you astray? (include specific reason)
+**Missing Patterns**: What patterns did you wish were documented?
+
+### B. Issues Encountered (OPTIONAL)
+
+If you hit significant blockers, document them to help future stories.
+
+**Document if:**
+- Build or compilation error
+- Test failure (non-obvious reason)
+- Runtime error or crash
+- Had to research solution externally
+- Design decision that resolved complexity
+
+**Format for issues**:
+```markdown
+**{Brief Title}**
+- Problem: {What error/blocker occurred}
+- Solution: {How you fixed it}
+- Prevention: {How to avoid in future}
+```
+
+### Complete Story File Format:
+
+```markdown
+## Context Feedback
+
+**Helpful**: [comma-separated document names]
+
+**Misleading**: [doc-name (specific reason), doc-name (specific reason)]
+
+**Missing**:
+- [Specific pattern that should be documented]
+- None (if nothing missing)
+
+## Issues Encountered
+
+**Circular Dependency: UserService ↔ AuthService**
+- Problem: Build error "Circular dependency detected"
+- Solution: Extracted IUserData interface to shared/interfaces, used DI
+- Prevention: Define interfaces before implementations
+
+**{Additional issues if any}**
+```
+
+**Example - Context Feedback**:
+```markdown
+## Context Feedback
+
+**Helpful**: api-patterns.md, logging-strategy.md, error-handling.md
+
+**Misleading**: api-rate-limiting.md (describes in-memory approach, but we need Redis-based distributed rate limiting)
+
+**Missing**:
+- Distributed rate limiting pattern using Redis token bucket
+- Standard error response format with HTTP status codes
+```
+
+**Example - Issues Encountered**:
+```markdown
+## Issues Encountered
+
+**Circular Dependency: UserService ↔ AuthService**
+- Problem: Build error "Circular dependency detected between UserService and AuthService"
+- Solution: Extracted IUserData interface to shared/interfaces/, modified AuthService to import interface instead of concrete class
+- Prevention: Define interfaces in separate files before implementations, follow dependency injection pattern
+
+**Async Test Failure**
+- Problem: Test "should update profile" intermittently failed with "Cannot read property of undefined"
+- Solution: Wrapped assertion in waitFor() from @testing-library/react
+- Prevention: Always use waitFor() when asserting on async state updates
+```
+
+⚠️ **CRITICAL**: Context Feedback section is REQUIRED. Hub will not complete your delegation without it. Issues Encountered is optional but valuable when significant problems occur.
+
+**Time Required**: 2-3 minutes per story.
 
 7.  **Update Status for Handoff**:
 
