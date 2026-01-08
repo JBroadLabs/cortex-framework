@@ -35,30 +35,32 @@ npm install -g @anthropic-ai/claude-code
 
 ```bash
 # Greenfield Mode: New project from scratch
-claude code hub "Create a stock trading dashboard with real-time charts"
+/greenfield "Create a stock trading dashboard with real-time charts"
 # → mode=greenfield → System Design Agent → Full design phase → HITL Gate 1
 
 # Brownfield Mode: Add feature to existing codebase
-claude code hub "/story add CSV export button"
+/story add CSV export button
 # → mode=brownfield → Brownfield Architect (analysis-only, ~4 min first time)
 # → Story Composer → User decides: implement now or later
 # → Cached analysis used for subsequent /story commands
 
 # Brownfield Mode: Refactor existing code
-claude code hub "/refactor extract shared authentication logic"
-# → mode=brownfield → Brownfield Architect (full-refactoring, ~7 min)
+/refactor extract shared authentication logic
+# → mode=brownfield → Brownfield Architect (full-refactoring, ~7-8 min)
 # → Generates refactoring-plan.md → HITL approval required
+# → Shards documents → Creates analysis/shard-index.md
 # → Creates refactor stories with risk levels and rollback plans
 ```
 
 **Mode Selection:**
-- **Greenfield** (default): Net-new projects, full design phase, monolithic-then-sharded docs
+- **Greenfield** (`/greenfield`): Net-new projects, full design phase, monolithic-then-sharded docs
 - **Brownfield** (`/story` or `/refactor`): Existing codebases, analysis artifacts, incremental changes
 
 **Command Routing:**
-- No command → Greenfield full POC workflow
+- `/greenfield [description]` → Greenfield full POC workflow
 - `/story [request]` → Brownfield incremental (analysis-only mode, ~4 min first time, cached after)
-- `/refactor [scope]` → Brownfield refactoring (full-refactoring mode, ~7 min, HITL approval required)
+- `/refactor [scope]` → Brownfield refactoring (full-refactoring mode, ~7-8 min, includes sharding + HITL approval)
+- `/ask [question]` → Read-only advisory mode (framework questions, diagnostics)
 
 That's it! The Hub Agent orchestrates everything automatically.
 
@@ -115,8 +117,16 @@ See full capabilities in [Ask Agent Documentation](.claude/commands/ask.md).
 
 ### Available Commands
 
-- **`hub`** - Primary command for all workflows (Greenfield and Brownfield)
-- **`ask`** - Read-only advisory mode for questions and diagnostics
+**Primary Commands:**
+- **`/greenfield`** - Full POC development from scratch with design phase
+- **`/story`** - Add features to existing codebase (incremental development)
+- **`/refactor`** - Modernize legacy code with risk-managed refactoring
+- **`/ask`** - Read-only advisory mode for questions and diagnostics
+
+**Deprecated:**
+- **`/hub`** - Use `/greenfield` instead (still works but will be removed)
+
+**Agent Commands:**
 - Other commands (`frontend`, `backend`, `code-review`, etc.) - Manual intervention only (invoked by Hub)
 
 See [.claude/quick_start.md](.claude/quick_start.md) and [COMMANDS.md](COMMANDS.md) for complete command reference.
@@ -127,7 +137,7 @@ The framework operates in two distinct modes with separate context sources and w
 
 **Greenfield Mode** (Net-new projects):
 ```bash
-claude code hub "Create a stock trading dashboard"
+/greenfield "Create a stock trading dashboard"
 ```
 **Workflow**: System Design Agent → Monolithic docs → HITL Gate 1 → Document sharding → Story creation → Implementation → greenfield-proofpoint.md → HITL Gate 2
 
@@ -137,7 +147,7 @@ claude code hub "Create a stock trading dashboard"
 
 **Brownfield Mode - Incremental** (`/story`):
 ```bash
-claude code hub "/story add CSV export button"
+/story add CSV export button
 ```
 **Workflow**: Brownfield Architect (analysis-only, ~4 min first time) → Story Composer → User decision (implement now?) → Implementation → brownfield-proofpoint.md → HITL Gate 2
 
@@ -149,13 +159,13 @@ claude code hub "/story add CSV export button"
 
 **Brownfield Mode - Refactoring** (`/refactor`):
 ```bash
-claude code hub "/refactor extract shared authentication logic"
+/refactor extract shared authentication logic
 ```
-**Workflow**: Brownfield Architect (full-refactoring, ~7 min) → Generates `analysis/refactoring-plan.md` → HITL Gate 1 (human approval required) → Story creation → Implementation → brownfield-proofpoint.md → HITL Gate 2
+**Workflow**: Brownfield Architect (full-refactoring, ~7-8 min) → Generates `analysis/refactoring-plan.md` → HITL Gate 1 (human approval required) → Document sharding (Steps 12-16) → Creates `analysis/shard-index.md` → Story creation → Implementation → brownfield-proofpoint.md → HITL Gate 2
 
-**Context Sources**: `analysis/flattened-codebase.md`, `analysis/brownfield-architecture.md`, `analysis/refactoring-plan.md`
+**Context Sources**: `analysis/flattened-codebase.md`, `analysis/brownfield-architecture.md`, `analysis/refactoring-plan.md`, sharded directories (`analysis/architecture/`, `analysis/refactoring/`), `analysis/shard-index.md`
 
-**Key Features**: Risk assessment, phased strategies, rollback plans
+**Key Features**: Risk assessment, phased strategies, rollback plans, post-HITL sharding for efficient context loading (3-5 docs instead of 50k+ lines)
 
 ---
 
@@ -517,11 +527,14 @@ The Hub Agent waits for all parallel agents to complete before advancing to `[T]
 
 ### Command Comparison
 
-| Command | Mode | Duration | Context Generated | HITL Gate 1 | Use Case |
-|---------|------|----------|-------------------|-------------|----------|
-| *(none)* | Greenfield | Varies | Monolithic docs → Sharded docs | Yes (design docs) | New projects |
-| `/story` | Brownfield | ~4 min (first time), instant (cached) | Analysis artifacts | No | Feature additions, bug fixes |
-| `/refactor` | Brownfield | ~7 min | Analysis + Refactoring plan | Yes (refactor plan) | Technical debt, code improvements |
+| Command | Mode | Duration | Context Generated | Sharding | HITL Gate 1 | Use Case |
+|---------|------|----------|-------------------|----------|-------------|----------|
+| `/greenfield` | Greenfield | Varies | Monolithic docs → Sharded docs | Yes (post-approval) | Yes (design docs) | New projects |
+| `/story` | Brownfield | ~4 min (first time), instant (cached) | Analysis artifacts | No | No | Feature additions, bug fixes |
+| `/refactor` | Brownfield | ~7-8 min | Analysis + Refactoring plan + Sharded docs | Yes (Steps 12-16) | Yes (refactor plan) | Technical debt, code improvements |
+
+**Legacy:**
+- `/hub [description]` - Deprecated, use `/greenfield` instead (redirects to greenfield mode)
 
 For detailed command usage, see [COMMANDS.md](COMMANDS.md).
 

@@ -1,22 +1,54 @@
-# Hub Agent Commands Reference
+# Command Reference
 
-Quick guide for interacting with the Hub Agent in your agent-based development workflow.
-
----
-
-## Command Overview
-
-The Hub Agent accepts three types of input:
-
-1. **Natural language (no command)** - Triggers full POC workflow
-2. **`/story` command** - Creates story files only
-3. **`/refactor` command** - Analyzes code and creates refactoring plans
+Quick guide for interacting with the RX.CE-Framework.
 
 ---
 
-## Commands
+## Primary Commands
 
-### Default Behavior (No Command)
+### /greenfield
+
+Full POC development from scratch with design phase.
+- Loads Hub Agent in greenfield mode
+- Creates design docs → HITL → sharding → stories
+- See: `.claude/commands/greenfield.md`
+
+### /story
+
+Add features to existing codebase (incremental development).
+- Loads Hub Agent in incremental mode
+- Uses brownfield analysis to understand patterns
+- Creates feature stories following existing conventions
+- See: `.claude/commands/story.md`
+
+### /refactor
+
+Modernize legacy code with risk-managed refactoring.
+- Loads Hub Agent in refactor mode
+- Analyzes technical debt → plan → HITL → sharding → stories
+- Phased execution with risk levels
+- See: `.claude/commands/refactor.md`
+
+### /ask
+
+Get help and answers about the framework (read-only).
+- Loads Ask Agent
+- No modifications or workflow triggers
+- See: `.claude/commands/ask.md`
+
+## Deprecated Commands
+
+### /hub (deprecated)
+
+Use `/greenfield` instead.
+- /hub still works but redirects to greenfield mode
+- Will be removed in future version
+
+---
+
+## Commands Detail
+
+### /greenfield - Full POC Development
 
 **What it does**: Runs the complete POC workflow with full design phase.
 

@@ -74,6 +74,29 @@
   12) Reflector Agent (reflector-agent) — personas/reflector_agent.md — States: [CR], [T], [Q], [Done]
   13) Brownfield Architect Agent (brownfield-architect-agent) — personas/brownfield_architect_agent.md — States: [Pending], [I], [CR]
 
+---
+
+### Brownfield Architect Agent
+
+**File:** `.claude/agents/brownfield-architect-agent.md`
+
+**Purpose:** Legacy codebase analysis and refactoring planning
+
+**Modes:**
+1. **Analysis Mode** (`/story` trigger)
+   - Steps 1-6 only
+   - Creates flattened-codebase.md and brownfield-architecture.md
+   - No sharding (Story Composer gets monolithic docs)
+
+2. **Refactor Mode** (`/refactor` trigger)
+   - Steps 1-11: Analysis → Planning → Stories → HITL
+   - Steps 12-16: Sharding → Index enhancement → Shard registry
+   - Creates analysis/shard-index.md for context loading
+
+**Key Feature:** Post-HITL sharding mirrors greenfield workflow for consistent context engineering.
+
+---
+
 ## 10. Standardized Repository Structure (Agent Output Locations Only)
 
 Use this canonical structure to know where agent-generated files must live. Framework scaffolding (e.g., README.md, PROTOCOL.md, config/*, personas/*, templates/*) is intentionally excluded here.

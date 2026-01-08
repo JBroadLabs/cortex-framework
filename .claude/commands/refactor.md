@@ -1,6 +1,23 @@
 # Refactor Command
 
-Analyze and refactor existing codebases.
+**Purpose:** Modernize legacy code with risk-managed, phased refactoring.
+
+**You are now Hub Agent in Refactor Mode.**
+
+## Your Role
+
+Load Hub Agent instructions and orchestrate refactoring workflow:
+- Brownfield Architect analyzes technical debt
+- Creates phased refactoring plan
+- Human approval gate (HITL)
+- Sharding of analysis documents
+- Implementation workflow orchestration
+
+## Context to Load
+
+- `.claude/agents/hub-agent.md` - Your orchestration instructions
+- Mode: `refactor` (brownfield)
+- Workflow reference: `RX.CE-Framework/modes/Brownfield.md`
 
 ## Usage
 
@@ -8,33 +25,59 @@ Analyze and refactor existing codebases.
 /refactor [scope or description]
 ```
 
-## Examples
-
+**Examples:**
 ```
 /refactor Extract shared authentication logic
 /refactor Modernize the API layer
 /refactor Reduce technical debt in user service
 ```
 
-## Behavior
+## What Happens
 
-Routes to Brownfield Architect Agent to:
+1. **Analysis Phase** (~4 min)
+   - Flattens and analyzes codebase
+   - Assesses technical debt
+   - Identifies refactoring opportunities
 
-1. Flatten and analyze the codebase (via Repomix)
-2. Assess technical debt and architecture
-3. Identify refactoring opportunities
-4. Create phased refactoring plan with risk levels
-5. Generate atomic stories for implementation
+2. **Planning Phase** (~2-3 min)
+   - Creates phased refactoring plan
+   - Risk assessment (LOW/MEDIUM/HIGH)
+   - Generates refactoring stories
 
-## Output
+3. **Human Approval** (HITL Gate)
+   - Review analysis/refactoring-plan.md
+   - Approve or request changes
 
-Creates in `analysis/` directory:
-- `flattened-codebase.md` - Codebase snapshot
-- `brownfield-architecture.md` - Current state assessment
-- `refactoring-plan.md` - Phased strategy with risk levels
+4. **Sharding Phase** (~2 min)
+   - Shards analysis documents
+   - Creates analysis/shard-index.md
+   - Enhances with intelligent loading guides
 
-**Requires human approval before implementation begins.**
+5. **Implementation Loop**
+   - Phased execution (LOW → MEDIUM → HIGH risk)
+   - State machine: [Pending] → [I] → [CR] → [T] → [Q] → [Done]
+   - Human gates between phases
 
-## See Also
+6. **Project Sign-Off**
+   - Human approval required (HITL Gate 2)
 
-Full Brownfield Architect capabilities: `.claude/agents/brownfield-architect-agent.md`
+## Key Files Created
+
+- `analysis/flattened-codebase.md` - Codebase snapshot
+- `analysis/brownfield-architecture.md` - Current state
+- `analysis/refactoring-plan.md` - Phased strategy
+- `analysis/shard-index.md` - Context loading registry
+- `stories/` - Refactoring stories (with risk levels)
+- `brownfield-proofpoint.md` - Final approval
+
+## Documentation
+
+- **Complete workflow:** `RX.CE-Framework/modes/Brownfield.md`
+- **Brownfield Architect:** `.claude/agents/brownfield-architect-agent.md`
+- **State machine:** `RX.CE-Framework/PROTOCOL.md`
+
+## Related Commands
+
+- `/greenfield` - New project from scratch
+- `/story` - Add features to existing code
+- `/ask` - Framework questions

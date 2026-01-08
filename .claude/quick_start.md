@@ -4,31 +4,34 @@ This guide helps you get up and running with the RX.CE Framework using Claude Co
 
 ## Commands
 
-The framework exposes several commands via the Hub Agent.
+The framework exposes several commands that load specialized agents.
 
-### Hub Agent (Primary)
-
-Use the `hub` command for all primary interactions:
+### Primary Commands
 
 ```bash
-# New Project (Full POC)
-claude code hub "Create a stock trading dashboard"
+# New Project (Full POC) - Greenfield Mode
+/greenfield "Create a stock trading dashboard"
 
-# Existing Project (Incremental)
-claude code hub "/story add CSV export button"
+# Existing Project (Incremental) - Brownfield Mode
+/story add CSV export button
 
-# Refactoring (Brownfield)
-claude code hub "/refactor extract shared auth logic"
+# Refactoring (Brownfield) - Refactor Mode
+/refactor extract shared auth logic
 ```
 
-### Ask Agent (Advisory)
+### Advisory Command
 
-Use the `ask` command for questions and diagnostics:
+Use the `/ask` command for questions and diagnostics:
 
 ```bash
-claude code ask "why is story-042 blocked?"
-claude code ask "explain the project structure"
+/ask "why is story-042 blocked?"
+/ask "explain the project structure"
+/ask "project status"
 ```
+
+### Deprecated Commands
+
+- `/hub [description]` - Use `/greenfield` instead (still works but redirects to greenfield mode)
 
 ## Configuration
 

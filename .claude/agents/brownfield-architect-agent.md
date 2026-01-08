@@ -343,8 +343,544 @@ Summary:
 Approve and implement? (yes/no)
 ```
 
-If approved → Stories move to [Pending] status
+If approved → Proceed to Steps 12-16 (sharding phase)
 If rejected → Stories remain in planning state for revision
+
+---
+
+### Phase 4: Post-HITL Sharding (Only in 'refactor' mode, after approval)
+
+**⚠️ CRITICAL:** Steps 12-16 ONLY execute after human approves refactoring-plan.md. This sharding phase enables implementation agents to load 3-5 documents instead of 50,000+ lines.
+
+**Step 12: Install md-tree Parser** (refactor mode only, after approval)
+
+**Trigger:** Only executes after human approves refactoring-plan.md (status: [APPROVED])
+
+```bash
+# Check if md-tree is installed
+if ! command -v md-tree &> /dev/null; then
+    echo "📦 Installing md-tree parser..."
+    npm install -g @kayvan/markdown-tree-parser
+
+    # Verify installation
+    if ! md-tree --version; then
+        echo "❌ ERROR: md-tree installation failed"
+        exit 1
+    fi
+    echo "✅ md-tree installed successfully"
+else
+    echo "✅ md-tree already installed ($(md-tree --version))"
+fi
+```
+
+**Purpose:** Enable document sharding for efficient context loading.
+
+**Step 13: Shard Brownfield Documents** (refactor mode only, after approval)
+
+**Trigger:** After md-tree installation complete
+
+```bash
+echo "📄 Sharding brownfield analysis documents..."
+
+# 1. Shard architecture assessment (if >500 lines)
+if [ $(wc -l < analysis/brownfield-architecture.md) -gt 500 ]; then
+    echo "  Sharding brownfield-architecture.md..."
+    md-tree explode analysis/brownfield-architecture.md analysis/architecture/
+    echo "  ✅ Created analysis/architecture/ with $(ls analysis/architecture/*.md | wc -l) shards"
+else
+    echo "  ⏭️  brownfield-architecture.md under threshold, keeping monolithic"
+fi
+
+# 2. Shard refactoring plan (if >500 lines)
+if [ $(wc -l < analysis/refactoring-plan.md) -gt 500 ]; then
+    echo "  Sharding refactoring-plan.md..."
+    md-tree explode analysis/refactoring-plan.md analysis/refactoring/
+    echo "  ✅ Created analysis/refactoring/ with $(ls analysis/refactoring/*.md | wc -l) shards"
+else
+    echo "  ⏭️  refactoring-plan.md under threshold, keeping monolithic"
+fi
+
+# 3. Handle flattened codebase (special case - very large)
+codebase_lines=$(wc -l < analysis/flattened-codebase.md)
+echo "  Flattened codebase: $codebase_lines lines"
+
+if [ $codebase_lines -gt 5000 ]; then
+    echo "  ⚠️  Codebase is large, consider selective sharding"
+    echo "  💡 Implementation agents will reference via architecture docs"
+    # NOTE: We don't shard flattened-codebase.md directly
+    # Instead, implementation agents load specific sections via brownfield-architecture.md references
+else
+    echo "  ✅ Flattened codebase manageable, keeping monolithic"
+fi
+
+echo "✅ Sharding complete"
+```
+
+**Key Decisions:**
+- Architecture doc: Shard if >500 lines
+- Refactoring plan: Shard if >500 lines
+- Flattened codebase: Keep monolithic (agents reference via architecture docs)
+
+**Why not shard flattened codebase:**
+- Too large to be useful even when sharded (50k+ lines)
+- Agents should load relevant sections via brownfield-architecture.md
+- Architecture doc acts as curated guide to codebase
+
+**Step 14: Enhance Index Files with Intelligent Loading Guides** (refactor mode only)
+
+**Trigger:** After sharding complete
+
+**Purpose:** Add cross-cutting concerns and Task Type-specific loading sequences to each index.md
+
+```python
+# Execute for each sharded directory
+for module in ['architecture', 'refactoring']:
+    if os.path.exists(f'analysis/{module}/'):
+        enhance_brownfield_index(module)
+
+def enhance_brownfield_index(module):
+    """
+    Enhance auto-generated index.md with intelligent context loading guide
+    """
+    index_path = f'analysis/{module}/index.md'
+
+    # 1. Read auto-generated index from md-tree
+    index_content = read_file(index_path)
+
+    # 2. Analyze shards to categorize
+    shards = list_files(f'analysis/{module}/')
+
+    # Identify cross-cutting concerns
+    cross_cutting = identify_cross_cutting_concerns(shards, module)
+
+    # Categorize by task type or refactoring type
+    if module == 'architecture':
+        task_specific = categorize_by_task_type(shards)
+    else:  # refactoring
+        task_specific = categorize_by_refactoring_type(shards)
+
+    # 3. Generate intelligent loading guide
+    guide = generate_loading_guide(module, cross_cutting, task_specific)
+
+    # 4. Append to index.md
+    append_file(index_path, guide)
+    log(f"✅ Enhanced {index_path} with intelligent loading guide")
+
+def generate_loading_guide(module, cross_cutting, task_specific):
+    """
+    Generate context loading guide based on module type
+    """
+
+    if module == 'architecture':
+        return f"""
+---
+
+## Context Loading Guide
+
+### Cross-Cutting Concerns (ALWAYS READ FIRST)
+These documents apply to ALL work in this codebase:
+{format_list(cross_cutting)}
+
+### Task-Specific Sections
+Read these based on your Task Type:
+{format_list(task_specific)}
+
+### Context Loading by Task Type
+
+**For API Development, read in this order:**
+1. {cross_cutting[0] if cross_cutting else 'current-architecture.md'} (Cross-cutting - architecture patterns)
+2. {cross_cutting[1] if len(cross_cutting) > 1 else 'code-patterns.md'} (Cross-cutting - error handling)
+3. api-layer.md (Task-specific)
+4. database-layer.md (if database involved)
+
+**For Database Schema Changes, read in this order:**
+1. {cross_cutting[0] if cross_cutting else 'current-architecture.md'} (Cross-cutting - architecture patterns)
+2. database-layer.md (Task-specific)
+3. business-logic.md (if complex logic involved)
+4. {cross_cutting[1] if len(cross_cutting) > 1 else 'code-patterns.md'} (Cross-cutting - error handling)
+
+**For Service Layer Logic, read in this order:**
+1. {cross_cutting[0] if cross_cutting else 'current-architecture.md'} (Cross-cutting - architecture patterns)
+2. business-logic.md (Task-specific)
+3. {cross_cutting[1] if len(cross_cutting) > 1 else 'code-patterns.md'} (Cross-cutting - error handling)
+4. testing-patterns.md (Cross-cutting)
+
+**For Refactoring, read in this order:**
+1. {cross_cutting[0] if cross_cutting else 'current-architecture.md'} (Cross-cutting - current architecture)
+2. technical-debt.md (understand what needs fixing)
+3. [Relevant section based on refactoring type]
+"""
+
+    elif module == 'refactoring':
+        return f"""
+---
+
+## Context Loading Guide for Refactoring
+
+### Cross-Cutting Concerns (ALWAYS READ FIRST)
+{format_list(cross_cutting)}
+
+### Refactoring-Specific Sections
+{format_list(task_specific)}
+
+### Context Loading by Refactoring Type
+
+**For Code Extraction, read in this order:**
+1. current-architecture.md (understand existing structure)
+2. code-smells.md (identify what needs extraction)
+3. refactoring-patterns.md (extraction strategies)
+4. rollback-plans.md (safety measures)
+
+**For Modernization, read in this order:**
+1. technical-debt-assessment.md (what's outdated)
+2. target-architecture.md (where we're going)
+3. migration-strategy.md (how to get there)
+4. risk-assessment.md (what could go wrong)
+
+**For Performance Optimization, read in this order:**
+1. performance-bottlenecks.md (identified issues)
+2. optimization-strategies.md (solutions)
+3. testing-requirements.md (validation)
+4. rollback-plans.md (safety measures)
+"""
+
+def identify_cross_cutting_concerns(shards, module):
+    """
+    Identify documents that apply to all work
+    """
+    cross_cutting_keywords = [
+        'pattern', 'convention', 'standard', 'architecture',
+        'error', 'logging', 'testing', 'current-state'
+    ]
+
+    cross_cutting = []
+    for shard in shards:
+        if any(keyword in shard.lower() for keyword in cross_cutting_keywords):
+            cross_cutting.append(shard)
+
+    return cross_cutting
+
+def categorize_by_task_type(shards):
+    """
+    Categorize architecture shards by Task Type relevance
+    """
+    categories = {
+        'API Development': [],
+        'Database Changes': [],
+        'Service Logic': [],
+        'Frontend Components': [],
+        'Refactoring': []
+    }
+
+    # Pattern matching for categorization
+    for shard in shards:
+        if 'api' in shard.lower() or 'endpoint' in shard.lower():
+            categories['API Development'].append(shard)
+        if 'database' in shard.lower() or 'schema' in shard.lower():
+            categories['Database Changes'].append(shard)
+        # ... etc
+
+    return categories
+
+def categorize_by_refactoring_type(shards):
+    """
+    Categorize refactoring shards by refactoring type
+    """
+    categories = {
+        'Code Extraction': [],
+        'Modernization': [],
+        'Performance': [],
+        'Security': []
+    }
+
+    # Pattern matching
+    for shard in shards:
+        if 'extract' in shard.lower() or 'duplicate' in shard.lower():
+            categories['Code Extraction'].append(shard)
+        if 'modern' in shard.lower() or 'migration' in shard.lower():
+            categories['Modernization'].append(shard)
+        # ... etc
+
+    return categories
+```
+
+**Example Enhanced Index:**
+
+```markdown
+# analysis/architecture/index.md
+
+## Table of Contents
+- current-architecture.md
+- technical-debt.md
+- code-patterns.md
+- api-layer.md
+- database-layer.md
+- business-logic.md
+
+---
+
+## Context Loading Guide
+
+### Cross-Cutting Concerns (ALWAYS READ FIRST)
+- current-architecture.md - Existing system structure
+- code-patterns.md - Established conventions
+- technical-debt.md - Known issues to avoid
+
+### Context Loading by Task Type
+
+**For API Development, read in this order:**
+1. current-architecture.md (Cross-cutting)
+2. code-patterns.md (Cross-cutting)
+3. api-layer.md (Task-specific)
+4. database-layer.md (if needed)
+
+**Total: 3-4 documents (not all 6)**
+```
+
+**Step 15: Create Brownfield Shard Index** (refactor mode only)
+
+**Trigger:** After index enhancement complete
+
+**Purpose:** Create master registry for brownfield context loading (mirrors docs/shard-index.md)
+
+```python
+def create_brownfield_shard_index():
+    """
+    Create analysis/shard-index.md - master registry for brownfield context
+    """
+
+    from datetime import datetime
+    import os
+
+    timestamp = datetime.now().isoformat()
+
+    # Detect which directories were sharded
+    sharded_dirs = []
+    if os.path.exists('analysis/architecture/'):
+        sharded_dirs.append('architecture')
+    if os.path.exists('analysis/refactoring/'):
+        sharded_dirs.append('refactoring')
+
+    # Count shards
+    counts = {}
+    for dir in sharded_dirs:
+        shard_files = [f for f in os.listdir(f'analysis/{dir}/') if f.endswith('.md')]
+        counts[dir] = len(shard_files) - 1  # Subtract index.md
+
+    content = f"""# Brownfield Analysis - Shard Index
+
+**Last Updated**: {timestamp}
+**Mode**: Refactor
+**Status**: Analysis complete, documents sharded
+
+## Quick Navigation
+
+### Architecture Assessment
+**Entry Point**: analysis/architecture/index.md
+**Shards**: {counts.get('architecture', 0)} documents
+**Use For**: Understanding current system state, patterns, technical debt
+
+### Refactoring Plan
+**Entry Point**: analysis/refactoring/index.md
+**Shards**: {counts.get('refactoring', 0)} documents
+**Use For**: Phased improvement strategy, risk assessment, rollback plans
+
+### Codebase Reference
+**Entry Point**: analysis/flattened-codebase.md (monolithic)
+**Use For**: Detailed code reference (load sections via architecture docs)
+
+---
+
+## Context Loading for Implementation
+
+When implementing refactoring stories:
+
+### Step 1: Start with Refactoring Context
+```
+analysis/refactoring/index.md
+  ↓
+Find your story's phase and risk level
+  ↓
+Load phase-specific documents (1-2 docs)
+```
+
+### Step 2: Load Architecture Context
+```
+analysis/architecture/index.md
+  ↓
+Find Task Type loading sequence
+  ↓
+Load cross-cutting concerns (2-3 docs)
+  ↓
+Load task-specific sections (1-2 docs)
+```
+
+### Step 3: Reference Codebase (if needed)
+```
+analysis/flattened-codebase.md
+  ↓
+Search for specific code examples
+  ↓
+Do NOT load entire file (use grep/search)
+```
+
+**Total Context: 3-5 documents per story**
+
+---
+
+## Example: story-044 (Standardize Error Response Format)
+
+**Context Loading Sequence:**
+```
+1. analysis/refactoring/phase-1-foundation.md
+   → Your phase context (LOW risk stories)
+
+2. analysis/architecture/current-architecture.md
+   → Cross-cutting: How system is structured
+
+3. analysis/architecture/code-patterns.md
+   → Cross-cutting: Existing conventions
+
+4. analysis/architecture/api-layer.md
+   → Task-specific: API endpoint patterns
+
+5. (Optional) Search analysis/flattened-codebase.md for:
+   → "BaseException" → See current error handling
+```
+
+**Total: 4 documents loaded (not 50,000 lines)**
+
+---
+
+## Monolithic Documents (Not Sharded)
+
+These remain as single files:
+- `docs/coding-standards.md` - Quality standards (load always)
+- `docs/spec.md` - Original requirements (if exists)
+
+---
+
+## For Incremental Development (/story mode)
+
+When adding features (not refactoring):
+
+### Step 1: Start with Architecture
+```
+analysis/architecture/index.md
+  ↓
+Find Task Type for your feature
+  ↓
+Load recommended documents (3-5 docs)
+```
+
+### Step 2: Skip Refactoring Context
+```
+Do NOT load analysis/refactoring/
+  ↓
+Only needed for refactoring stories
+```
+
+**Key Principle:** Load only what's relevant to YOUR story type.
+
+---
+
+## Context Isolation
+
+**CRITICAL:** Each story loads fresh context via this index.
+
+1. **Before starting story**: Clear all loaded docs
+2. **Navigate via this index**: Find your story type
+3. **Load sequence**: Follow Task Type or Refactoring Type guide
+4. **Verify loaded**: Confirm 3-5 documents loaded (not more)
+5. **Begin work**: Implement with focused context
+
+**Why This Works:**
+- ✅ Fast processing (3-5 docs, not 50+)
+- ✅ Consistent patterns (same docs → same code)
+- ✅ Scales perfectly (100 stories = same performance)
+"""
+
+    # Write to file
+    with open('analysis/shard-index.md', 'w') as f:
+        f.write(content)
+
+    print("✅ Created analysis/shard-index.md")
+    print(f"   Sharded directories: {', '.join(sharded_dirs)}")
+    print(f"   Total shards: {sum(counts.values())}")
+
+# Execute
+create_brownfield_shard_index()
+```
+
+**Step 16: Return to Hub Agent** (refactor mode only)
+
+**Trigger:** After shard index created
+
+```python
+# Report completion to Hub Agent
+report = {
+    'status': 'complete',
+    'mode': 'refactor',
+    'outputs': {
+        'analysis': [
+            'analysis/flattened-codebase.md',
+            'analysis/brownfield-architecture.md',
+            'analysis/refactoring-plan.md'
+        ],
+        'sharded_dirs': sharded_dirs,
+        'shard_index': 'analysis/shard-index.md',
+        'stories': created_story_ids,
+        'story_count': len(created_story_ids)
+    },
+    'next_step': 'Stories ready for implementation'
+}
+
+print(f"""
+✅ Brownfield Refactoring Analysis Complete
+
+Generated:
+• analysis/flattened-codebase.md
+• analysis/brownfield-architecture.md
+• analysis/refactoring-plan.md (APPROVED)
+
+Sharded Directories:
+• analysis/architecture/ ({shard_counts['architecture']} shards)
+• analysis/refactoring/ ({shard_counts['refactoring']} shards)
+
+Shard Registry:
+• analysis/shard-index.md
+
+Stories Created: {len(created_story_ids)}
+• Phase 1 (LOW risk): {phase1_count} stories
+• Phase 2 (MEDIUM risk): {phase2_count} stories
+• Phase 3 (HIGH risk): {phase3_count} stories
+
+Status: All stories [Pending], ready for implementation
+
+Next: Hub Agent will orchestrate story implementation via state machine
+""")
+
+# Return control to Hub Agent
+return report
+```
+
+**Hub Agent Response:**
+```python
+# Hub receives completion report
+hub_receives(report)
+
+# Update SQLite state machine
+for story_id in report['outputs']['stories']:
+    engine.update_story_status(story_id, '[Pending]')
+
+# Log sharding completion
+log(f"✅ Brownfield sharding complete: {len(sharded_dirs)} directories")
+log(f"✅ Shard index created: analysis/shard-index.md")
+log(f"✅ Stories ready: {report['outputs']['story_count']}")
+
+# Proceed with implementation orchestration
+next_action = engine.workflow_engine.next()
+```
 
 ---
 
@@ -378,14 +914,14 @@ If rejected → Stories remain in planning state for revision
 | **Architecture Doc** | ✅ Yes | ✅ Yes |
 | **Refactoring Plan** | ❌ No | ✅ Yes |
 | **Story Files** | ❌ No (Story Composer creates these) | ✅ Yes (Refactoring stories) |
-| **Human Approval** | ❌ No | ✅ Yes |
-| **Duration** | ~3-4 min | ~6-7 min |
-| **Output Consumer** | Story Composer | Hub Agent + Developer |
-| **Stops at Step** | Step 6 | Step 11 |
+| **Human Approval** | ❌ No | ✅ Yes (HITL Gate) |
+| **Sharding** | ❌ No | ✅ Yes (Steps 12-15) |
+| **Shard Index** | ❌ No | ✅ Yes (analysis/shard-index.md) |
+| **Duration** | ~3-4 min | ~8-10 min |
+| **Output Consumer** | Story Composer | Hub Agent + Implementation Agents |
+| **Stops at Step** | Step 6 | Step 16 |
 
-**Key Principle:** Only generate what's needed for the specific use case. Don't create refactoring artifacts when just providing context for feature development.
-
-**Time Savings:** Analysis mode is ~3 minutes faster because it skips refactoring plan generation and story creation.
+**Key Principle:** Only generate what's needed for the specific use case. Analysis mode is faster because it skips refactoring plan, sharding, and index creation.
 
 ---
 

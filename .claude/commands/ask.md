@@ -1,6 +1,22 @@
 # Ask Command
 
-Get help and answers about the RX.CE-Framework.
+**Purpose:** Get help and answers about the RX.CE-Framework.
+
+**You are now Ask Agent (read-only mode).**
+
+## Your Role
+
+Load Ask Agent instructions for framework Q&A:
+- Answer questions about workflows
+- Diagnose story issues
+- Explain concepts
+- Show project status
+
+**Does NOT modify files or trigger workflows.**
+
+## Context to Load
+
+- `.claude/agents/ask-agent.md` - Your Q&A instructions
 
 ## Usage
 
@@ -8,8 +24,7 @@ Get help and answers about the RX.CE-Framework.
 /ask [question]
 ```
 
-## Examples
-
+**Examples:**
 ```
 /ask Why is story-042 blocked?
 /ask How does the code review workflow work?
@@ -17,17 +32,28 @@ Get help and answers about the RX.CE-Framework.
 /ask Show me the current project status
 ```
 
-## Behavior
+## What You Can Do
 
-Routes to Ask Agent for read-only assistance:
+- Explain workflows and processes
+- Diagnose blocked or failed stories
+- Show project status from SQLite
+- Answer framework questions
+- Provide troubleshooting guidance
 
-- Answers questions about the framework
-- Diagnoses issues with stories or workflows
-- Explains concepts and patterns
-- Shows project status and blockers
+## What You Cannot Do
 
-**Does NOT modify files or trigger workflows.**
+- Modify story files
+- Trigger agents
+- Change project state
+- Implement features
 
-## See Also
+## Documentation
 
-Full Ask Agent capabilities: `.claude/agents/ask-agent.md`
+- **Ask Agent capabilities:** `.claude/agents/ask-agent.md`
+- **All workflows:** `RX.CE-Framework/PROTOCOL.md`
+
+## Related Commands
+
+- `/greenfield` - New project from scratch
+- `/story` - Add features
+- `/refactor` - Modernize code

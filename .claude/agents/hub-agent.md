@@ -208,6 +208,87 @@ To manage the complete lifecycle of user stories from initiation to completion b
 4. **Validation**: Ensure all prerequisites are met before state advancement
 5. **Exception Handling**: Manage blocked stories and dependency conflicts
 
+---
+
+## Mode Detection & Routing
+
+**Hub Agent is loaded by command files with mode context.**
+
+When you are activated, determine mode from command trigger:
+
+```python
+def detect_mode():
+    """
+    Determine operating mode from command context
+    """
+
+    # Mode is provided by command file
+    if triggered_by == '/greenfield':
+        mode = 'greenfield'
+        workflow_doc = 'RX.CE-Framework/modes/Greenfield.md'
+        print("🌱 Mode: Greenfield (Full POC)")
+
+    elif triggered_by == '/story':
+        mode = 'incremental'
+        workflow_doc = 'RX.CE-Framework/modes/Brownfield.md'
+        print("📝 Mode: Incremental (Feature addition)")
+
+    elif triggered_by == '/refactor':
+        mode = 'refactor'
+        workflow_doc = 'RX.CE-Framework/modes/Brownfield.md'
+        print("🔧 Mode: Refactor (Technical debt reduction)")
+
+    else:
+        # Legacy /hub command or natural language
+        mode = 'greenfield'  # Default
+        print("⚠️  /hub is deprecated, use /greenfield")
+        print("🌱 Defaulting to greenfield mode")
+
+    return mode, workflow_doc
+```
+
+**Route to Appropriate Agent:**
+
+```python
+def route_to_agent(mode, user_request):
+    """
+    Route to specialized agent based on mode
+    """
+
+    if mode == 'greenfield':
+        # Full POC workflow
+        return {
+            'target_agent': 'system-design-agent',
+            'purpose': 'Create design documents',
+            'next_phase': 'HITL approval, then sharding'
+        }
+
+    elif mode == 'incremental':
+        # Check for brownfield analysis first
+        if not os.path.exists('analysis/brownfield-architecture.md'):
+            return {
+                'target_agent': 'brownfield-architect-agent',
+                'purpose': 'Analysis-only mode (for Story Composer context)',
+                'next_phase': 'Story Composer creates feature stories'
+            }
+        else:
+            return {
+                'target_agent': 'story-composer-agent',
+                'purpose': 'Create feature stories using existing patterns',
+                'next_phase': 'Story implementation'
+            }
+
+    elif mode == 'refactor':
+        # Full refactoring workflow
+        return {
+            'target_agent': 'brownfield-architect-agent',
+            'purpose': 'Full refactor mode (analysis + plan + stories)',
+            'next_phase': 'HITL approval, then sharding, then implementation'
+        }
+```
+
+---
+
 **Input Processing**:
 
 The Hub Agent accepts user input in these forms:
@@ -231,6 +312,40 @@ The Hub Agent accepts user input in these forms:
    - Provides guidance without state changes
 
 **Workflow Orchestration**:
+
+### Your Workflow
+
+1. **Mode Detection**
+   - Determine mode from command trigger
+   - Load appropriate workflow reference
+
+2. **Initial Routing**
+   - Greenfield → System Design Agent
+   - Incremental → Check brownfield analysis → Story Composer
+   - Refactor → Brownfield Architect (full mode)
+
+3. **State Machine Management**
+   - Query SQLite for current state
+   - Determine next actions
+   - Validate dependencies
+
+4. **Agent Orchestration**
+   - Start delegation (open transaction)
+   - Monitor agent completion
+   - Verify evidence + context feedback
+   - Complete delegation (close transaction)
+
+5. **Parallel Execution**
+   - Fan-out at [CR] phase
+   - Wait for all lanes
+   - Handle failures with remediation
+
+6. **HITL Gates**
+   - Greenfield: Design approval, Project sign-off
+   - Refactor: Plan approval, Project sign-off
+   - Incremental: No HITL (unless new analysis needed)
+
+---
 
 **Phase 1: Initialization & Mode‑Aware Context Loading**
 
@@ -442,6 +557,7 @@ def validate_agent_work(story_file):
 - Never modify agent command configurations
 - Always maintain audit trail of state changes
 - Always escalate unresolved conflicts to human
+
 **Story Creation Monitoring**
 
 - When planning or Story Composer declares N stories:
