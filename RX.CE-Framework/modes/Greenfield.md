@@ -34,12 +34,14 @@ Agents must not load brownfield analysis artifacts when `mode=greenfield`.
      - `docs/frontend/index.md`
      - `docs/backend/index.md`
    - Each shard directory MUST include `index.md` as the entrypoint for context loading.
-5) Decomposition & Task Board Creation
-   - Hub decomposes design into `stories/` (e.g., `stories/story-001.md`) with `[Pending]` status
-   - All stories MUST be created from `docs/templates/story-template.md` and include all required sections in the canonical order.
-   - Use consistent naming: `stories/story-XXX.md` (zero-padded).
+5) Story Creation
+   - Hub delegates to Story Composer Agent to create stories from approved design
+   - Story Composer loads sharded design docs via `docs/shard-index.md`
+   - Story Composer creates `stories/story-XXX.md` files with `[Pending]` status
+   - All stories MUST be created from `docs/templates/story-template.md` and include all required sections in the canonical order
+   - Use consistent naming: `stories/story-XXX.md` (zero-padded)
    - Hub registers stories in SQLite state machine and maintains project state
-   - Default: every 10 stories (configurable), Hub triggers Reflector Agent to analyze Context Feedback across stories and produce evidence-based delta proposals. For small projects, this may be reduced; for large projects, Hub may trigger it on a rolling cadence.
+   - Default: every 10 stories (configurable), Hub triggers Reflector Agent to analyze Context Feedback
 6) Implementation & Parallel Review/Testing
    - Frontend/Backend implement stories and write unit tests
    - Transition to `[CR]` triggers parallel Code Review + Frontend/Backend Unit Testing
@@ -69,7 +71,7 @@ Universal story execution once implementation begins:
      Backend)         Unit Tests)
 
 ## 5.2 Parallel Execution Workflow
-When a story transitions to `[CR]` status, **three agents execute simultaneously** 
+When a story transitions to `[CR]` status, **three agents execute simultaneously**
 
 ```
 [I] Implementation Complete
@@ -81,11 +83,131 @@ When a story transitions to `[CR]` status, **three agents execute simultaneously
     ↓
 [T] Integration Testing (if all pass)
 ```
-## 6. Artifact Registration & Shards
-- Newly created artifacts must be registered in `state/artifacts.greenfield.json`.
-- Agents MUST query `state/artifacts.greenfield.json` to retrieve the latest artifact list prior to loading context.
-- Agents load shards strictly via `docs/shard-index.md` once approved.
-- Minimal context loads are preferred; use shard indices and summaries.
+
+## 5.3 Parallelism Types - Important Distinction
+
+The framework supports TWO types of parallelism at different granularities:
+
+### 5.3.1 Within-Story Parallelism (Lane-Based)
+**Scope**: Inside a single story at [CR] phase
+**Always Active**: Automatically triggered when story reaches [CR]
+**Managed By**: `lane_name` column in `delegations` table
+
+```
+[I] Implementation Complete
+    ↓
+[CR] Code Review Stage (3 parallel lanes)
+    ├─→ Lane: code-review (Code Review Agent)
+    ├─→ Lane: frontend-test (Frontend Testing Agent)
+    └─→ Lane: backend-test (Backend Testing Agent)
+    ↓
+[T] All lanes complete, proceed to Integration Testing
+```
+
+**Key Points**:
+- No configuration needed - always active
+- Hub waits for ALL lanes to complete before advancing
+- Managed by `story_lanes` table
+- Failure in any lane pauses the story
+
+### 5.3.2 Cross-Story Parallelism (Dependency-Based)
+**Scope**: Multiple stories executing simultaneously
+**Conditional**: Based on dependency graph
+**Managed By**: `story_dependencies` table
+
+```
+Story A [Pending] → [I] → [CR] → [T] → [Q] → [Done]
+Story B [Pending] ────────────────────────────────→ [I] (blocked until A done)
+Story C [Pending] → [I] → [CR] → [T] → [Q] → [Done] (independent, parallel to A)
+```
+
+**Key Points**:
+- Requires dependency-free or satisfied dependencies
+- Determined by Story Composer during story creation
+- Conservative detection: if unsure, create dependency (safer)
+- Hub checks dependencies before starting delegation
+
+**Scheduling Rules**:
+- **Tier 1**: Explicit dependencies - must be sequential
+- **Tier 2**: Same module - prefer sequential (optional parallel if safe)
+- **Tier 3**: Different modules - can be parallel
+
+Both parallelism types use the same state machine but operate at different scopes.
+
+---
+
+## 6. Context Loading & Shards
+
+**Shard Registry:**
+- Agents load shards strictly via `docs/shard-index.md` (post-approval only)
+- Each shard directory contains `index.md` with:
+  - Cross-cutting concerns (ALWAYS READ FIRST)
+  - Task Type-specific loading sequences
+  - Links to relevant shards
+
+**Smart Context Loading (Precision Over Coverage):**
+- Load 3-5 documents per story, not entire codebase
+- Start with `index.md` to determine which shards are relevant
+- Follow Task Type loading sequences for consistent patterns
+
+**Example - API Implementation Task:**
+1. `docs/backend/index.md` (find relevant shards)
+2. `docs/backend/framework-patterns.md` (cross-cutting)
+3. `docs/backend/api-specifications.md` (task-specific)
+4. `docs/backend/database-schema.md` (if data access needed)
+
+**Result:** 3-4 documents instead of 50k+ lines
+
+## 6.1 Smart Index Files
+
+Each sharded directory includes an `index.md` file that enables precision context loading. These are created by System Design Agent during Step 9.
+
+**Index File Structure:**
+
+```markdown
+# [Module] Index
+
+## Shards in This Directory
+- [List of .md files with brief descriptions]
+
+---
+
+## Context Loading Guide
+
+### Cross-Cutting Concerns (ALWAYS READ FIRST)
+These documents contain standards that apply to ALL work in this module:
+- `framework-patterns.md` - Core patterns and conventions
+- `logging-strategy.md` - Error handling and observability
+
+### Task-Specific Sections
+Read these based on your specific task type:
+- `api-specifications.md` - API endpoint details
+- `database-schema.md` - Data models and relationships
+- `component-library.md` - UI component patterns
+
+### Context Loading by Task Type
+
+**For API Implementation:**
+1. framework-patterns.md (required)
+2. logging-strategy.md (required)
+3. api-specifications.md (required)
+4. database-schema.md (if data access needed)
+
+**For UI Component:**
+1. framework-patterns.md (required)
+2. component-library.md (required)
+3. state-management.md (if state needed)
+
+**For Database Work:**
+1. framework-patterns.md (required)
+2. database-schema.md (required)
+3. api-specifications.md (for API contracts)
+```
+
+**Why This Matters:**
+- Agents load 3-5 documents instead of entire codebase
+- Consistent patterns because same docs loaded for same task type
+- "Precision over coverage" - the framework's competitive advantage
 
 ## 7. HITL Gates 
 - Gate 1 — Design Approval:

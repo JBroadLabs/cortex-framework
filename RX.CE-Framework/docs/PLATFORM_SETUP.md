@@ -21,7 +21,7 @@ All platforms work 100% automatically with zero user configuration.
 ### Claude Code
 **Status**: Pre-configured
 
-**Location**: `.claude/config.yml`
+**Location**: `RX.CE-Framework/modes/` (workflow presets)
 
 **How to use**:
 ```

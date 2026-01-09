@@ -42,14 +42,13 @@ The Hub Agent accepts user input in these forms:
 
 **Phase 1: Initialization & Mode‑Aware Context Loading**
 
-1. **Load Systematic Tracker**
-   - Read `state/systematic_tracker.json` for brownfield context
-   - Validate context isolation and dependency chains
-   - Check brownfield analysis artifacts availability
+1. **Initialize State Machine**
+   - Connect to SQLite database at `state/workflow.db`
+   - Query for pending delegations and incomplete work
 
-2. **Load Configuration & Context**
-   - Read `.claude/config.yml` for workflow settings
-   - Determine active workflow path based on skips and context
+2. **Load Mode-Specific Workflow**
+   - Load workflow from `RX.CE-Framework/modes/Greenfield.md` or `Brownfield.md`
+   - Mode files are authoritative for workflow sequence
 
 3. **Parse & Route**
    - Extract command prefix and request content

@@ -35,12 +35,10 @@ Use the `/ask` command for questions and diagnostics:
 
 ## Configuration
 
-The framework is zero-config by default, but you can customize it in `.claude/config.yml`.
-
-See `.claude/config.yml` for available settings like skipping review stages or adjusting test coverage thresholds.
+The framework uses workflow presets for configuration. See mode files (`RX.CE-Framework/modes/`) for workflow details.
 
 ## Directory Structure
 
 - `.claude/commands/`: Custom agent commands
-- `.claude/config.yml`: Framework configuration
+- `.claude/agents/`: Agent instruction files
 - `rx-hackathon/RX.CE-Framework/`: Framework core files

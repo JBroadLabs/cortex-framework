@@ -66,7 +66,7 @@ Triggered by the `Hub Agent` when a story is ready for testing.
   - `docs/backend.md`
   - `docs/shard-index.md`
   - `docs/coding-standards.md`
-  - `docs/CONTEXT_ENGINEERING.md`
+  - `docs/CONTEXT_LEARNING.md`
   - `PROTOCOL.md`
   - `AGENTS.md`
 - **Memory**:

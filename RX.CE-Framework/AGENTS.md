@@ -29,8 +29,11 @@
 
 ## 5. Context Engineering (universal patterns)
 1) Explicit Mode Routing — Mode flag determines sources, agents, and artifacts for the session.
-2) Context Loader — Load only context sources declared for the current mode (see docs/CONTEXT_ENGINEERING.md, Greenfield.md, Brownfield.md, PROTOCOL.md for interfaces and registries).
-3) Artifact Registration — Register newly created artifacts in the per‑mode registry (e.g., state/artifacts.greenfield.json, state/artifacts.brownfield.json). Query the registry for the latest, mode‑appropriate set.
+2) Context Loader — Load only context sources declared for the current mode (see Greenfield.md, Brownfield.md, PROTOCOL.md for interfaces and registries).
+3) Shard Navigation — Load context via mode-appropriate shard index:
+   - Greenfield: `docs/shard-index.md` (post-HITL approval)
+   - Brownfield refactor: `analysis/shard-index.md` (post-HITL approval)
+   - Brownfield incremental: Load monolithic analysis docs directly
 4) Smart Agent Filtering — Invoke only agents that declare support for the active mode; the Hub Agent enforces this during routing.
 5) Minimal Context Loads — Prefer sharded indices and summaries over monolithic documents; reserve full loads for HITL design reviews.
 
@@ -149,6 +152,6 @@ Notes:
 1) Greenfield.md — full end‑to‑end POC workflow and deliverables.
 2) Brownfield.md — analysis, refactor planning, and incremental (/story) workflows.
 3) PROTOCOL.md — story schemas, handoffs, and state invariants.
-4) docs/CONTEXT_ENGINEERING.md — context loader, registries, and isolation patterns.
+4) docs/CONTEXT_LEARNING.md — context learning system, feedback collection, and troubleshooting guide maintenance.
 5) config/agent_commands.yaml — command triggers and execution mappings.
 6) state/agents_roster.yaml — authoritative agent roster and protocol roles.

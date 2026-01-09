@@ -169,7 +169,7 @@ You MUST append the following section to the story file before completing:
   - `docs/backend.md`
   - `docs/shard-index.md`
   - `docs/coding-standards.md`
-  - `docs/CONTEXT_ENGINEERING.md`
+  - `docs/CONTEXT_LEARNING.md`
   - `PROTOCOL.md`
   - `AGENTS.md`
 - **Memory**:

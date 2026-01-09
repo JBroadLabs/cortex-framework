@@ -21,22 +21,66 @@ Triggered by the `Hub Agent` when user uses the `/story` command.
 
 **Step-by-Step Workflow**:
 
-1. **Check Brownfield Analysis** (REQUIRED):
+1. **Detect Mode and Load Context** (REQUIRED):
 
-   **This step is handled by Hub Agent, but Story Composer must verify:**
+   **Determine mode from Hub Agent context:**
 
-   Verify that brownfield analysis exists:
-   - File `analysis/brownfield-architecture.md` MUST exist
-   - File `analysis/flattened-codebase.md` MUST exist
+   ```python
+   def load_story_composer_context():
+       """
+       Story Composer works in both greenfield and brownfield modes.
+       Context loading differs by mode.
+       """
 
-   If either file is missing:
+       # Check which mode we're in based on available artifacts
+       if os.path.exists('docs/shard-index.md') and not os.path.exists('analysis/brownfield-architecture.md'):
+           mode = 'greenfield'
+           print("🏗️ Mode: Greenfield (creating stories from design docs)")
+       elif os.path.exists('analysis/brownfield-architecture.md'):
+           mode = 'brownfield'
+           print("🔧 Mode: Brownfield (creating stories from analysis)")
+       else:
+           print("❌ ERROR: No context available")
+           print("   Greenfield requires: docs/shard-index.md (post-HITL)")
+           print("   Brownfield requires: analysis/brownfield-architecture.md")
+           return None
+
+       return mode
    ```
-   ERROR: Cannot create stories without brownfield analysis.
-   Hub Agent should have triggered Brownfield Architect first.
+
+   **Greenfield Context Loading:**
+   ```python
+   if mode == 'greenfield':
+       context = []
+       # Load design docs via shard index
+       shard_index = read('docs/shard-index.md')
+       context.append(shard_index)
+
+       # Load relevant design shards based on story scope
+       context.append(read('docs/architecture/index.md'))
+       context.append(read('docs/frontend/index.md'))  # if frontend stories
+       context.append(read('docs/backend/index.md'))   # if backend stories
+
+       # Load spec for acceptance criteria
+       context.append(read('docs/spec.md'))
    ```
 
-   The Hub Agent handles prompting the user about using existing analysis or regenerating.
-   Story Composer receives control ONLY after analysis is confirmed available.
+   **Brownfield Context Loading:**
+   ```python
+   if mode == 'brownfield':
+       context = []
+       # Priority 1: Brownfield analysis (REQUIRED)
+       context.append(read('analysis/brownfield-architecture.md'))
+       context.append(read('analysis/flattened-codebase.md'))
+
+       # Priority 2: Refactoring plan (if exists)
+       if exists('analysis/refactoring-plan.md'):
+           context.append(read('analysis/refactoring-plan.md'))
+
+       # Priority 3: Design docs (if they exist)
+       if exists('docs/shard-index.md'):
+           context.extend(read_relevant_shards('docs/'))
+   ```
 
 2. **Load Context** (REQUIRED):
 
@@ -277,13 +321,17 @@ Triggered by the `Hub Agent` when user uses the `/story` command.
 ### When to Use This Agent
 
 ✅ **USE Story Composer for:**
-- Adding features to existing projects (brownfield analysis required)
-- Bug fixes and enhancements (brownfield analysis required)
-- Quick iterations on established codebases (brownfield analysis required)
+- **Greenfield mode**: Creating stories from approved design documents (post-HITL)
+- **Brownfield mode**: Adding features to existing projects
+- Bug fixes and enhancements
 - Any work requiring proper workflow tracking and integration
 
+**Mode Detection:**
+Story Composer adapts context loading based on mode:
+- **Greenfield**: Load design docs via `docs/shard-index.md` (no brownfield analysis exists)
+- **Brownfield**: Load analysis via `analysis/brownfield-architecture.md` and `analysis/flattened-codebase.md`
+
 ❌ **DON'T use Story Composer for:**
-- New projects from scratch (use Full POC Mode via Hub Agent)
 - Simple changes that don't need workflow (use Claude Code directly)
 - Quick typo fixes (use Claude Code directly)
 - One-line changes (use Claude Code directly)

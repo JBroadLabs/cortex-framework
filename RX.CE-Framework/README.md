@@ -11,7 +11,7 @@ The RX.CE Framework automates the entire development lifecycle through intellige
 - **Dual-Mode Architecture**: Explicit mode routing (Greenfield vs Brownfield) with separate context sources, artifacts, and workflows
 - **Hub and Spoke Orchestration**: Central Hub Agent coordinates 13 specialized agents with strict spoke-to-Hub-only communication
 - **Stateless Agent Execution**: Agents start with empty context, load only required sources, and clear context on completion
-- **Universal State Machine**: `[Pending] → [I] → [CR] → [T] → [Q] → [Done]` with configurable stage skips
+- **Universal State Machine**: `[Pending] → [I] → [CR] → [T] → [Q] → [Done]` enforced by SQLite state machine
 - **Parallel Execution at [CR]**: Code Review + Frontend Unit Testing + Backend Unit Testing run simultaneously for faster feedback
 - **Story-Centric Tracking**: Story files and SQLite database are the single source of truth; no auxiliary trackers
 - **Human-in-the-Loop (HITL) Gates**: Two critical approval points with file-based status markers
@@ -252,64 +252,6 @@ The framework includes 12 production-grade skills that provide expert guidance a
 
 ---
 
-## Simple Configuration
-
-Customize the framework with a single YAML file.
-
-### Zero Setup Required
-
-Config file auto-creates on first use with sensible defaults.
-
-```bash
-# First run - config creates automatically
-claude code hub "Create my app"
-
-✅ Created .claude/config.yml
-📋 Active Workflow: [Pending] → [I] → [CR] → [T] → [Q] → [Done]
-```
-
-### Customize Anytime
-
-```bash
-# Edit the config
-nano .claude/config.yml
-```
-
-**Common customizations:**
-
-```yaml
-# Fast prototyping (skip all validation)
-skip_code_review: true
-skip_testing: true
-skip_qa: true
-# Result: [I] → [Done]
-
-# Trust tests only (skip manual reviews)
-skip_code_review: true
-skip_qa: true
-# Result: [I] → [T] → [Done]
-
-# Lower coverage for prototyping
-min_coverage_percent: 50
-
-# Disable strict version checking
-strict_version_checking: false
-```
-
-### Available Settings
-
-- `skip_code_review` - Skip [CR] stage (true/false)
-- `skip_testing` - Skip [T] stage (true/false)
-- `skip_qa` - Skip [Q] stage (true/false)
-- `coding_standards` - Enforce linters (true/false)
-- `strict_version_checking` - Block on version mismatch (true/false)
-- `min_coverage_percent` - Test coverage threshold (0-100)
-- `sharding_threshold` - Lines before doc sharding (default: 500)
-
-**All settings have inline help in `.claude/config.yml`**
-
----
-
 ## Coding Standards (Built-In)
 
 This framework includes automated coding standards enforcement:
@@ -383,19 +325,12 @@ All stories follow the same state machine regardless of mode:
 - **[Q]** - Quality assurance/regression validation
 - **[Done]** - Completed and approved
 
-### Configurable Stage Skips
+### Workflow
 
-Customize workflow in `.claude/config.yml`:
+The framework uses a fixed production workflow:
+`[Pending] → [I] → [CR] → [T] → [Q] → [Done]`
 
-```yaml
-skip_code_review: false  # true = skip [CR] stage
-skip_testing: false      # true = skip [T] stage
-skip_qa: false          # true = skip [Q] stage
-```
-
-**Examples**:
-- Fast prototyping: All true → `[I] → [Done]`
-- Trust tests only: `skip_code_review=true, skip_qa=true` → `[I] → [T] → [Done]`
+Enforced by the SQLite state machine - no configuration needed.
 
 ### Parallel Execution at [CR]
 
@@ -590,7 +525,7 @@ RX.CE-Framework/                    # Framework core
 │   │   ├── test.md                 # Integration testing
 │   │   ├── qa.md                   # QA validation
 │   │   └── reflector.md            # Context learning & troubleshooting
-│   ├── config.yml                  # Framework configuration
+│   ├── agents/                     # Agent instruction files
 │   └── quick_start.md              # Quick start guide
 ├── PROTOCOL.md                     # Universal operating contract
 ├── AGENTS.md                       # Agent roster and rules
@@ -601,13 +536,11 @@ RX.CE-Framework/                    # Framework core
 ├── personas/                       # Agent persona definitions
 ├── config/                         # Agent command mappings
 ├── state/                          # Runtime state and registries
-│   ├── agents_roster.yaml          # Agent eligibility
-│   ├── artifacts.greenfield.json   # Greenfield artifact registry
-│   └── artifacts.brownfield.json   # Brownfield artifact registry
+│   ├── workflow.db                 # SQLite state machine (authoritative)
+│   └── agents_roster.yaml          # Agent eligibility
 ├── docs/                           # Documentation and templates
 │   ├── templates/                  # Story and handoff schemas
-│   ├── CONTEXT_LEARNING.md         # Context Learning System guide
-│   └── CONTEXT_ENGINEERING.md      # Deprecated (old ACE system)
+│   └── CONTEXT_LEARNING.md         # Context Learning System guide
 ├── skills/                         # Implementation skills
 │   ├── api-design/
 │   ├── database-schema-design/

@@ -30,7 +30,7 @@ State summaries:
 - [Q] — quality assurance/regression
 - [Done] — completed and approved
 
-Configurable stage skips: `.claude/config.yml` supports `skip_code_review`, `skip_testing`, and `skip_qa`; the Hub Agent computes and enforces the effective path (see `utils/config_simple.py`).
+Stage skips: The Hub Agent computes and enforces the effective workflow path. Stage configuration will be available via workflow presets in a future version.
 
 ## 3. Artifact Locations (minimal)
 
@@ -129,4 +129,4 @@ Gate 2 — Final Project Sign-Off:
 
 - Greenfield.md — full POC workflow and sharding details.
 - Brownfield.md — incremental `/story` and `/refactor` workflows and analysis artifacts.
-- docs/CONTEXT_ENGINEERING.md — loader, registries, and isolation patterns.
+- docs/CONTEXT_LEARNING.md — context learning system and feedback collection.

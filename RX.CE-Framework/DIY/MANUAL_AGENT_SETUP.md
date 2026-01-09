@@ -192,7 +192,7 @@ Your response:
 - `state/workflow.db` - SQLite state machine (project state tracking)
 - `/stories/story-*.md` - Individual story files (work tracking)
 - `/docs/[module]/index.md` - Context loading guides
-- `.claude/config.yml` - Framework configuration
+- `RX.CE-Framework/modes/` - Mode workflows (Greenfield.md, Brownfield.md)
 
 ## Important Rules
 1. Always read the complete agent file before acting
@@ -294,7 +294,7 @@ This repository uses an agent-based development framework.
 - Agent definitions: `RX.CE-Framework/personas/*.md`
 - Agent system: `RX.CE-Framework/AGENTS.md`
 - Protocol: `RX.CE-Framework/PROTOCOL.md`
-- Configuration: `.claude/config.yml`
+- Configuration: `RX.CE-Framework/modes/` (mode files)
 
 ## Using Agents with @-mentions
 
@@ -428,7 +428,7 @@ This repository uses an agent-based development framework with specialized AI ag
 - Agent definitions: `RX.CE-Framework/personas/*.md`
 - Agent system: `RX.CE-Framework/AGENTS.md`
 - Operating protocol: `RX.CE-Framework/PROTOCOL.md`
-- Configuration: `.claude/config.yml`
+- Configuration: `RX.CE-Framework/modes/` (mode files)
 
 ## How to Activate Agents
 
@@ -483,8 +483,7 @@ All stories: `/stories/story-*.md`
 State tracking: `state/workflow.db` (SQLite database)
 
 ## Configuration
-Framework config: `.claude/config.yml`
-Edit to skip stages (code review, testing, QA) or adjust quality gates
+Framework modes: `RX.CE-Framework/modes/` (Greenfield.md, Brownfield.md)
 EOF
 
 # Step 3: Create projectBrief.md (Roo-specific convention)
@@ -1421,7 +1420,6 @@ If Codex doesn't respond to "act as", try:
 ```
 @RX.CE-Framework/PROTOCOL.md - State machine rules
 @RX.CE-Framework/AGENTS.md - Agent coordination
-@.claude/config.yml - Framework configuration
 ```
 
 ---
@@ -1432,20 +1430,19 @@ If Codex doesn't respond to "act as", try:
 RX.CE-Framework/
 ├── PROTOCOL.md              ← State machine and rules
 ├── AGENTS.md                ← Agent coordination (2025 standard, lists all 12 agents)
-├── personas/                ← 12 specialized agents
-│   ├── hub_agent.md                      ← 1. Main orchestrator
-│   ├── system_design_agent.md            ← 2. Design & architecture (POC mode)
-│   ├── story_composer_agent.md           ← 3. Story creation (incremental)
-│   ├── frontend_agent.md                 ← 4. Frontend implementation
-│   ├── backend_agent.md                  ← 5. Backend implementation
-│   ├── code_review_agent.md              ← 6. Code quality
-│   ├── testing_agent.md                  ← 7. Test execution
-│   ├── qa_agent.md                       ← 8. Final validation
-│   ├── frontend_unit_testing_agent.md    ← 9. Parallel frontend unit tests (auto)
-│   ├── backend_unit_testing_agent.md     ← 10. Parallel backend unit tests (auto)
-│   ├── brownfield_architect_agent.md     ← 11. Legacy codebase analysis
-│   └── ask_agent.md                      ← 12. Framework Q&A (read-only)
-└── config.yml               ← Framework configuration
+└── personas/                ← 12 specialized agents
+    ├── hub_agent.md                      ← 1. Main orchestrator
+    ├── system_design_agent.md            ← 2. Design & architecture (POC mode)
+    ├── story_composer_agent.md           ← 3. Story creation (incremental)
+    ├── frontend_agent.md                 ← 4. Frontend implementation
+    ├── backend_agent.md                  ← 5. Backend implementation
+    ├── code_review_agent.md              ← 6. Code quality
+    ├── testing_agent.md                  ← 7. Test execution
+    ├── qa_agent.md                       ← 8. Final validation
+    ├── frontend_unit_testing_agent.md    ← 9. Parallel frontend unit tests (auto)
+    ├── backend_unit_testing_agent.md     ← 10. Parallel backend unit tests (auto)
+    ├── brownfield_architect_agent.md     ← 11. Legacy codebase analysis
+    └── ask_agent.md                      ← 12. Framework Q&A (read-only)
 
 state/workflow.db            ← SQLite state machine (story tracking)
 /stories/story-*.md          ← Individual stories

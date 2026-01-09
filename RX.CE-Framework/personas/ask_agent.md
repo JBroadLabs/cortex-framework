@@ -47,7 +47,7 @@ Triggered by the `Hub Agent` when user uses the `/ask` command.
             },
             'context_system': {
                 'keywords': ['context', 'version', 'versioning', 'sharding', 'documents', 'loading'],
-                'related_files': ['docs/CONTEXT_ENGINEERING.md'],
+                'related_files': ['docs/CONTEXT_LEARNING.md'],
                 'workflow_steps': ['version checking', 'compatibility validation', 'context loading']
             },
             'dependencies': {
@@ -115,7 +115,7 @@ Triggered by the `Hub Agent` when user uses the `/ask` command.
         'protocol': 'PROTOCOL.md',
         'agents': 'AGENTS.md',
         'commands': 'COMMANDS.md',
-        'context': 'docs/CONTEXT_ENGINEERING.md',
+        'context': 'docs/CONTEXT_LEARNING.md',
         'standards': 'docs/coding-standards.md'
     }
     ```
@@ -275,7 +275,7 @@ Triggered by the `Hub Agent` when user uses the `/ask` command.
   - `PROTOCOL.md` - Complete workflow rules
   - `AGENTS.md` - Agent orchestration patterns
   - `COMMANDS.md` - All available commands
-  - `docs/CONTEXT_ENGINEERING.md` - Context system
+  - `docs/CONTEXT_LEARNING.md` - Context system
   - `docs/coding-standards.md` - Standards enforcement
   - `docs/shard-index.md` - Registry of shards (post‑approval)
   - `docs/architecture.md`, `docs/frontend.md`, `docs/backend.md` - Monolithic module docs (pre-approval)
