@@ -1,12 +1,9 @@
-
-
 version: 1.0.0
-schema: https://rxce.dev/schemas/agent_commands_v1
 
 commands:
-  - id: default
-    trigger: none
-    description: Natural language request without command prefix
+  - id: greenfield
+    trigger: "/greenfield"
+    description: Full POC development from scratch with comprehensive design phase
     mode: greenfield
     primary_agent: hub
     route:
@@ -69,3 +66,4 @@ metadata:
   notes:
     - Agents must load this registry at startup and never parse COMMANDS.md
     - Platforms that require native config should generate from this file
+    - "DEPRECATED: 'default' command (was natural language without prefix) - now use /greenfield explicitly"
