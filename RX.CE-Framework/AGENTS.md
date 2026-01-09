@@ -12,10 +12,31 @@
 ## 3. Modes & Commands
 - Mode selection is explicit and per session: mode=greenfield or mode=brownfield.
 - Commands and primary routing:
-  1) (default) Full POC → System Design Agent (all workflow agents participate)
-  2) /story Incremental → Story Composer Agent (then implementation agents)
-  3) /refactor Brownfield → Brownfield Architect Agent (then implementation agents)
-  4) /ask Advisory → Ask Agent (read‑only diagnostics; no state changes)
+  1) /greenfield (mode=greenfield) → System Design Agent (all workflow agents participate)
+  2) /story (mode=incremental) → Story Composer Agent (then implementation agents)
+  3) /refactor (mode=refactor) → Brownfield Architect Agent (then implementation agents)
+  4) /ask (read-only) → Ask Agent (no state changes)
+
+**Command → Mode Mapping:**
+- User types `/greenfield` → Hub Agent receives `mode=greenfield` → Loads Greenfield.md
+- User types `/story` → Hub Agent receives `mode=incremental` → Loads Brownfield.md
+- User types `/refactor` → Hub Agent receives `mode=refactor` → Loads Brownfield.md
+- User types `/ask` → Ask Agent loads (read-only, no mode context)
+
+**Example Usage:**
+```bash
+# Full POC from scratch
+/greenfield "Create a stock trading dashboard with real-time charts"
+
+# Add features to existing code
+/story "Add user authentication with email verification"
+
+# Refactor legacy code
+/refactor "Modernize authentication to use JWT tokens"
+
+# Get help
+/ask "How does dependency management work?"
+```
 - See Greenfield.md and Brownfield.md for mode‑specific workflows and artifacts.
 
 ## 4. Universal Rules (applies to all agents)

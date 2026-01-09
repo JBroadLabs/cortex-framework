@@ -123,8 +123,6 @@ See full capabilities in [Ask Agent Documentation](.claude/commands/ask.md).
 - **`/refactor`** - Modernize legacy code with risk-managed refactoring
 - **`/ask`** - Read-only advisory mode for questions and diagnostics
 
-**Deprecated:**
-- **`/hub`** - Use `/greenfield` instead (still works but will be removed)
 
 **Agent Commands:**
 - Other commands (`frontend`, `backend`, `code-review`, etc.) - Manual intervention only (invoked by Hub)
@@ -467,9 +465,6 @@ The Hub Agent waits for all parallel agents to complete before advancing to `[T]
 | `/greenfield` | Greenfield | Varies | Monolithic docs → Sharded docs | Yes (post-approval) | Yes (design docs) | New projects |
 | `/story` | Brownfield | ~4 min (first time), instant (cached) | Analysis artifacts | No | No | Feature additions, bug fixes |
 | `/refactor` | Brownfield | ~7-8 min | Analysis + Refactoring plan + Sharded docs | Yes (Steps 12-16) | Yes (refactor plan) | Technical debt, code improvements |
-
-**Legacy:**
-- `/hub [description]` - Deprecated, use `/greenfield` instead (redirects to greenfield mode)
 
 For detailed command usage, see [COMMANDS.md](COMMANDS.md).
 

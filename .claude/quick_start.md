@@ -29,10 +29,6 @@ Use the `/ask` command for questions and diagnostics:
 /ask "project status"
 ```
 
-### Deprecated Commands
-
-- `/hub [description]` - Use `/greenfield` instead (still works but redirects to greenfield mode)
-
 ## Configuration
 
 The framework uses workflow presets for configuration. See mode files (`RX.CE-Framework/modes/`) for workflow details.

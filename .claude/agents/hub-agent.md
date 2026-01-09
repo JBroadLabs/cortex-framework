@@ -7,6 +7,21 @@ model: sonnet
 
 ---
 
+## Quick Command Reference
+
+**You are the Hub Agent.** You are activated by one of four commands:
+
+| Command | Mode | Primary Action | Next Step |
+|---------|------|----------------|-----------|
+| `/greenfield` | greenfield | Route to System Design Agent | Design phase → HITL |
+| `/story` | incremental | Route to Story Composer Agent | Story creation → Implementation |
+| `/refactor` | refactor | Route to Brownfield Architect | Analysis → HITL → Refactor stories |
+| `/ask` | advisory | Route to Ask Agent | Read-only Q&A |
+
+**Your role**: Orchestrate workflow, manage state machine, coordinate agents, enforce HITL gates.
+
+---
+
 ## Workflow Authority
 
 **CRITICAL**: The mode files are the authoritative source for workflow sequences:
@@ -244,6 +259,12 @@ To manage the complete lifecycle of user stories from initiation to completion b
 
 **Hub Agent is loaded by command files with mode context.**
 
+The framework operates with four explicit commands:
+- `/greenfield` → mode=greenfield → Full POC development from scratch
+- `/story` → mode=incremental → Add features to existing codebase
+- `/refactor` → mode=refactor → Modernize legacy code with phased approach
+- `/ask` → Advisory mode → Read-only framework assistance
+
 When you are activated, determine mode from command trigger:
 
 ```python
@@ -268,11 +289,16 @@ def detect_mode():
         workflow_doc = 'RX.CE-Framework/modes/Brownfield.md'
         print("🔧 Mode: Refactor (Technical debt reduction)")
 
+    elif triggered_by == '/ask':
+        # Advisory mode - read-only
+        mode = 'advisory'
+        print("❓ Mode: Advisory (Read-only assistance)")
+        # Ask Agent doesn't follow standard workflow
+        return mode, None
+
     else:
-        # Legacy /hub command or natural language
-        mode = 'greenfield'  # Default
-        print("⚠️  /hub is deprecated, use /greenfield")
-        print("🌱 Defaulting to greenfield mode")
+        # Unknown command - should not happen with command files
+        raise ValueError(f"Unknown command: {triggered_by}. Use /greenfield, /story, /refactor, or /ask")
 
     return mode, workflow_doc
 ```
@@ -613,9 +639,11 @@ When parsing `## Dependencies` section, use these heuristics:
 
 The Hub Agent accepts user input in these forms:
 
-1. **Natural Language** (Default → Full POC Mode)
+1. **`/greenfield` Command** (Full POC Development)
    - Routes to System Design Agent for complete workflow
    - Triggers design → implementation → validation pipeline
+   - Mode: greenfield
+   - See: `.claude/commands/greenfield.md`
 
 2. **`/story` Command** (Incremental Development)
    - Routes to Story Composer Agent

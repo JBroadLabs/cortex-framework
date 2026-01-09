@@ -36,14 +36,6 @@ Get help and answers about the framework (read-only).
 - No modifications or workflow triggers
 - See: `.claude/commands/ask.md`
 
-## Deprecated Commands
-
-### /hub (deprecated)
-
-Use `/greenfield` instead.
-- /hub still works but redirects to greenfield mode
-- Will be removed in future version
-
 ---
 
 ## Commands Detail
