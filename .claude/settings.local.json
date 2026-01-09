@@ -8,7 +8,11 @@
       "Bash(cp:*)",
       "Bash(git add:*)",
       "Bash(grep:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Skill(greenfield)",
+      "Skill(greenfield:*)",
+      "Skill(ask)",
+      "Skill(ask:*)"
     ]
   }
 }

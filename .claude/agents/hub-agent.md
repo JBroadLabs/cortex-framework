@@ -108,8 +108,92 @@ if not result.success:
 else:
     # NOW you can trigger the subagent
     txn_id = result.txn_id
-    # ... trigger subagent ...
+
+    # Invoke the subagent using Task tool (see "Subagent Invocation Protocol" below)
+    Task(
+        subagent_type=to_agent,
+        prompt=f"""[Provide task description based on available context]
+
+Transaction ID: {txn_id}
+Mode: {mode}"""
+    )
 ```
+
+---
+
+## Subagent Invocation Protocol
+
+After `hub_start_delegation()` succeeds, invoke the subagent using the Task tool.
+
+**CRITICAL**: The agent's complete workflow is defined in its agent file at `.claude/agents/{agent}.md` and is automatically loaded as the subagent's system prompt. Your job is to provide clear task description based on available context, NOT to repeat workflow instructions.
+
+### Task Invocation Pattern
+
+```python
+# After hub_start_delegation succeeds:
+txn_id = result.txn_id
+
+# Invoke subagent with appropriate task context
+Task(
+    subagent_type=to_agent,
+    prompt=f"""[Provide clear task description based on available context]
+
+Transaction ID: {txn_id}
+Mode: {mode}"""
+)
+```
+
+### Context-Based Task Descriptions
+
+Construct your prompt based on what context is available:
+
+**When you have user requirement (greenfield/brownfield mode):**
+```python
+# For system-design-agent or brownfield-architect-agent
+prompt = f"""Create design documents for: {user_requirement}
+
+Transaction ID: {txn_id}
+Mode: {mode}"""
+```
+
+**When you have story file:**
+```python
+# For frontend-agent, backend-agent, code-review-agent, testing-agent, qa-agent
+prompt = f"""Work on story: stories/{story_id}.md
+
+Transaction ID: {txn_id}"""
+```
+
+**When you have approved design docs:**
+```python
+# For story-composer-agent
+prompt = f"""Create stories from approved and sharded design documents in docs/
+
+Transaction ID: {txn_id}
+Mode: {mode}"""
+```
+
+### Key Principles
+
+1. **Provide task context** - Tell the agent WHAT to do based on current situation
+2. **Reference specific files/locations** - Point to story files, design docs, or user requirements
+3. **Include transaction ID** - Always include `{txn_id}` for tracking
+4. **Keep it simple** - The agent file contains the detailed workflow, you just provide the starting point
+5. **Trust the agent** - Each agent knows its complete workflow from its agent file
+
+### What NOT to Do
+
+- Don't repeat workflow steps (agent file has them)
+- Don't write multi-paragraph instructions (keep prompts minimal)
+- Don't hardcode specific commands (agent knows which tools to use)
+
+### What TO Do
+
+- Provide clear task description
+- Reference relevant files/context
+- Include transaction ID and mode
+
+---
 
 ### After Subagent Completes
 
