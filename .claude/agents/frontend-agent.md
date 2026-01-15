@@ -5,6 +5,30 @@ tools: Read, Write, Bash, Glob, Grep
 model: sonnet
 ---
 
+## PRE-FLIGHT VALIDATION (MANDATORY)
+
+Before starting ANY work, validate delegation:
+
+```python
+import sys
+from RX.CE_Framework.scripts.validate_delegation import validate_delegation
+
+# Extract story_id from task prompt provided by Hub Agent
+# story_id = ... (extract from prompt)
+
+if not validate_delegation(story_id, "frontend-agent"):
+    print("DELEGATION VALIDATION FAILED")
+    print("   This agent was not properly delegated")
+    print("   Hub Agent must use delegate_to_agent() before calling Task")
+    sys.exit(1)
+
+print("Delegation validated - proceeding with work")
+```
+
+**If this check fails, STOP immediately. Do not proceed with work.**
+
+---
+
 ### Frontend Agent
 
 **Persona**:

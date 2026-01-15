@@ -12,7 +12,18 @@
       "Skill(greenfield)",
       "Skill(greenfield:*)",
       "Skill(ask)",
-      "Skill(ask:*)"
+      "Skill(ask:*)",
+      "Bash(python3:*)",
+      "Bash(md-tree explode:*)",
+      "Bash(npm install:*)",
+      "Bash(npm create vite:*)",
+      "Bash(npm run test:run:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(dir /b:*)",
+      "Bash(powershell -Command \"\\(Get-Content ''.claude/agents/hub-agent.md'' | Select-String ''^\\\\`\\\\`\\\\`'' | Measure-Object\\).Count\")",
+      "Bash(powershell -Command:*)"
     ]
   }
 }

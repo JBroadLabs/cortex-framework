@@ -465,7 +465,7 @@ class WorkflowEngine:
             """, (to_phase, story_id))
 
             # Update lane status if using lanes
-            lane_name = delegation.get('lane_name', 'main') if delegation else 'main'
+            lane_name = delegation['lane_name'] if delegation and delegation['lane_name'] else 'main'
             if lane_name and lane_name != 'main':
                 conn.execute("""
                     UPDATE story_lanes
@@ -519,7 +519,7 @@ class WorkflowEngine:
                 )
 
             # Update lane status if using lanes
-            lane_name = delegation.get('lane_name', 'main') if delegation else 'main'
+            lane_name = delegation['lane_name'] if delegation and delegation['lane_name'] else 'main'
             if lane_name and lane_name != 'main':
                 conn.execute("""
                     UPDATE story_lanes
