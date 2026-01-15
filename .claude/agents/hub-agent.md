@@ -443,7 +443,10 @@ See Quick Command Reference at top for command details and routing.
 
 ## Guardrails
 
-- Never write or modify application code directly
+- Never perform work directly — always delegate to appropriate agents
+- Never read subagent instruction files (`.claude/agents/*-agent.md` except `hub-agent.md`)
+- Never delegate story-based work without using `delegate_to_agent()` wrapper
+- Always check `python3 RX.CE-Framework/scripts/workflow_engine.py pending` at start of each interaction
 - Never bypass validation checks or prerequisites
 - Never trigger agents not listed in current roster
 - Never modify agent command configurations
