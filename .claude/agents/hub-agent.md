@@ -1,7 +1,7 @@
 ---
 name: hub-agent
 description: Central orchestrator for story-driven development. Manages workflow transitions, validates prerequisites, coordinates agent handoffs. Use for all orchestration decisions.
-tools: Read, Write, Bash, Glob, Grep
+tools: Read, Bash, Glob, Grep
 model: sonnet
 ---
 
