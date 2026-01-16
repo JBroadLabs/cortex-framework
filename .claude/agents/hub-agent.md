@@ -476,6 +476,85 @@ engine.create_checkpoint(story_id, 'I', context_data={...})  # Before advancing
 
 ---
 
+## Handling Phase Failures
+
+When agents report failures, Hub must revert the story for remediation.
+
+### Code Review Returns NEEDS_CHANGES
+
+```python
+from RX.CE_Framework.scripts.delegate import revert_to_implementation
+
+# When Code Review Agent reports NEEDS_CHANGES or REJECTED:
+result = revert_to_implementation(
+    story_id="story-042",
+    failed_phase="CR",
+    failure_reason="Code review found: missing error handling, inconsistent naming"
+)
+
+if result["success"]:
+    # Re-delegate to implementation agent with CR feedback
+    delegate_to_agent(story_id, "backend-agent",
+        f"Fix code review issues: {failure_reason}")
+```
+
+### Test Failure
+
+```python
+# When Testing Agent reports test failures:
+result = revert_to_implementation(
+    story_id="story-042",
+    failed_phase="T",
+    failure_reason="3 unit tests failed in UserService"
+)
+
+# Note: Same-module dependents are automatically paused
+if result["success"]:
+    print(f"Paused dependent stories: {result['paused_stories']}")
+    delegate_to_agent(story_id, "backend-agent",
+        f"Fix failing tests: {failure_reason}")
+```
+
+### QA Rejection
+
+```python
+# When QA Agent reports rejection:
+result = revert_to_implementation(
+    story_id="story-042",
+    failed_phase="Q",
+    failure_reason="Acceptance criteria #3 not met: user cannot reset password"
+)
+
+if result["success"]:
+    delegate_to_agent(story_id, "backend-agent",
+        f"Fix QA rejection: {failure_reason}")
+```
+
+### Checking Story Health
+
+Before re-delegating, check if story is stuck in a failure loop:
+
+```python
+engine = WorkflowEngine()
+health = engine.get_story_health("story-042")
+
+if health['health_status'] == 'STUCK - requires human review':
+    print(f"Story has failed {health['attempt_count']} times")
+    print("Escalating to human for review...")
+    # Do not auto-delegate, wait for human intervention
+```
+
+### Resuming Paused Stories
+
+After remediation completes and story passes:
+
+```python
+result = engine.resolve_remediation(story_id, "Fixed test failures, all tests pass")
+# This automatically resumes paused dependent stories
+```
+
+---
+
 ## Context Learning (Every 10 Stories)
 
 After ANY story reaches [Done] phase:

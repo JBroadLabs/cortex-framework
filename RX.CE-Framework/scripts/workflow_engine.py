@@ -35,6 +35,7 @@ class Phase(Enum):
     QA = "Q"
     DONE = "Done"
     BLOCKED = "Blocked"
+    PAUSED = "Paused"
 
 class DelegationStatus(Enum):
     PENDING = "pending"
@@ -718,60 +719,101 @@ class WorkflowEngine:
     # REMEDIATION HANDLING
     # ========================================================================
 
-    def handle_test_failure(self, story_id: str, failure_reason: str) -> DelegationResult:
+    def handle_phase_failure(self, story_id: str, failed_phase: str,
+                             failure_reason: str) -> DelegationResult:
         """
-        Handle test failure: return to [I], pause same-module dependents.
-        Framework docs: lines 27273-27278
+        Generic handler for phase failures. Returns story to [I] for remediation.
 
         Args:
-            story_id: Story that failed testing
-            failure_reason: Why tests failed
+            story_id: Story that failed
+            failed_phase: Phase where failure occurred ('CR', 'T', or 'Q')
+            failure_reason: Description of what failed
+
+        Returns:
+            DelegationResult with success status and metadata
         """
+        if failed_phase not in ('CR', 'T', 'Q'):
+            return DelegationResult(
+                success=False,
+                error=f"Invalid failed_phase: {failed_phase}. Must be CR, T, or Q."
+            )
+
         conn = self._get_conn()
         try:
-            # Get latest checkpoint (should be from [I] phase)
+            # 1. Get current story state
+            story = conn.execute("""
+                SELECT phase, attempt_count FROM stories WHERE story_id = ?
+            """, (story_id,)).fetchone()
+
+            if not story:
+                return DelegationResult(success=False, error=f"Story {story_id} not found")
+
+            if story['phase'] != failed_phase:
+                return DelegationResult(
+                    success=False,
+                    error=f"Story {story_id} is in phase [{story['phase']}], not [{failed_phase}]"
+                )
+
+            # 2. Check attempt count - circuit breaker
+            new_attempt_count = story['attempt_count'] + 1
+            if new_attempt_count > 5:
+                print(f"WARNING: Story {story_id} has failed {new_attempt_count} times")
+
+            # 3. Get checkpoint from [I] phase if available
             checkpoint = self.get_latest_checkpoint(story_id, 'I')
             checkpoint_id = checkpoint['id'] if checkpoint else None
 
-            # Find same-module dependents that should be paused
-            dependents = conn.execute("""
-                SELECT d.story_id
-                FROM story_dependencies d
-                JOIN stories s ON d.story_id = s.story_id
-                WHERE d.depends_on_story_id = ?
-                  AND d.dependency_type = 'same_module'
-                  AND s.phase NOT IN ('Done', 'Paused')
-            """, (story_id,)).fetchall()
+            # 4. Find and pause same-module dependents (only for T and Q failures)
+            paused_ids = []
+            if failed_phase in ('T', 'Q'):
+                dependents = conn.execute("""
+                    SELECT d.story_id
+                    FROM story_dependencies d
+                    JOIN stories s ON d.story_id = s.story_id
+                    WHERE d.depends_on_story_id = ?
+                      AND d.dependency_type = 'same_module'
+                      AND s.phase NOT IN ('Done', 'Paused', 'Blocked')
+                """, (story_id,)).fetchall()
 
-            paused_ids = [d['story_id'] for d in dependents]
+                paused_ids = [d['story_id'] for d in dependents]
 
-            # Pause dependent stories
-            for dep_id in paused_ids:
-                conn.execute("""
-                    UPDATE stories SET phase = 'Paused'
-                    WHERE story_id = ?
-                """, (dep_id,))
+                for dep_id in paused_ids:
+                    conn.execute("""
+                        UPDATE stories SET phase = 'Paused', current_agent = NULL
+                        WHERE story_id = ?
+                    """, (dep_id,))
 
-            # Create remediation record
+            # 5. Create remediation record
             conn.execute("""
                 INSERT INTO remediations
                 (story_id, failed_phase, failure_reason, returned_to_phase,
                  checkpoint_id, paused_dependents)
-                VALUES (?, 'T', ?, 'I', ?, ?)
-            """, (story_id, failure_reason, checkpoint_id, json.dumps(paused_ids)))
+                VALUES (?, ?, ?, 'I', ?, ?)
+            """, (story_id, failed_phase, failure_reason, checkpoint_id,
+                  json.dumps(paused_ids) if paused_ids else None))
 
-            # Return story to [I]
+            # 6. Update story: revert to [I], increment attempt count
             conn.execute("""
-                UPDATE stories SET phase = 'I', current_agent = 'hub-agent'
+                UPDATE stories
+                SET phase = 'I',
+                    current_agent = 'hub-agent',
+                    attempt_count = ?,
+                    last_failure_phase = ?,
+                    last_failure_at = datetime('now')
                 WHERE story_id = ?
-            """, (story_id,))
+            """, (new_attempt_count, failed_phase, story_id))
 
             conn.commit()
 
             return DelegationResult(
                 success=True,
-                message=f"Story {story_id} returned to [I]. Paused dependents: {paused_ids}",
-                metadata={'paused_stories': paused_ids, 'checkpoint_id': checkpoint_id}
+                message=f"Story {story_id} reverted from [{failed_phase}] to [I]. Attempt #{new_attempt_count}",
+                metadata={
+                    'attempt_count': new_attempt_count,
+                    'paused_stories': paused_ids,
+                    'checkpoint_id': checkpoint_id,
+                    'failed_phase': failed_phase
+                }
             )
 
         except Exception as e:
@@ -779,6 +821,21 @@ class WorkflowEngine:
             return DelegationResult(success=False, error=str(e))
         finally:
             conn.close()
+
+    def handle_test_failure(self, story_id: str, failure_reason: str) -> DelegationResult:
+        """
+        Handle test failure: return to [I], pause same-module dependents.
+        Wrapper around handle_phase_failure() for backward compatibility.
+        """
+        return self.handle_phase_failure(story_id, 'T', failure_reason)
+
+    def handle_code_review_failure(self, story_id: str, failure_reason: str) -> DelegationResult:
+        """Handle code review failure: return to [I] for fixes."""
+        return self.handle_phase_failure(story_id, 'CR', failure_reason)
+
+    def handle_qa_rejection(self, story_id: str, failure_reason: str) -> DelegationResult:
+        """Handle QA rejection: return to [I] for fixes."""
+        return self.handle_phase_failure(story_id, 'Q', failure_reason)
 
     def resolve_remediation(self, story_id: str, notes: str = None) -> DelegationResult:
         """Mark remediation as resolved and resume paused dependents."""
@@ -823,6 +880,30 @@ class WorkflowEngine:
         except Exception as e:
             conn.rollback()
             return DelegationResult(success=False, error=str(e))
+        finally:
+            conn.close()
+
+    def get_story_health(self, story_id: str) -> Optional[Dict]:
+        """Get health status for a story."""
+        conn = self._get_conn()
+        try:
+            row = conn.execute("""
+                SELECT * FROM story_health WHERE story_id = ?
+            """, (story_id,)).fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def get_stuck_stories(self) -> List[Dict]:
+        """Get all stories that have failed multiple times."""
+        conn = self._get_conn()
+        try:
+            rows = conn.execute("""
+                SELECT * FROM story_health
+                WHERE health_status != 'HEALTHY'
+                ORDER BY attempt_count DESC
+            """).fetchall()
+            return [dict(row) for row in rows]
         finally:
             conn.close()
 

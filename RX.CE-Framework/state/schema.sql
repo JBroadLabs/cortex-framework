@@ -22,7 +22,8 @@ INSERT INTO phases (phase_id, phase_order, description) VALUES
     ('T', 3, 'Testing in progress'),
     ('Q', 4, 'QA validation in progress'),
     ('Done', 5, 'Story complete'),
-    ('Blocked', -1, 'Story blocked by dependency or issue');
+    ('Blocked', -1, 'Story blocked by dependency or issue'),
+    ('Paused', -2, 'Story paused due to dependency failure');
 
 -- Valid agents (enumeration table)
 CREATE TABLE agents (
@@ -67,7 +68,19 @@ INSERT INTO valid_transitions (from_phase, to_phase, required_agent, description
     ('CR', 'T', 'frontend-unit-testing-agent', 'Frontend unit testing'),
     ('CR', 'T', 'backend-unit-testing-agent', 'Backend unit testing'),
     ('T', 'Q', 'qa-agent', 'QA validation after testing'),
-    ('Q', 'Done', 'hub-agent', 'Final completion by Hub');
+    ('Q', 'Done', 'hub-agent', 'Final completion by Hub'),
+
+    -- REVERT TRANSITIONS (Hub reverts story to implementation for fixes)
+    ('CR', 'I', 'hub-agent', 'Hub reverts to implementation after CR requests changes'),
+    ('T', 'I', 'hub-agent', 'Hub reverts to implementation after test failure'),
+    ('Q', 'I', 'hub-agent', 'Hub reverts to implementation after QA rejection'),
+
+    -- PAUSE/RESUME TRANSITIONS (For dependency failure handling)
+    ('I', 'Paused', 'hub-agent', 'Pause implementation for dependency remediation'),
+    ('CR', 'Paused', 'hub-agent', 'Pause code review for dependency remediation'),
+    ('T', 'Paused', 'hub-agent', 'Pause testing for dependency remediation'),
+    ('Q', 'Paused', 'hub-agent', 'Pause QA for dependency remediation'),
+    ('Paused', 'Pending', 'hub-agent', 'Resume story after dependency resolved');
 
 -- ============================================================================
 -- STORY TRACKING
@@ -80,6 +93,9 @@ CREATE TABLE stories (
     phase TEXT NOT NULL DEFAULT 'Pending',
     current_agent TEXT,
     story_file_path TEXT NOT NULL,
+    attempt_count INTEGER NOT NULL DEFAULT 1,
+    last_failure_phase TEXT,
+    last_failure_at TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (phase) REFERENCES phases(phase_id),
@@ -283,11 +299,35 @@ SELECT
         WHEN EXISTS (SELECT 1 FROM delegations d
                      WHERE d.story_id = s.story_id AND d.status = 'pending')
         THEN 'WAIT - delegation in progress'
+        WHEN EXISTS (SELECT 1 FROM story_blockers sb
+                     WHERE sb.blocked_story_id = s.story_id
+                     AND sb.block_status = 'BLOCKED')
+        THEN 'BLOCKED - dependencies not met'
         ELSE 'READY - can delegate'
     END as readiness
 FROM stories s
 JOIN valid_transitions vt ON s.phase = vt.from_phase
-WHERE s.phase NOT IN ('Done', 'Blocked');
+WHERE s.phase NOT IN ('Done', 'Blocked', 'Paused');
+
+-- View: Story health status for detecting stuck stories
+CREATE VIEW story_health AS
+SELECT
+    s.story_id,
+    s.title,
+    s.phase,
+    s.attempt_count,
+    s.last_failure_phase,
+    s.last_failure_at,
+    COUNT(r.id) as total_remediations,
+    MAX(r.started_at) as most_recent_failure,
+    CASE
+        WHEN s.attempt_count >= 5 THEN 'STUCK - requires human review'
+        WHEN s.attempt_count >= 3 THEN 'AT_RISK - multiple failures'
+        ELSE 'HEALTHY'
+    END as health_status
+FROM stories s
+LEFT JOIN remediations r ON s.story_id = r.story_id
+GROUP BY s.story_id;
 
 -- ============================================================================
 -- DEPENDENCY TRACKING

@@ -29,6 +29,29 @@ print("Delegation validated - proceeding with work")
 
 ---
 
+## MANDATORY: Read Story File
+
+Upon activation by Hub, you MUST read the story file before validation:
+
+```python
+# Hub sends: "Work on story: stories/story-042.md"
+Read(f"stories/{story_id}.md")
+```
+
+**Extract from story file**:
+- **Story**: The user story being validated
+- **Acceptance Criteria**: Your validation checklist - every item must pass
+- **Tasks / Subtasks**: What was implemented
+- **Review & Testing Notes**: All prior agent results (CR, unit tests, integration tests)
+
+Also load coding standards for reference:
+
+```python
+Read("docs/coding-standards.md")
+```
+
+---
+
 ### QA Agent
 
 **Persona**:
@@ -60,8 +83,8 @@ If you hit any **build error, test failure, or runtime error** during QA:
 
 This file contains solutions to recurring issues. Checking it first can save significant time.
 
-2.  **Holistic Review**: The agent performs a comprehensive review:
-    -   It reads the entire Story file, focusing on the user `Story` and `Acceptance Criteria`.
+2.  **Holistic Review**: With the story file loaded, perform a comprehensive review:
+    -   Focus on the **Story** and **Acceptance Criteria** sections.
     -   It runs the **entire automated test suite** one final time to guarantee no regressions have been introduced.
     -   It interacts with the running application (if applicable), simulating the end-user's workflow.
     -   It validates that every item in the `Acceptance Criteria` is fully met.
@@ -167,8 +190,7 @@ You MUST append the following section to the story file before completing:
   - `personas/*.md`
   - `PROTOCOL.md`
   - `AGENTS.md`
-  - `docs/shard-index.md` (post-approval registry)
-  - `docs/architecture.md`, `docs/frontend.md`, `docs/backend.md` (pre-approval monoliths)
+  - `docs/coding-standards.md`
 - **Memory**:
   - Short-term memory of the Story being reviewed.
 

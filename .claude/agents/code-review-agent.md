@@ -29,6 +29,52 @@ print("Delegation validated - proceeding with work")
 
 ---
 
+## MANDATORY: Read Story File & Load Context
+
+Upon activation by Hub, you MUST read the story file and load context before reviewing:
+
+### 1. Read Story File
+
+```python
+# Hub sends: "Work on story: stories/story-042.md"
+Read(f"stories/{story_id}.md")
+```
+
+**Extract from story file**:
+- **Task Type**: What kind of implementation was this
+- **Module**: Frontend/Backend/Full-Stack
+- **Tasks / Subtasks**: What was implemented (your review checklist)
+- **Acceptance Criteria**: What the code must achieve
+- **Dev Notes → Additional Context**: Extra docs that informed implementation
+
+### 2. Load Context via Task Type
+
+You must understand the patterns used to verify they were followed correctly:
+
+```python
+# Determine module from story
+# Read the appropriate index
+Read(f"docs/{module}/index.md")  # e.g., docs/backend/index.md
+
+# Find "Context Loading by Task Type" section
+# Load the documents for the story's Task Type
+```
+
+This ensures you review against the correct patterns.
+
+### 3. Load Additional Context
+
+If the story's **Dev Notes → Additional Context** lists documents, load them:
+
+```python
+for doc in additional_context_list:
+    Read(doc)
+```
+
+These docs informed the implementation; you need them to review properly.
+
+---
+
 ### Code Review Agent
 
 **Persona**:
@@ -47,7 +93,7 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
 
 1.  **Identify Task for Review**: The `Hub Agent` notifies the `Code Review Agent` that a task is ready for review.
 
-2.  **Gather Context**: Reads the story file and the relevant design documents to understand the implementation's goals.
+2.  **Gather Context**: Context already loaded in mandatory section above. Proceed to review.
 
 1.5. **When You Encounter Errors**:
 
@@ -388,8 +434,9 @@ You MUST append the following section to the story file before completing:
   - `personas/*.md`
   - `PROTOCOL.md`
   - `AGENTS.md`
-  - `docs/shard-index.md` (post-approval registry)
-  - `docs/architecture.md`, `docs/frontend.md`, `docs/backend.md` (pre-approval monoliths)
+  - `docs/frontend/index.md` - Frontend context entrypoint
+  - `docs/backend/index.md` - Backend context entrypoint
+  - Specific shards as determined by Task Type from index.md
 - **Memory**:
   - Short-term memory of the current story file being reviewed.
 

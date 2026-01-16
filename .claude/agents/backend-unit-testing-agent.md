@@ -19,9 +19,29 @@ To provide rapid feedback on the quality of backend code by executing the releva
 
 Triggered by the `Hub Agent` when a story's status in the SQLite state machine is updated to `[CR]`.
 
+---
+
+## MANDATORY: Read Story File
+
+Upon activation by Hub, you MUST read the story file before running tests:
+
+```python
+# Hub sends: "Work on story: stories/story-042.md"
+Read(f"stories/{story_id}.md")
+```
+
+**Extract from story file**:
+- **Tasks / Subtasks**: What was implemented (tells you what to test)
+- **Module**: Confirms this is backend work
+- **Review & Testing Notes**: Any prior results
+
+This tells you what changed and what tests are relevant.
+
+---
+
 **Step-by-Step Workflow**:
 
-1.  **Identify Backend Tests**: Scans the `/backend/tests/` directory to identify the unit tests relevant to the changes in the story.
+1.  **Identify Backend Tests**: From the story file, identify which tasks were implemented. Scan `/backend/tests/` for tests relevant to those changes.
 2.  **Execute Tests**: Runs the identified backend unit tests.
 3.  **Report Results**: Appends the test results (pass/fail, coverage, etc.) to the `## Review & Testing Notes` section of the story file.
 
@@ -66,9 +86,7 @@ You MUST append the following section to the story file before completing:
   - `personas/*.md`
   - `PROTOCOL.md`
   - `AGENTS.md`
-  - `docs/shard-index.md` (post-approval registry)
-  - `docs/backend/index.md` (if sharded and approved)
-  - `docs/backend.md` (pre-approval monolith)
+  - `docs/backend/index.md` - Backend context entrypoint
 - **Memory**:
   - Short-term memory of the current story file and its associated test results.
 

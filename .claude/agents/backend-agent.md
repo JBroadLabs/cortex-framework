@@ -70,27 +70,71 @@ Triggered by the `Hub Agent` when a story's status in the SQLite state machine i
     =====================================
     ```
 
-1.  **Gather Context**:
+1.  **Read Story File (MANDATORY FIRST STEP)**:
 
-    a. **Verify context is empty**:
-       - Assert no documents loaded
-       - Assert no patterns in memory
-       - Log: "Context verified empty"
+    Upon activation by Hub, you MUST read the story file before any other action:
 
-    b. **Read story file completely**
+    ```python
+    # Hub sends: "Work on story: stories/story-042.md"
+    # Extract story_id from the prompt
 
-    c. **Extract required fields**:
-       - Task Type
-       - Module
-       - Status
-       - Entry mode
+    Read(f"stories/{story_id}.md")
+    ```
 
-    d. **Check for existing checkpoints**:
-       - If remediation: Read Context Checkpoint
-       - If resume: Read both Context Checkpoint and Pause Checkpoint
-       - If fresh: Proceed to Step 2
+    **Extract from story file**:
+    - **Task Type**: From header (e.g., "API Implementation")
+    - **Module**: From header (Backend)
+    - **Phase**: Should be [I]
+    - **Tasks / Subtasks**: Your implementation checklist
+    - **Dev Notes → Additional Context**: Extra docs to load
+    - **Context Checkpoint**: If this is remediation mode (from CR/T revert)
 
-1.5. **When You Encounter Errors**:
+    **DO NOT PROCEED** until you have read the story file.
+
+2.  **Load Context via Task Type**:
+
+    Using the **Task Type** and **Module** from the story file:
+
+    ```python
+    # Read the backend index
+    Read("docs/backend/index.md")
+
+    # Find "Context Loading by Task Type" section
+    # Locate your Task Type (e.g., "API Implementation")
+    # Load ONLY the documents listed for that Task Type
+    ```
+
+    **Example**: If Task Type is "API Implementation", index might specify:
+    - docs/backend/api-patterns.md
+    - docs/backend/error-handling.md
+    - docs/backend/validation.md
+
+    Load those specific documents only.
+
+3.  **Load Additional Context**:
+
+    Check the story's **Dev Notes → Additional Context** section.
+
+    ```python
+    # If story specifies additional docs:
+    # **Additional Context**:
+    # - docs/auth/jwt-patterns.md
+    # - docs/backend/rate-limiting.md
+
+    # Load each one
+    for doc in additional_context_list:
+        Read(doc)
+    ```
+
+    ⚠️ If documents are listed in Additional Context, you MUST load them.
+
+4.  **Verify Context & Proceed**:
+    - Confirm Task Type documents loaded
+    - Confirm Additional Context loaded (if any)
+    - Log what you loaded
+    - Proceed to coding standards (Step 5.5)
+
+4.5. **When You Encounter Errors**:
 
 If you hit any **build error, test failure, or runtime error** during implementation:
 
@@ -102,34 +146,6 @@ If you hit any **build error, test failure, or runtime error** during implementa
 **Then proceed** with normal debugging if not documented.
 
 This file contains solutions to recurring issues. Checking it first can save significant time.
-
-2.  **Load Context Based on Mode**:
-
-    **For fresh_start**:
-    - If sharded and approved: Navigate via `docs/shard-index.md` to `docs/backend/index.md`
-    - If pre-approval: Consult monolithic `docs/backend.md`
-    - Find "Context Loading by Task Type" section
-    - Load documents as specified for Task Type
-
-    **For remediation**:
-    - Load from Context Checkpoint section
-    - Load exact versions listed
-    - Read Review & Testing Notes for issues to fix
-
-    **For resume**:
-    - Load from Context Checkpoint section
-    - Read Pause Checkpoint for resume point
-    - Read Implementation Progress Log for completed tasks
-
-3.  **Load Additional Context**:
-    - Read the "Additional Context" section in Dev Notes
-    - Load any documents listed there
-    - Load `docs/spec.md` if needed for functional requirements
-
-4.  **Verify Context Completeness**:
-    - Confirm all required documents loaded
-    - Log loaded document count and versions
-    - If context missing, HALT and notify Hub
 
 5.  **Execute Pre-Implementation Checklist**:
     - Task Type identified: [____]
@@ -494,9 +510,7 @@ You MUST append the following section to the story file before completing:
   - `PROTOCOL.md`
   - `AGENTS.md`
   - `docs/spec.md` - Load when functional requirements needed
-  - `docs/shard-index.md` - Registry of shards (post‑approval)
-  - `docs/backend/index.md` - Primary backend context entrypoint (if sharded and approved)
-  - `docs/backend.md` - Monolithic backend context (pre-approval)
+  - `docs/backend/index.md` - Primary backend context entrypoint
   - Specific shards as determined by Task Type from index.md
 - **Memory**:
   - Short-term memory of the current story file and its associated code.

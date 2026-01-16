@@ -48,9 +48,11 @@ Use this as the starting point when creating new story files. Agents will valida
 
 **Task Type Context**: [Task_Type]
 
-**Additional Context** (optional):
-- [List any documents beyond the default context for this task type]
-- docs/coding-standards.md (automatically loaded by implementation agents)
+**Additional Context**:
+- [Documents beyond default Task Type context - leave empty if none needed]
+- docs/coding-standards.md (automatically loaded)
+
+⚠️ If documents are listed here, agents MUST load them.
 
 **Technical Notes**:
 [String: Implementation-specific technical notes]

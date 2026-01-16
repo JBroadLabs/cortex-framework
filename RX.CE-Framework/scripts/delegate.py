@@ -227,6 +227,54 @@ def complete_delegation(txn_id: str, story_id: str, agent: str) -> Dict:
     }
 
 
+def revert_to_implementation(story_id: str, failed_phase: str,
+                             failure_reason: str) -> Dict:
+    """
+    Revert a story to [I] phase after failure at CR, T, or Q.
+
+    Args:
+        story_id: Story ID to revert
+        failed_phase: Phase where failure occurred ('CR', 'T', or 'Q')
+        failure_reason: Description of what failed
+
+    Returns:
+        dict with success, message/error, and metadata
+    """
+    engine = WorkflowEngine()
+
+    print(f"\n{'='*60}")
+    print(f"[REVERT] {story_id}: [{failed_phase}] -> [I]")
+    print(f"{'='*60}")
+    print(f"   Reason: {failure_reason[:100]}{'...' if len(failure_reason) > 100 else ''}")
+
+    result = engine.handle_phase_failure(story_id, failed_phase, failure_reason)
+
+    if result.success:
+        print(f"[OK] Story reverted to [I]")
+        print(f"   Attempt count: {result.metadata.get('attempt_count', 'N/A')}")
+        if result.metadata.get('paused_stories'):
+            print(f"   Paused dependents: {result.metadata['paused_stories']}")
+        print(f"{'='*60}\n")
+
+        return {
+            "success": True,
+            "message": result.message,
+            "story_id": story_id,
+            "from_phase": failed_phase,
+            "to_phase": "I",
+            "attempt_count": result.metadata.get('attempt_count'),
+            "paused_stories": result.metadata.get('paused_stories', [])
+        }
+    else:
+        print(f"[ERROR] Revert failed: {result.error}")
+        print(f"{'='*60}\n")
+
+        return {
+            "success": False,
+            "error": result.error
+        }
+
+
 def _write_delegation_marker(story_id: str, txn_id: str, agent: str,
                              from_phase: str, to_phase: str):
     """Write delegation marker to story file for subagent validation."""
@@ -302,11 +350,14 @@ def _update_delegation_marker(story_id: str, txn_id: str, evidence_hash: str):
 
 
 if __name__ == "__main__":
+    import json
+
     # CLI interface for testing
     if len(sys.argv) < 2:
         print("Usage:")
         print("  python delegate.py start <story_id> <agent> <description>")
         print("  python delegate.py complete <txn_id> <story_id> <agent>")
+        print("  python delegate.py revert <story_id> <failed_phase> <reason>")
         sys.exit(1)
 
     command = sys.argv[1]
@@ -316,13 +367,22 @@ if __name__ == "__main__":
             print("Usage: python delegate.py start <story_id> <agent> <description>")
             sys.exit(1)
         result = delegate_to_agent(sys.argv[2], sys.argv[3], sys.argv[4])
-        print(result)
+        print(json.dumps(result, indent=2))
+
     elif command == "complete":
         if len(sys.argv) < 5:
             print("Usage: python delegate.py complete <txn_id> <story_id> <agent>")
             sys.exit(1)
         result = complete_delegation(sys.argv[2], sys.argv[3], sys.argv[4])
-        print(result)
+        print(json.dumps(result, indent=2))
+
+    elif command == "revert":
+        if len(sys.argv) < 5:
+            print("Usage: python delegate.py revert <story_id> <failed_phase> <reason>")
+            sys.exit(1)
+        result = revert_to_implementation(sys.argv[2], sys.argv[3], sys.argv[4])
+        print(json.dumps(result, indent=2))
+
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)

@@ -60,30 +60,55 @@ If you hit any **build error, test failure, or runtime error** during testing:
 
 This file contains solutions to recurring issues. Checking it first can save significant time.
 
-2.  **Gather Context**:
+2.  **Read Story File (MANDATORY)**:
 
-    **Check story entry history**:
-    - If story has Context Restoration Log: This is remediation
-    - Note any paused/resumed stories that might affect tests
+    ```python
+    # Hub sends: "Work on story: stories/story-042.md"
+    Read(f"stories/{story_id}.md")
+    ```
 
-    **Read all relevant sections**:
-    - Read full story file including:
-      * Task completion status (which tasks are [x])
-      * Context Checkpoint (what context was used)
-      * Implementation Progress Log
-      * Review & Testing Notes
+    **Extract from story file**:
+    - **Task Type**: What kind of implementation to test
+    - **Module**: Frontend/Backend/Full-Stack
+    - **Acceptance Criteria**: What tests must validate
+    - **Tasks / Subtasks**: What was implemented
+    - **Review & Testing Notes**: Prior CR and unit test results
+    - **Context Checkpoint**: If remediation, focus on fixed areas
+    - **Dev Notes → Additional Context**: Extra docs for context
 
-    **Understand test scope**:
-    - If remediation: Focus tests on fixed areas
-    - If fresh: Run comprehensive test suite
+3.  **Load Context via Task Type**:
 
-    Also consult `docs/coding-standards.md`. If design docs are approved and sharded, load module context via `docs/shard-index.md` → `docs/{module}/index.md`; otherwise (pre‑approval) consult monolithic `docs/architecture.md`, `docs/frontend.md`, and `docs/backend.md`. Prefer minimal context loads and indices.
-3.  **Develop Tests**: Writes **integration and end-to-end (E2E) tests** based on the story and architectural documents. These tests are stored in the appropriate `/frontend/tests/` or `/backend/tests/` directory.
-4.  **Execute Tests**: Runs the **entire automated test suite**, including the new tests and all existing unit tests.
-5.  **Analyze Results**: Checks the output of the test suite.
-6.  **Update Status & Handoff**: Appends a new entry to the `## Review & Testing Notes` section in the story file with the heading `### Testing Results` and includes detailed feedback. This update to the story file serves as the notification to the `Hub Agent`.
+    You need to understand the implementation patterns to write proper integration tests:
 
-6.5. **Provide Feedback** (~3 minutes):
+    ```python
+    # Read the appropriate module index
+    Read(f"docs/{module}/index.md")
+
+    # Find "Context Loading by Task Type" section
+    # Load documents for the story's Task Type
+    ```
+
+4.  **Load Additional Context**:
+
+    If **Dev Notes → Additional Context** lists documents, load them:
+
+    ```python
+    for doc in additional_context_list:
+        Read(doc)
+    ```
+
+5.  **Load Coding Standards**:
+
+    ```python
+    Read("docs/coding-standards.md")
+    ```
+
+6.  **Develop Tests**: Writes **integration and end-to-end (E2E) tests** based on the story and architectural documents. These tests are stored in the appropriate `/frontend/tests/` or `/backend/tests/` directory.
+7.  **Execute Tests**: Runs the **entire automated test suite**, including the new tests and all existing unit tests.
+8.  **Analyze Results**: Checks the output of the test suite.
+9.  **Update Status & Handoff**: Appends a new entry to the `## Review & Testing Notes` section in the story file with the heading `### Testing Results` and includes detailed feedback. This update to the story file serves as the notification to the `Hub Agent`.
+
+9.5. **Provide Feedback** (~3 minutes):
 
 Before completing work, provide two types of feedback:
 
@@ -188,14 +213,13 @@ You MUST append the following section to the story file before completing:
 **Knowledge & Memory**:
 - **Knowledge**:
   - `personas/*.md`
-  - `docs/architecture.md`
-  - `docs/frontend.md`
-  - `docs/backend.md`
-  - `docs/shard-index.md`
+  - `docs/frontend/index.md` - Frontend context entrypoint
+  - `docs/backend/index.md` - Backend context entrypoint
   - `docs/coding-standards.md`
   - `docs/CONTEXT_LEARNING.md`
   - `PROTOCOL.md`
   - `AGENTS.md`
+  - Specific shards as determined by Task Type from index.md
 - **Memory**:
   - Short-term memory of the current story being tested.
 
