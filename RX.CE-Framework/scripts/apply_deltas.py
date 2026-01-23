@@ -19,7 +19,7 @@ import shutil
 
 def parse_delta_file(delta_file: Path) -> List[Dict]:
     """Extract approved deltas from proposal file."""
-    content = delta_file.read_text()
+    content = delta_file.read_text(encoding='utf-8')
 
     deltas = []
     # Split by "## Delta N:"
@@ -79,7 +79,7 @@ def apply_delta(delta: Dict, dry_run: bool = False) -> bool:
         print(f"  ⚠️  Target file not found: {target_file}")
         return False
 
-    content = target_file.read_text()
+    content = target_file.read_text(encoding='utf-8')
     original_content = content
 
     try:
@@ -140,7 +140,7 @@ def apply_delta(delta: Dict, dry_run: bool = False) -> bool:
 
         # Write updated content
         if not dry_run:
-            target_file.write_text(content)
+            target_file.write_text(content, encoding='utf-8')
 
         return True
 

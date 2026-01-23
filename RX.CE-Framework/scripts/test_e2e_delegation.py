@@ -34,7 +34,7 @@ Test story for end-to-end delegation validation.
 ## Review & Testing Notes
 (Will be updated by agents)
 """
-    story_path.write_text(content)
+    story_path.write_text(content, encoding='utf-8')
     print(f"   [OK] Story file created: {story_path}")
 
     # Register in state machine
@@ -60,7 +60,7 @@ Test story for end-to-end delegation validation.
 def simulate_agent_work(story_id: str, agent: str):
     """Simulate agent completing work."""
     story_path = Path(f"stories/{story_id}.md")
-    content = story_path.read_text()
+    content = story_path.read_text(encoding='utf-8')
 
     # Add evidence section
     evidence = f"""
@@ -95,7 +95,7 @@ Test changes for delegation wrapper validation
 """
 
     content += feedback
-    story_path.write_text(content)
+    story_path.write_text(content, encoding='utf-8')
     print(f"   [OK] Simulated agent work complete")
 
 
@@ -194,7 +194,7 @@ def test_validation_script():
 ## Description
 Test story for validation script.
 """
-    story_path.write_text(content)
+    story_path.write_text(content, encoding='utf-8')
     print(f"   [OK] Story created with delegation marker\n")
 
     # Test successful validation

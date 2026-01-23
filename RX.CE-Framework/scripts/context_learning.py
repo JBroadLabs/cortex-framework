@@ -113,12 +113,12 @@ def complete_reflector_workflow(txn_id, batch_num):
         }
 
     # Present deltas to user (HITL gate)
-    context_content = context_delta_file.read_text()
+    context_content = context_delta_file.read_text(encoding='utf-8')
     context_delta_count = len(re.findall(r'\[ \] APPROVED', context_content))
 
     troubleshooting_delta_count = 0
     if troubleshooting_delta_file.exists():
-        troubleshooting_content = troubleshooting_delta_file.read_text()
+        troubleshooting_content = troubleshooting_delta_file.read_text(encoding='utf-8')
         troubleshooting_delta_count = len(re.findall(r'\[ \] APPROVED', troubleshooting_content))
 
     print("\n" + "="*60)

@@ -157,7 +157,7 @@ def complete_delegation(txn_id: str, story_id: str, agent: str) -> Dict:
             "error": f"Story file not found: {story_path}"
         }
 
-    story_content = story_path.read_text()
+    story_content = story_path.read_text(encoding='utf-8')
 
     if '## Context Feedback' not in story_content:
         print(f"[ERROR] Missing Context Feedback section")
@@ -283,7 +283,7 @@ def _write_delegation_marker(story_id: str, txn_id: str, agent: str,
         print(f"   [WARN] Story file not found: {story_path}")
         return
 
-    content = story_path.read_text()
+    content = story_path.read_text(encoding='utf-8')
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
 
     # Check if Delegation History section exists
@@ -321,7 +321,7 @@ def _write_delegation_marker(story_id: str, txn_id: str, agent: str,
 
         content = '\n'.join(lines)
 
-    story_path.write_text(content)
+    story_path.write_text(content, encoding='utf-8')
     print(f"   [OK] Delegation marker written to story file")
 
 
@@ -331,7 +331,7 @@ def _update_delegation_marker(story_id: str, txn_id: str, evidence_hash: str):
     if not story_path.exists():
         return
 
-    content = story_path.read_text()
+    content = story_path.read_text(encoding='utf-8')
 
     # Find and update the delegation marker
     if txn_id in content:
@@ -346,7 +346,7 @@ def _update_delegation_marker(story_id: str, txn_id: str, evidence_hash: str):
         # Change checkbox to checked
         content = content.replace(f"- [ ] ", "- [x] ", 1) if f"`{txn_id}`" in content else content
 
-        story_path.write_text(content)
+        story_path.write_text(content, encoding='utf-8')
 
 
 if __name__ == "__main__":

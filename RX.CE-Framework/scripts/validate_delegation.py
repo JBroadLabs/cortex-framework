@@ -29,7 +29,7 @@ def validate_delegation(story_id: str, agent_name: str) -> bool:
     print(f"[OK] Story file exists: {story_path}")
 
     # 2. Read story content
-    content = story_path.read_text()
+    content = story_path.read_text(encoding='utf-8')
 
     # 3. Check for Delegation History section
     if "## Delegation History" not in content:

@@ -1050,7 +1050,7 @@ class WorkflowEngine:
         if not story_file.exists():
             return None
 
-        content = story_file.read_text()
+        content = story_file.read_text(encoding='utf-8')
 
         # Extract Context Feedback section
         feedback_match = re.search(
@@ -1165,7 +1165,7 @@ class WorkflowEngine:
         if not story_file.exists():
             return None
 
-        content = story_file.read_text()
+        content = story_file.read_text(encoding='utf-8')
 
         # Extract Issues Encountered section
         issues_match = re.search(
