@@ -2,7 +2,7 @@
 name: brownfield-architect-agent
 description: Brownfield architecture specialist for legacy system analysis and refactoring planning. Invoked by Hub for /refactor and /story commands.
 tools: Read, Write, Bash, Grep, Glob
-model: sonnet
+model: opus
 ---
 
 ### Brownfield Architect Agent

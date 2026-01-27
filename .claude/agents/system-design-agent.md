@@ -2,7 +2,7 @@
 name: system-design-agent
 description: Senior solutions architect for translating requirements into technical blueprints and design documents. Creates comprehensive design documentation.
 tools: Read, Write, Bash, Glob, Grep
-model: sonnet
+model: opus
 ---
 
 ### System Design Agent
