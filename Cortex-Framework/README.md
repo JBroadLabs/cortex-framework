@@ -98,7 +98,7 @@ claude code ask "how to structure dependencies?"
 
 ❌ **Cannot** - Modify files, change statuses, trigger agents (read-only advisor)
 
-See full capabilities in [Ask Agent Documentation](.claude/commands/ask.md).
+See full capabilities in [Ask Command Documentation](../.claude/commands/ask.md).
 
 ### What Happens Automatically
 
@@ -127,7 +127,7 @@ See full capabilities in [Ask Agent Documentation](.claude/commands/ask.md).
 **Agent Commands:**
 - Other commands (`frontend`, `backend`, `code-review`, etc.) - Manual intervention only (invoked by Hub)
 
-See [.claude/quick_start.md](.claude/quick_start.md) and [COMMANDS.md](COMMANDS.md) for complete command reference.
+See [quick_start.md](../.claude/quick_start.md) and [COMMANDS.md](COMMANDS.md) for complete command reference.
 
 ### Operational Modes
 
@@ -246,7 +246,7 @@ The framework includes 12 production-grade skills that provide expert guidance a
 # → Uses: circular-dependency-resolver, code-review
 ```
 
-**Location**: Skills are stored in both `Cortex-Framework/skills/` and `.claude/skills/` - you can customize or add your own.
+**Location**: Skills live in `.claude/skills/` - you can customize existing ones or add your own.
 
 ---
 
@@ -504,51 +504,53 @@ For complete agent details, see [AGENTS.md](AGENTS.md) and [PROTOCOL.md](PROTOCO
 The framework uses a canonical directory structure with mode-specific artifacts:
 
 ```
-Cortex-Framework/                    # Framework core
-├── .claude/                        # Claude Code configuration
-│   ├── commands/                   # Agent command definitions
-│   │   ├── hub.md                  # Hub Agent orchestrator
-│   │   ├── ask.md                  # Advisory agent
-│   │   ├── story-composer.md       # Story creation
-│   │   ├── system-design.md        # Greenfield design
-│   │   ├── brownfield-architect.md # Brownfield analysis
-│   │   ├── frontend.md             # Frontend implementation
-│   │   ├── backend.md              # Backend implementation
-│   │   ├── code-review.md          # Code review
-│   │   ├── frontend-unit-test.md   # Frontend unit tests
-│   │   ├── backend-unit-test.md    # Backend unit tests
-│   │   ├── test.md                 # Integration testing
-│   │   ├── qa.md                   # QA validation
-│   │   └── reflector.md            # Context learning & troubleshooting
-│   ├── agents/                     # Agent instruction files
-│   └── quick_start.md              # Quick start guide
-├── PROTOCOL.md                     # Universal operating contract
-├── AGENTS.md                       # Agent roster and rules
-├── COMMANDS.md                     # Command reference
-├── modes/                          # Mode-specific workflows
-│   ├── Greenfield.md               # Net-new projects
-│   └── Brownfield.md               # Existing codebases
-├── personas/                       # Agent persona definitions
-├── config/                         # Agent command mappings
-├── state/                          # Runtime state and registries
-│   ├── workflow.db                 # SQLite state machine (authoritative)
-│   └── agents_roster.yaml          # Agent eligibility
-├── docs/                           # Documentation and templates
-│   ├── templates/                  # Story and handoff schemas
-│   └── CONTEXT_LEARNING.md         # Context Learning System guide
-├── skills/                         # Implementation skills
-│   ├── api-design/
-│   ├── database-schema-design/
-│   ├── async-background-jobs/
-│   ├── error-handling/
-│   ├── performance-optimization/
-│   └── [12 total skills]
-├── scripts/                        # Utility scripts
-│   ├── apply_deltas.py             # Apply approved context/troubleshooting deltas
-│   └── workflow_engine.py          # State machine and learning system
-└── state/                          # Database and schemas
-    ├── schema.sql                  # Database schema (includes learning tables)
-    └── workflow.db                 # SQLite state machine (generated)
+.                                    # Repository root
+├── .claude/                        # Active Claude Code configuration (this is what runs)
+│   ├── commands/                   # Slash-command entrypoints
+│   │   ├── greenfield.md           # /greenfield - new project
+│   │   ├── story.md                # /story - incremental feature
+│   │   ├── refactor.md             # /refactor - risk-managed refactoring
+│   │   └── ask.md                  # /ask - read-only advisor
+│   ├── agents/                     # Agent instruction files (invoked by the Hub)
+│   │   ├── hub-agent.md            # Hub Agent orchestrator
+│   │   ├── system-design-agent.md  # Greenfield design
+│   │   ├── brownfield-architect-agent.md # Brownfield analysis
+│   │   ├── story-composer-agent.md # Story creation
+│   │   ├── frontend-agent.md       # Frontend implementation
+│   │   ├── backend-agent.md        # Backend implementation
+│   │   ├── code-review-agent.md    # Code review
+│   │   ├── backend-unit-testing-agent.md # Backend unit tests
+│   │   ├── testing-agent.md        # Integration testing
+│   │   ├── qa-agent.md             # QA validation
+│   │   ├── reflector-agent.md      # Context learning & troubleshooting
+│   │   └── ask-agent.md            # Advisory (read-only)
+│   ├── skills/                     # Implementation skills (see Skills System above)
+│   ├── quick_start.md              # Quick start guide
+│   └── settings.json               # Permissions
+└── Cortex-Framework/               # Framework source, specification, and full docs
+    ├── README.md                   # This document (full reference)
+    ├── PROTOCOL.md                 # Universal operating contract
+    ├── AGENTS.md                   # Agent roster and rules
+    ├── COMMANDS.md                 # Command reference
+    ├── modes/                      # Mode-specific workflows
+    │   ├── Greenfield.md           # Net-new projects
+    │   └── Brownfield.md           # Existing codebases
+    ├── personas/                   # Agent persona definitions (13 agents)
+    ├── config/                     # Agent command mappings
+    │   └── agent_commands.yaml     # Trigger → execution mappings
+    ├── state/                      # State machine definition and registry
+    │   ├── schema.sql              # Database schema (includes learning tables)
+    │   └── agents_roster.yaml      # Agent eligibility by state
+    ├── docs/                       # Documentation and templates
+    │   ├── templates/              # Story and handoff schemas
+    │   ├── CONTEXT_LEARNING.md     # Context Learning System guide
+    │   └── PLATFORM_SETUP.md       # Platform setup notes
+    ├── DIY/                        # Manual setup & context-engineering guides
+    └── scripts/                    # Utility scripts
+        ├── workflow_engine.py      # State machine and learning system
+        ├── apply_deltas.py         # Apply approved context/troubleshooting deltas
+        ├── delegate.py             # Agent delegation
+        └── ...                     # (see scripts/ for the full set)
 
 # Project-level structure (generated during usage)
 state/
