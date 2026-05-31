@@ -25,8 +25,8 @@ model: sonnet
 ## Workflow Authority
 
 **CRITICAL**: Mode files are the authoritative source for workflow sequences:
-- **Greenfield**: `RX.CE-Framework/modes/Greenfield.md`
-- **Brownfield**: `RX.CE-Framework/modes/Brownfield.md`
+- **Greenfield**: `Cortex-Framework/modes/Greenfield.md`
+- **Brownfield**: `Cortex-Framework/modes/Brownfield.md`
 
 **Rules**:
 1. Load appropriate mode file based on command trigger
@@ -45,7 +45,7 @@ You MUST use the delegation wrapper for ALL subagent orchestration.
 ### Delegation Workflow
 
 ```python
-from RX.CE_Framework.scripts.delegate import delegate_to_agent, complete_delegation
+from Cortex_Framework.scripts.delegate import delegate_to_agent, complete_delegation
 
 # Standard 3-step delegation pattern
 result = delegate_to_agent(story_id, agent, task_description)
@@ -88,11 +88,11 @@ Task(subagent_type="backend-agent", prompt="...")  # WRONG!
 
 ```bash
 # 1. Check what needs to be done
-python3 RX.CE-Framework/scripts/workflow_engine.py pending
+python3 Cortex-Framework/scripts/workflow_engine.py pending
 
 # 2. If pending delegations exist, handle them FIRST
 # 3. Then check next actions
-python3 RX.CE-Framework/scripts/workflow_engine.py next
+python3 Cortex-Framework/scripts/workflow_engine.py next
 ```
 
 ---
@@ -195,8 +195,8 @@ If you try to advance a story without proper delegation:
 ### Your Workflow
 
 ```
-1. python3 RX.CE-Framework/scripts/workflow_engine.py pending   # Handle these FIRST
-2. python3 RX.CE-Framework/scripts/workflow_engine.py next      # Get next action
+1. python3 Cortex-Framework/scripts/workflow_engine.py pending   # Handle these FIRST
+2. python3 Cortex-Framework/scripts/workflow_engine.py next      # Get next action
 3. engine.hub_start_delegation(...)             # Open transaction
 4. Trigger subagent (they have separate context)
 5. Subagent writes results to story file
@@ -236,7 +236,7 @@ The framework operates with four explicit commands:
 
 ```python
 import sys
-sys.path.insert(0, 'RX.CE-Framework/scripts')
+sys.path.insert(0, 'Cortex-Framework/scripts')
 from mode_router import detect_mode, route_to_agent
 
 # Detect mode from command
@@ -276,7 +276,7 @@ print(f"Next phase: {routing['next_phase']}")
 
 ```python
 import sys
-sys.path.insert(0, 'RX.CE-Framework/scripts')
+sys.path.insert(0, 'Cortex-Framework/scripts')
 from story_registration import complete_story_registration
 
 # After Story Composer completes
@@ -344,8 +344,8 @@ See Quick Command Reference at top for command details and routing.
    - Check brownfield analysis artifacts if mode is brownfield
 
 2. **Load Mode-Specific Workflow**
-   - Greenfield: `RX.CE-Framework/modes/Greenfield.md`
-   - Brownfield: `RX.CE-Framework/modes/Brownfield.md`
+   - Greenfield: `Cortex-Framework/modes/Greenfield.md`
+   - Brownfield: `Cortex-Framework/modes/Brownfield.md`
    - Mode files are AUTHORITATIVE for workflow sequence
 
 3. **Parse & Route**
@@ -446,7 +446,7 @@ See Quick Command Reference at top for command details and routing.
 - Never perform work directly — always delegate to appropriate agents
 - Never read subagent instruction files (`.claude/agents/*-agent.md` except `hub-agent.md`)
 - Never delegate story-based work without using `delegate_to_agent()` wrapper
-- Always check `python3 RX.CE-Framework/scripts/workflow_engine.py pending` at start of each interaction
+- Always check `python3 Cortex-Framework/scripts/workflow_engine.py pending` at start of each interaction
 - Never bypass validation checks or prerequisites
 - Never trigger agents not listed in current roster
 - Never modify agent command configurations
@@ -483,7 +483,7 @@ When agents report failures, Hub must revert the story for remediation.
 ### Code Review Returns NEEDS_CHANGES
 
 ```python
-from RX.CE_Framework.scripts.delegate import revert_to_implementation
+from Cortex_Framework.scripts.delegate import revert_to_implementation
 
 # When Code Review Agent reports NEEDS_CHANGES or REJECTED:
 result = revert_to_implementation(

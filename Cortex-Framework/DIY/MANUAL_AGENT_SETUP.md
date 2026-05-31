@@ -61,11 +61,11 @@ Open terminal in your project root:
 
 ```bash
 # Check if AGENTS.md exists
-ls RX.CE-Framework/AGENTS.md
+ls Cortex-Framework/AGENTS.md
 
 # If it exists, you're done! Just use it.
 # If not, create a symlink/copy:
-cp RX.CE-Framework/AGENTS.md ./AGENTS.md
+cp Cortex-Framework/AGENTS.md ./AGENTS.md
 ```
 
 ### What's in AGENTS.md?
@@ -102,7 +102,7 @@ Roo: [Understands the complete agent system]
 
 1. Your AI tool reads `AGENTS.md` (automatically or when referenced)
 2. It understands the complete agent structure and workflows
-3. When you say "act as [Agent Name]", it loads that agent's persona from `RX.CE-Framework/personas/`
+3. When you say "act as [Agent Name]", it loads that agent's persona from `Cortex-Framework/personas/`
 4. The agent follows its defined workflow from PROTOCOL.md
 
 **That's it!** This is the simplest, most universal approach.
@@ -145,46 +145,46 @@ cat > .github/copilot-instructions.md << 'EOF'
 This repository uses an agent-based development framework with specialized AI agents.
 
 ## Framework Location
-All agent definitions: `RX.CE-Framework/personas/`
-Agent coordination: `RX.CE-Framework/AGENTS.md`
-Operating protocol: `RX.CE-Framework/PROTOCOL.md`
+All agent definitions: `Cortex-Framework/personas/`
+Agent coordination: `Cortex-Framework/AGENTS.md`
+Operating protocol: `Cortex-Framework/PROTOCOL.md`
 
 ## How to Use Agents
 
 When the user says "act as [Agent Name]", follow these steps:
 
-1. Read `RX.CE-Framework/AGENTS.md` to understand the agent system
-2. Read `RX.CE-Framework/personas/[agent-name]_agent.md` for specific agent instructions
+1. Read `Cortex-Framework/AGENTS.md` to understand the agent system
+2. Read `Cortex-Framework/personas/[agent-name]_agent.md` for specific agent instructions
 3. Follow the agent's workflow exactly as defined
-4. Reference `RX.CE-Framework/PROTOCOL.md` for state machine rules
+4. Reference `Cortex-Framework/PROTOCOL.md` for state machine rules
 5. Update story files in `/stories/` directory
 
 ## Available Agents
 
 **Core Workflow Agents:**
-- **Hub Agent** (`RX.CE-Framework/personas/hub_agent.md`) - Main orchestrator, creates stories
-- **System Design Agent** (`RX.CE-Framework/personas/system_design_agent.md`) - Creates design docs (POC mode)
-- **Story Composer** (`RX.CE-Framework/personas/story_composer_agent.md`) - Creates story files (incremental mode)
-- **Frontend Agent** (`RX.CE-Framework/personas/frontend_agent.md`) - UI implementation
-- **Backend Agent** (`RX.CE-Framework/personas/backend_agent.md`) - Server-side implementation
-- **Code Review Agent** (`RX.CE-Framework/personas/code_review_agent.md`) - Quality validation
-- **Testing Agent** (`RX.CE-Framework/personas/testing_agent.md`) - Test execution
-- **QA Agent** (`RX.CE-Framework/personas/qa_agent.md`) - Final validation
+- **Hub Agent** (`Cortex-Framework/personas/hub_agent.md`) - Main orchestrator, creates stories
+- **System Design Agent** (`Cortex-Framework/personas/system_design_agent.md`) - Creates design docs (POC mode)
+- **Story Composer** (`Cortex-Framework/personas/story_composer_agent.md`) - Creates story files (incremental mode)
+- **Frontend Agent** (`Cortex-Framework/personas/frontend_agent.md`) - UI implementation
+- **Backend Agent** (`Cortex-Framework/personas/backend_agent.md`) - Server-side implementation
+- **Code Review Agent** (`Cortex-Framework/personas/code_review_agent.md`) - Quality validation
+- **Testing Agent** (`Cortex-Framework/personas/testing_agent.md`) - Test execution
+- **QA Agent** (`Cortex-Framework/personas/qa_agent.md`) - Final validation
 
 **Parallel Testing Agents:**
-- **Frontend Unit Testing Agent** (`RX.CE-Framework/personas/frontend_unit_testing_agent.md`) - Parallel frontend unit tests
-- **Backend Unit Testing Agent** (`RX.CE-Framework/personas/backend_unit_testing_agent.md`) - Parallel backend unit tests
+- **Frontend Unit Testing Agent** (`Cortex-Framework/personas/frontend_unit_testing_agent.md`) - Parallel frontend unit tests
+- **Backend Unit Testing Agent** (`Cortex-Framework/personas/backend_unit_testing_agent.md`) - Parallel backend unit tests
 
 **Phase 2 Agents:**
-- **Brownfield Architect Agent** (`RX.CE-Framework/personas/brownfield_architect_agent.md`) - Legacy codebase analysis
-- **Ask Agent** (`RX.CE-Framework/personas/ask_agent.md`) - Codebase questions and analysis
+- **Brownfield Architect Agent** (`Cortex-Framework/personas/brownfield_architect_agent.md`) - Legacy codebase analysis
+- **Ask Agent** (`Cortex-Framework/personas/ask_agent.md`) - Codebase questions and analysis
 
 ## Agent Activation Pattern
 
 When user requests: "act as Hub Agent"
 Your response:
 1. "I'm now acting as the Hub Agent. Let me read the agent specification..."
-2. [Read `RX.CE-Framework/personas/hub_agent.md` completely]
+2. [Read `Cortex-Framework/personas/hub_agent.md` completely]
 3. [Follow the workflow defined in that file]
 4. [Reference PROTOCOL.md for state transitions]
 
@@ -192,7 +192,7 @@ Your response:
 - `state/workflow.db` - SQLite state machine (project state tracking)
 - `/stories/story-*.md` - Individual story files (work tracking)
 - `/docs/[module]/index.md` - Context loading guides
-- `RX.CE-Framework/modes/` - Mode workflows (Greenfield.md, Brownfield.md)
+- `Cortex-Framework/modes/` - Mode workflows (Greenfield.md, Brownfield.md)
 
 ## Important Rules
 1. Always read the complete agent file before acting
@@ -214,7 +214,7 @@ echo "✅ Setup complete! Copilot will read this automatically."
 You: "act as Hub Agent"
 
 Copilot: [Reads .github/copilot-instructions.md]
-         [Loads RX.CE-Framework/personas/hub_agent.md]
+         [Loads Cortex-Framework/personas/hub_agent.md]
          "I'm the Hub Agent. What would you like to build?"
 
 You: "create a story for CSV export"
@@ -245,7 +245,7 @@ Copilot: [Reads stories/story-042.md]
 - Copilot reads `.github/copilot-instructions.md` automatically on every chat
 - The "act as" pattern requires explicit instructions (provided above)
 - You may need to remind Copilot to read the agent file if it doesn't automatically
-- Use `@AGENTS.md` or `@RX.CE-Framework/PROTOCOL.md` to reference framework docs
+- Use `@AGENTS.md` or `@Cortex-Framework/PROTOCOL.md` to reference framework docs
 
 ---
 
@@ -291,10 +291,10 @@ globs: ["**/*"]
 This repository uses an agent-based development framework.
 
 ## Framework Files
-- Agent definitions: `RX.CE-Framework/personas/*.md`
-- Agent system: `RX.CE-Framework/AGENTS.md`
-- Protocol: `RX.CE-Framework/PROTOCOL.md`
-- Configuration: `RX.CE-Framework/modes/` (mode files)
+- Agent definitions: `Cortex-Framework/personas/*.md`
+- Agent system: `Cortex-Framework/AGENTS.md`
+- Protocol: `Cortex-Framework/PROTOCOL.md`
+- Configuration: `Cortex-Framework/modes/` (mode files)
 
 ## Using Agents with @-mentions
 
@@ -302,10 +302,10 @@ To activate an agent, use the @-mention pattern:
 
 **Examples:**
 ```
-@RX.CE-Framework/personas/hub_agent.md create a story for CSV export
-@RX.CE-Framework/personas/frontend_agent.md implement story-042
-@RX.CE-Framework/personas/backend_agent.md implement story-043
-@RX.CE-Framework/personas/code_review_agent.md review story-042
+@Cortex-Framework/personas/hub_agent.md create a story for CSV export
+@Cortex-Framework/personas/frontend_agent.md implement story-042
+@Cortex-Framework/personas/backend_agent.md implement story-043
+@Cortex-Framework/personas/code_review_agent.md review story-042
 ```
 
 ## Agent Behavior
@@ -314,7 +314,7 @@ When a persona file is @-mentioned:
 1. Read the complete agent file
 2. Understand the role, workflow, and constraints
 3. Follow the step-by-step workflow exactly
-4. Reference `@RX.CE-Framework/PROTOCOL.md` for state rules
+4. Reference `@Cortex-Framework/PROTOCOL.md` for state rules
 5. Update story files in `/stories/` following handoff protocol
 
 ## Available Agents
@@ -361,7 +361,7 @@ echo "✅ Setup complete! Cursor reads .cursor/rules automatically."
 **Using @-mentions (recommended):**
 
 ```
-You: "@RX.CE-Framework/personas/hub_agent.md create a story for CSV export"
+You: "@Cortex-Framework/personas/hub_agent.md create a story for CSV export"
 
 Cursor: [Loads hub_agent.md via @-mention]
         [Follows workflow]
@@ -374,7 +374,7 @@ Cursor: [Loads hub_agent.md via @-mention]
 You: "act as Frontend Agent and implement story-042"
 
 Cursor: [Reads .cursor/rules/framework-agents.mdc]
-        [Loads RX.CE-Framework/personas/frontend_agent.md]
+        [Loads Cortex-Framework/personas/frontend_agent.md]
         [Implements code]
 ```
 
@@ -425,45 +425,45 @@ cat > .roo/rules/framework-agents.md << 'EOF'
 This repository uses an agent-based development framework with specialized AI agents.
 
 ## Framework Location
-- Agent definitions: `RX.CE-Framework/personas/*.md`
-- Agent system: `RX.CE-Framework/AGENTS.md`
-- Operating protocol: `RX.CE-Framework/PROTOCOL.md`
-- Configuration: `RX.CE-Framework/modes/` (mode files)
+- Agent definitions: `Cortex-Framework/personas/*.md`
+- Agent system: `Cortex-Framework/AGENTS.md`
+- Operating protocol: `Cortex-Framework/PROTOCOL.md`
+- Configuration: `Cortex-Framework/modes/` (mode files)
 
 ## How to Activate Agents
 
 When I say "act as [Agent Name]", automatically:
 
-1. Read `RX.CE-Framework/AGENTS.md` to understand the agent system
-2. Read `RX.CE-Framework/personas/[agent-name]_agent.md` for the specific agent
+1. Read `Cortex-Framework/AGENTS.md` to understand the agent system
+2. Read `Cortex-Framework/personas/[agent-name]_agent.md` for the specific agent
 3. Follow the agent's workflow exactly as defined
-4. Reference `RX.CE-Framework/PROTOCOL.md` for state machine rules
+4. Reference `Cortex-Framework/PROTOCOL.md` for state machine rules
 5. Update story files in `/stories/` directory
 
 ## Available Agents
 
 **Core Workflow Agents:**
-- "act as Hub Agent" → `RX.CE-Framework/personas/hub_agent.md`
-- "act as System Design Agent" → `RX.CE-Framework/personas/system_design_agent.md`
-- "act as Story Composer" → `RX.CE-Framework/personas/story_composer_agent.md`
-- "act as Frontend Agent" → `RX.CE-Framework/personas/frontend_agent.md`
-- "act as Backend Agent" → `RX.CE-Framework/personas/backend_agent.md`
-- "act as Code Review Agent" → `RX.CE-Framework/personas/code_review_agent.md`
-- "act as Testing Agent" → `RX.CE-Framework/personas/testing_agent.md`
-- "act as QA Agent" → `RX.CE-Framework/personas/qa_agent.md`
+- "act as Hub Agent" → `Cortex-Framework/personas/hub_agent.md`
+- "act as System Design Agent" → `Cortex-Framework/personas/system_design_agent.md`
+- "act as Story Composer" → `Cortex-Framework/personas/story_composer_agent.md`
+- "act as Frontend Agent" → `Cortex-Framework/personas/frontend_agent.md`
+- "act as Backend Agent" → `Cortex-Framework/personas/backend_agent.md`
+- "act as Code Review Agent" → `Cortex-Framework/personas/code_review_agent.md`
+- "act as Testing Agent" → `Cortex-Framework/personas/testing_agent.md`
+- "act as QA Agent" → `Cortex-Framework/personas/qa_agent.md`
 
 **Parallel Testing Agents:**
-- "act as Frontend Unit Testing Agent" → `RX.CE-Framework/personas/frontend_unit_testing_agent.md`
-- "act as Backend Unit Testing Agent" → `RX.CE-Framework/personas/backend_unit_testing_agent.md`
+- "act as Frontend Unit Testing Agent" → `Cortex-Framework/personas/frontend_unit_testing_agent.md`
+- "act as Backend Unit Testing Agent" → `Cortex-Framework/personas/backend_unit_testing_agent.md`
 
 **Phase 2 Agents:**
-- "act as Brownfield Architect Agent" → `RX.CE-Framework/personas/brownfield_architect_agent.md`
-- "act as Ask Agent" → `RX.CE-Framework/personas/ask_agent.md`
+- "act as Brownfield Architect Agent" → `Cortex-Framework/personas/brownfield_architect_agent.md`
+- "act as Ask Agent" → `Cortex-Framework/personas/ask_agent.md`
 
 ## Agent Workflow
 
 When activated as an agent:
-1. Read the complete agent file from `RX.CE-Framework/personas/`
+1. Read the complete agent file from `Cortex-Framework/personas/`
 2. Announce: "I'm now acting as the [Agent Name]"
 3. Follow the step-by-step workflow in the agent file
 4. Reference PROTOCOL.md for state transitions
@@ -483,7 +483,7 @@ All stories: `/stories/story-*.md`
 State tracking: `state/workflow.db` (SQLite database)
 
 ## Configuration
-Framework modes: `RX.CE-Framework/modes/` (Greenfield.md, Brownfield.md)
+Framework modes: `Cortex-Framework/modes/` (Greenfield.md, Brownfield.md)
 EOF
 
 # Step 3: Create projectBrief.md (Roo-specific convention)
@@ -494,9 +494,9 @@ This project uses an agent-based development workflow.
 
 ## Overview
 - **Framework**: Context Engineering with specialized AI agents
-- **Agents**: Defined in `RX.CE-Framework/personas/`
-- **Protocol**: `RX.CE-Framework/PROTOCOL.md`
-- **Coordination**: `RX.CE-Framework/AGENTS.md`
+- **Agents**: Defined in `Cortex-Framework/personas/`
+- **Protocol**: `Cortex-Framework/PROTOCOL.md`
+- **Coordination**: `Cortex-Framework/AGENTS.md`
 
 ## Usage
 Tell Roo to "act as [Agent Name]" to activate an agent.
@@ -508,7 +508,7 @@ Roo will read the agent definition and follow its workflow.
 ## Key Directories
 - `/stories/` - Work tracking (story files)
 - `/docs/` - Documentation and context guides
-- `RX.CE-Framework/` - Framework core files
+- `Cortex-Framework/` - Framework core files
 
 For detailed setup, see `.roo/rules/framework-agents.md`
 EOF
@@ -536,7 +536,7 @@ Roo: [Reads project context]
 You: "act as Hub Agent"
 
 Roo: [Reads .roo/rules/framework-agents.md]
-     [Loads RX.CE-Framework/personas/hub_agent.md]
+     [Loads Cortex-Framework/personas/hub_agent.md]
 
      "I'm now acting as the Hub Agent.
 
@@ -566,7 +566,7 @@ Roo: [Follows hub_agent.md workflow]
 You: "act as Frontend Agent"
 
 Roo: [Clears previous context]
-     [Loads RX.CE-Framework/personas/frontend_agent.md]
+     [Loads Cortex-Framework/personas/frontend_agent.md]
 
      "I'm now acting as the Frontend Agent.
      Which story should I implement?"
@@ -659,10 +659,10 @@ printenv OPENAI_API_KEY | codex login --with-api-key
 
 ```bash
 # Verify AGENTS.md exists
-ls RX.CE-Framework/AGENTS.md
+ls Cortex-Framework/AGENTS.md
 
 # If it doesn't exist, create a copy at project root
-cp RX.CE-Framework/AGENTS.md ./AGENTS.md
+cp Cortex-Framework/AGENTS.md ./AGENTS.md
 ```
 
 **Step 4: Done!**
@@ -717,8 +717,8 @@ codex
 ```
 You: "Read AGENTS.md and act as Hub Agent"
 
-Codex: [Reads RX.CE-Framework/AGENTS.md automatically]
-       [Loads RX.CE-Framework/personas/hub_agent.md]
+Codex: [Reads Cortex-Framework/AGENTS.md automatically]
+       [Loads Cortex-Framework/personas/hub_agent.md]
 
        "I'm acting as the Hub Agent. What would you like to build?"
 
@@ -747,7 +747,7 @@ Codex: [Writes file]
 You: "Clear context and act as Frontend Agent"
 
 Codex: [Clears previous context]
-       [Loads RX.CE-Framework/personas/frontend_agent.md]
+       [Loads Cortex-Framework/personas/frontend_agent.md]
 
        "I'm the Frontend Agent. Which story?"
 
@@ -970,7 +970,7 @@ The framework supports three different workflows depending on your project type:
 
 **Cursor (alternative):**
 ```
-@RX.CE-Framework/personas/hub_agent.md create a story for CSV export
+@Cortex-Framework/personas/hub_agent.md create a story for CSV export
 ```
 
 **Agent will:**
@@ -991,7 +991,7 @@ The framework supports three different workflows depending on your project type:
 
 **Cursor (alternative):**
 ```
-@RX.CE-Framework/personas/frontend_agent.md implement story-042
+@Cortex-Framework/personas/frontend_agent.md implement story-042
 ```
 
 **Agent will:**
@@ -1061,7 +1061,7 @@ Roo: "I understand this repository uses agent-based development."
 
 You: "act as Hub Agent"
 
-Roo: [Loads RX.CE-Framework/personas/hub_agent.md]
+Roo: [Loads Cortex-Framework/personas/hub_agent.md]
      "I'm the Hub Agent. What would you like to build?"
 
 You: "create a story for dark mode toggle in settings"
@@ -1117,7 +1117,7 @@ PHASE 2: Implementation
 
 You: "act as Frontend Agent"
 
-Roo: [Loads RX.CE-Framework/personas/frontend_agent.md]
+Roo: [Loads Cortex-Framework/personas/frontend_agent.md]
      "I'm the Frontend Agent. Which story?"
 
 You: "implement story-043"
@@ -1152,7 +1152,7 @@ PHASE 3: Code Review
 
 You: "act as Code Review Agent"
 
-Roo: [Loads RX.CE-Framework/personas/code_review_agent.md]
+Roo: [Loads Cortex-Framework/personas/code_review_agent.md]
      "I'm the Code Review Agent. Which story?"
 
 You: "review story-043"
@@ -1183,7 +1183,7 @@ PHASE 4: Testing
 
 You: "act as Testing Agent"
 
-Roo: [Loads RX.CE-Framework/personas/testing_agent.md]
+Roo: [Loads Cortex-Framework/personas/testing_agent.md]
      "I'm the Testing Agent. Which story?"
 
 You: "test story-043"
@@ -1210,7 +1210,7 @@ PHASE 5: QA
 
 You: "act as QA Agent"
 
-Roo: [Loads RX.CE-Framework/personas/qa_agent.md]
+Roo: [Loads Cortex-Framework/personas/qa_agent.md]
      "I'm the QA Agent. Which story?"
 
 You: "validate story-043"
@@ -1247,13 +1247,13 @@ DONE!
 ```
 Solution: Be explicit in your request
 
-✅ Good: "act as Hub Agent - read RX.CE-Framework/personas/hub_agent.md and follow its workflow"
+✅ Good: "act as Hub Agent - read Cortex-Framework/personas/hub_agent.md and follow its workflow"
 ❌ Weak: "be the hub agent"
 
 If needed, reference the file directly:
-- Copilot: "Read RX.CE-Framework/personas/hub_agent.md and act as that agent"
-- Cursor: "@RX.CE-Framework/personas/hub_agent.md"
-- Roo: "Read RX.CE-Framework/personas/hub_agent.md and follow it exactly"
+- Copilot: "Read Cortex-Framework/personas/hub_agent.md and act as that agent"
+- Cursor: "@Cortex-Framework/personas/hub_agent.md"
+- Roo: "Read Cortex-Framework/personas/hub_agent.md and follow it exactly"
 ```
 
 ---
@@ -1299,7 +1299,7 @@ Say: "Update the story file directly at stories/story-042.md"
 ```
 Solution: Re-mention the agent file
 
-"You're acting as Frontend Agent - read RX.CE-Framework/personas/frontend_agent.md again to refresh your instructions"
+"You're acting as Frontend Agent - read Cortex-Framework/personas/frontend_agent.md again to refresh your instructions"
 
 Or restart with a fresh agent activation.
 ```
@@ -1313,13 +1313,13 @@ Or restart with a fresh agent activation.
 Check that .github/copilot-instructions.md exists and includes the agent activation pattern.
 
 If Copilot doesn't respond to "act as", try:
-"Load the Hub Agent persona from RX.CE-Framework/personas/hub_agent.md and follow its workflow"
+"Load the Hub Agent persona from Cortex-Framework/personas/hub_agent.md and follow its workflow"
 ```
 
 **Cursor:**
 ```
 Use @-mentions instead of "act as":
-@RX.CE-Framework/personas/hub_agent.md create a story
+@Cortex-Framework/personas/hub_agent.md create a story
 ```
 
 **Roo Code:**
@@ -1330,9 +1330,9 @@ Start each session with: "read projectBrief.md"
 
 **OpenAI Codex:**
 ```
-Ensure AGENTS.md exists at project root or RX.CE-Framework/
+Ensure AGENTS.md exists at project root or Cortex-Framework/
 If Codex doesn't respond to "act as", try:
-"Read RX.CE-Framework/personas/hub_agent.md and follow that agent's workflow exactly"
+"Read Cortex-Framework/personas/hub_agent.md and follow that agent's workflow exactly"
 ```
 
 ---
@@ -1392,34 +1392,34 @@ If Codex doesn't respond to "act as", try:
 
 **Core Workflow Agents (8):**
 ```
-@RX.CE-Framework/personas/hub_agent.md
-@RX.CE-Framework/personas/system_design_agent.md
-@RX.CE-Framework/personas/story_composer_agent.md
-@RX.CE-Framework/personas/frontend_agent.md
-@RX.CE-Framework/personas/backend_agent.md
-@RX.CE-Framework/personas/code_review_agent.md
-@RX.CE-Framework/personas/testing_agent.md
-@RX.CE-Framework/personas/qa_agent.md
+@Cortex-Framework/personas/hub_agent.md
+@Cortex-Framework/personas/system_design_agent.md
+@Cortex-Framework/personas/story_composer_agent.md
+@Cortex-Framework/personas/frontend_agent.md
+@Cortex-Framework/personas/backend_agent.md
+@Cortex-Framework/personas/code_review_agent.md
+@Cortex-Framework/personas/testing_agent.md
+@Cortex-Framework/personas/qa_agent.md
 ```
 
 **Parallel Testing Agents (2):**
 ```
-@RX.CE-Framework/personas/frontend_unit_testing_agent.md
-@RX.CE-Framework/personas/backend_unit_testing_agent.md
+@Cortex-Framework/personas/frontend_unit_testing_agent.md
+@Cortex-Framework/personas/backend_unit_testing_agent.md
 ```
 
 **Note:** Unit testing agents are triggered automatically at [CR], not manually invoked.
 
 **Phase 2 Agents (2):**
 ```
-@RX.CE-Framework/personas/brownfield_architect_agent.md
-@RX.CE-Framework/personas/ask_agent.md
+@Cortex-Framework/personas/brownfield_architect_agent.md
+@Cortex-Framework/personas/ask_agent.md
 ```
 
 **Reference the protocol:**
 ```
-@RX.CE-Framework/PROTOCOL.md - State machine rules
-@RX.CE-Framework/AGENTS.md - Agent coordination
+@Cortex-Framework/PROTOCOL.md - State machine rules
+@Cortex-Framework/AGENTS.md - Agent coordination
 ```
 
 ---
@@ -1427,7 +1427,7 @@ If Codex doesn't respond to "act as", try:
 ### Essential Framework Files
 
 ```
-RX.CE-Framework/
+Cortex-Framework/
 ├── PROTOCOL.md              ← State machine and rules
 ├── AGENTS.md                ← Agent coordination (2025 standard, lists all 12 agents)
 └── personas/                ← 12 specialized agents
@@ -1467,11 +1467,11 @@ state/workflow.db            ← SQLite state machine (story tracking)
 projectBrief.md                        ← Project overview with numbered agent list
 
 # OpenAI Codex CLI (auto-detected)
-AGENTS.md → RX.CE-Framework/AGENTS.md (symlink or copy)
+AGENTS.md → Cortex-Framework/AGENTS.md (symlink or copy)
 ~/.codex/instructions.md (optional global config)
 
 # Universal (works with all platforms)
-RX.CE-Framework/AGENTS.md            ← Master list of 12 agents
+Cortex-Framework/AGENTS.md            ← Master list of 12 agents
 ```
 
 ---

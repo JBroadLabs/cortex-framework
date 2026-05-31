@@ -1,6 +1,6 @@
 # Command Reference
 
-Quick guide for interacting with the RX.CE-Framework.
+Quick guide for interacting with the Cortex-Framework.
 
 ---
 

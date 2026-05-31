@@ -22,17 +22,17 @@ def detect_mode(triggered_by):
     """
     if triggered_by == '/greenfield':
         mode = 'greenfield'
-        workflow_doc = 'RX.CE-Framework/modes/Greenfield.md'
+        workflow_doc = 'Cortex-Framework/modes/Greenfield.md'
         print("Mode: Greenfield (Full POC)")
 
     elif triggered_by == '/story':
         mode = 'incremental'
-        workflow_doc = 'RX.CE-Framework/modes/Brownfield.md'
+        workflow_doc = 'Cortex-Framework/modes/Brownfield.md'
         print("Mode: Incremental (Feature addition)")
 
     elif triggered_by == '/refactor':
         mode = 'refactor'
-        workflow_doc = 'RX.CE-Framework/modes/Brownfield.md'
+        workflow_doc = 'Cortex-Framework/modes/Brownfield.md'
         print("Mode: Refactor (Technical debt reduction)")
 
     elif triggered_by == '/ask':

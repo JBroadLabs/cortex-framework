@@ -11,7 +11,7 @@ Before starting ANY work, validate delegation:
 
 ```python
 import sys
-from RX.CE_Framework.scripts.validate_delegation import validate_delegation
+from Cortex_Framework.scripts.validate_delegation import validate_delegation
 
 # Extract story_id from task prompt provided by Hub Agent
 # story_id = ... (extract from prompt)

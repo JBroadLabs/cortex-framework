@@ -83,7 +83,7 @@
 ## 9. Agents Roster (cross‑links)
 - Roster Version: 0.1.0
 - Schema Version: 1.0.0
-- List of agents and persona references (see RX.CE‑Framework/personas/* for detailed responsibilities):
+- List of agents and persona references (see Cortex‑Framework/personas/* for detailed responsibilities):
   1) Hub Agent (hub-agent) — personas/hub_agent.md — States: [Pending], [I], [CR], [T], [Q], [Done]
   2) Story Composer Agent (story-composer-agent) — personas/story_composer_agent.md — States: [Pending], [I]
   3) System Design Agent (system-design-agent) — personas/system_design_agent.md — States: [I], [CR]

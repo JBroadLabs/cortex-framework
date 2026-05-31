@@ -153,10 +153,10 @@ If you need to undo applied changes:
 
 ```bash
 # List available backups
-ls RX.CE-Framework/docs/.backups/
+ls Cortex-Framework/docs/.backups/
 
 # Rollback to specific backup
-python RX.CE-Framework/scripts/apply_deltas.py --rollback 20260108_143022
+python Cortex-Framework/scripts/apply_deltas.py --rollback 20260108_143022
 ```
 
 ---
@@ -345,7 +345,7 @@ Story 20 reached:
 ### Files Created
 
 **Core Scripts**:
-- `RX.CE-Framework/scripts/apply_deltas.py` - Applies approved deltas
+- `Cortex-Framework/scripts/apply_deltas.py` - Applies approved deltas
   - Parses delta files (both types)
   - ADD/UPDATE/DEPRECATE operations
   - add_issue/archive_issue operations
@@ -431,7 +431,7 @@ Each delta includes:
 ### View Learning Metrics
 
 ```bash
-cd RX.CE-Framework
+cd Cortex-Framework
 python scripts/workflow_engine.py learning_metrics
 ```
 
@@ -452,7 +452,7 @@ Deltas Approved: 6
 ### View Feedback for Story
 
 ```bash
-cd RX.CE-Framework
+cd Cortex-Framework
 python scripts/workflow_engine.py feedback story-007
 ```
 
@@ -461,7 +461,7 @@ Output shows Context Feedback and Issues Encountered from that story.
 ### Apply Deltas Manually
 
 ```bash
-cd RX.CE-Framework
+cd Cortex-Framework
 
 # Apply context deltas
 python scripts/apply_deltas.py docs/context-deltas-batch-1.md

@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-This guide helps you get up and running with the RX.CE Framework using Claude Code.
+This guide helps you get up and running with the Cortex Framework using Claude Code.
 
 ## Commands
 
@@ -31,10 +31,10 @@ Use the `/ask` command for questions and diagnostics:
 
 ## Configuration
 
-The framework uses workflow presets for configuration. See mode files (`RX.CE-Framework/modes/`) for workflow details.
+The framework uses workflow presets for configuration. See mode files (`Cortex-Framework/modes/`) for workflow details.
 
 ## Directory Structure
 
 - `.claude/commands/`: Custom agent commands
 - `.claude/agents/`: Agent instruction files
-- `rx-hackathon/RX.CE-Framework/`: Framework core files
+- `Cortex-Framework/`: Framework core files

@@ -1,6 +1,6 @@
 # Ask Command
 
-**Purpose:** Get help and answers about the RX.CE-Framework.
+**Purpose:** Get help and answers about the Cortex-Framework.
 
 **You are now Ask Agent (read-only mode).**
 
@@ -50,7 +50,7 @@ Load Ask Agent instructions for framework Q&A:
 ## Documentation
 
 - **Ask Agent capabilities:** `.claude/agents/ask-agent.md`
-- **All workflows:** `RX.CE-Framework/PROTOCOL.md`
+- **All workflows:** `Cortex-Framework/PROTOCOL.md`
 
 ## Related Commands
 

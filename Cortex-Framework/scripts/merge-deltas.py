@@ -7,10 +7,10 @@ It handles ADD, UPDATE, and DEPRECATE operations, auto-increments versions, and
 generates summary reports.
 
 Usage:
-    python RX.CE-Framework/scripts/merge-deltas.py <delta-file-path>
+    python Cortex-Framework/scripts/merge-deltas.py <delta-file-path>
 
 Example:
-    python RX.CE-Framework/scripts/merge-deltas.py docs/context-deltas-batch-1.md
+    python Cortex-Framework/scripts/merge-deltas.py docs/context-deltas-batch-1.md
 """
 
 import re
@@ -473,7 +473,7 @@ def main():
         sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
     if len(sys.argv) != 2:
-        print("Usage: python RX.CE-Framework/scripts/merge-deltas.py <delta-file-path>")
+        print("Usage: python Cortex-Framework/scripts/merge-deltas.py <delta-file-path>")
         sys.exit(1)
 
     delta_file_path = Path(sys.argv[1])

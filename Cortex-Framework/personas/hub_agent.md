@@ -47,7 +47,7 @@ The Hub Agent accepts user input in these forms:
    - Query for pending delegations and incomplete work
 
 2. **Load Mode-Specific Workflow**
-   - Load workflow from `RX.CE-Framework/modes/Greenfield.md` or `Brownfield.md`
+   - Load workflow from `Cortex-Framework/modes/Greenfield.md` or `Brownfield.md`
    - Mode files are authoritative for workflow sequence
 
 3. **Parse & Route**

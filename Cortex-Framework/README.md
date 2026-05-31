@@ -1,10 +1,10 @@
-# RX.CE Multi-Agent Development Framework
+# Cortex Multi-Agent Development Framework
 
 An autonomous, agent-based workflow for software development that uses a "Hub and Spoke" orchestration model. A central Hub Agent coordinates 13 specialized agents to design, develop, test, and deliver applications across two distinct operational modes: Greenfield (new projects) and Brownfield (existing codebases).
 
 ## Project Overview
 
-The RX.CE Framework automates the entire development lifecycle through intelligent agent orchestration, strict state management, and mode-aware context isolation. The Hub Agent manages workflow transitions, validates prerequisites, and ensures proper handoffs between specialized agents operating in stateless, context-isolated execution environments.
+The Cortex Framework automates the entire development lifecycle through intelligent agent orchestration, strict state management, and mode-aware context isolation. The Hub Agent manages workflow transitions, validates prerequisites, and ensures proper handoffs between specialized agents operating in stateless, context-isolated execution environments.
 
 ### Key Features
 
@@ -246,7 +246,7 @@ The framework includes 12 production-grade skills that provide expert guidance a
 # → Uses: circular-dependency-resolver, code-review
 ```
 
-**Location**: Skills are stored in both `RX.CE-Framework/skills/` and `.claude/skills/` - you can customize or add your own.
+**Location**: Skills are stored in both `Cortex-Framework/skills/` and `.claude/skills/` - you can customize or add your own.
 
 ---
 
@@ -297,7 +297,7 @@ To get started with this project, you will need to have a development environmen
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yeri-jeon/rx-hackathon
+   git clone https://github.com/JBroadLabs/cortex-framework
    ```
 
 
@@ -504,7 +504,7 @@ For complete agent details, see [AGENTS.md](AGENTS.md) and [PROTOCOL.md](PROTOCO
 The framework uses a canonical directory structure with mode-specific artifacts:
 
 ```
-RX.CE-Framework/                    # Framework core
+Cortex-Framework/                    # Framework core
 ├── .claude/                        # Claude Code configuration
 │   ├── commands/                   # Agent command definitions
 │   │   ├── hub.md                  # Hub Agent orchestrator

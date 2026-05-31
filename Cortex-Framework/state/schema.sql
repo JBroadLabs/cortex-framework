@@ -1,4 +1,4 @@
--- RX.CE-Framework Workflow State Machine
+-- Cortex-Framework Workflow State Machine
 -- Immutable, constraint-enforced state management
 
 PRAGMA foreign_keys = ON;

@@ -16,7 +16,7 @@ Load Hub Agent instructions and orchestrate greenfield workflow:
 
 - `.claude/agents/hub-agent.md` - Your orchestration instructions
 - Mode: `greenfield`
-- Workflow reference: `RX.CE-Framework/modes/Greenfield.md`
+- Workflow reference: `Cortex-Framework/modes/Greenfield.md`
 
 ## Usage
 
@@ -62,9 +62,9 @@ Load Hub Agent instructions and orchestrate greenfield workflow:
 
 ## Documentation
 
-- **Complete workflow:** `RX.CE-Framework/modes/Greenfield.md`
-- **State machine:** `RX.CE-Framework/PROTOCOL.md`
-- **All agents:** `RX.CE-Framework/AGENTS.md`
+- **Complete workflow:** `Cortex-Framework/modes/Greenfield.md`
+- **State machine:** `Cortex-Framework/PROTOCOL.md`
+- **All agents:** `Cortex-Framework/AGENTS.md`
 
 ## Related Commands
 

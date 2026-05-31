@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RX.CE-Framework Workflow Engine
+Cortex-Framework Workflow Engine
 SQLite-backed state machine with immutable audit trail.
 
 This engine MUST be called by Hub agent for all workflow operations.
@@ -1493,7 +1493,7 @@ def main():
 
 def print_usage():
     print("""
-RX.CE-Framework Workflow Engine
+Cortex-Framework Workflow Engine
 
 Usage:
     workflow_engine.py status                                - Show all story statuses

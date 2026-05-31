@@ -5,7 +5,7 @@ agents:
   - id: hub-agent
     name: Hub Agent
     summary: Orchestrates the end-to-end story lifecycle, enforces protocol handoffs, and coordinates other agents.
-    persona_file: RX.CE-Framework/personas/hub_agent.md
+    persona_file: Cortex-Framework/personas/hub_agent.md
     responsibilities:
       - Manage story state transitions and ensure protocol invariants
       - Coordinate handoffs and unblock agents
@@ -66,7 +66,7 @@ agents:
   - id: story-composer-agent
     name: Story Composer Agent
     summary: Produces properly structured story files from requirements and design inputs.
-    persona_file: RX.CE-Framework/personas/story_composer_agent.md
+    persona_file: Cortex-Framework/personas/story_composer_agent.md
     responsibilities:
       - Generate story files following the universal schema
       - Select task types and seed acceptance criteria
@@ -92,7 +92,7 @@ agents:
   - id: system-design-agent
     name: System Design Agent
     summary: Produces architecture and design artifacts that guide implementation.
-    persona_file: RX.CE-Framework/personas/system_design_agent.md
+    persona_file: Cortex-Framework/personas/system_design_agent.md
     responsibilities:
       - Create high-level and component-level designs
       - Validate design constraints and dependencies
@@ -123,7 +123,7 @@ agents:
   - id: frontend-agent
     name: Frontend Agent
     summary: Implements UI components, client-side logic, and state management per story.
-    persona_file: RX.CE-Framework/personas/frontend_agent.md
+    persona_file: Cortex-Framework/personas/frontend_agent.md
     responsibilities:
       - Implement UI and state management following standards
       - Update story with implementation notes and context usage
@@ -156,7 +156,7 @@ agents:
   - id: backend-agent
     name: Backend Agent
     summary: Implements server-side logic, data models, and integration points per story.
-    persona_file: RX.CE-Framework/personas/backend_agent.md
+    persona_file: Cortex-Framework/personas/backend_agent.md
     responsibilities:
       - Implement APIs, services, and data models
       - Update story with implementation notes and context usage
@@ -189,7 +189,7 @@ agents:
   - id: code-review-agent
     name: Code Review Agent
     summary: Performs code quality checks and documents feedback in the story’s review notes.
-    persona_file: RX.CE-Framework/personas/code_review_agent.md
+    persona_file: Cortex-Framework/personas/code_review_agent.md
     responsibilities:
       - Review PR changes for quality and consistency
       - Document required fixes and approvals
@@ -227,7 +227,7 @@ agents:
   - id: frontend-unit-testing-agent
     name: Frontend Unit Testing Agent
     summary: Writes and runs unit tests for frontend components, reporting results in the story.
-    persona_file: RX.CE-Framework/personas/frontend_unit_testing_agent.md
+    persona_file: Cortex-Framework/personas/frontend_unit_testing_agent.md
     responsibilities:
       - Author unit tests and validate component behavior
       - Report test outcomes in story notes
@@ -259,7 +259,7 @@ agents:
   - id: backend-unit-testing-agent
     name: Backend Unit Testing Agent
     summary: Writes and runs unit tests for backend services and models, reporting results in the story.
-    persona_file: RX.CE-Framework/personas/backend_unit_testing_agent.md
+    persona_file: Cortex-Framework/personas/backend_unit_testing_agent.md
     responsibilities:
       - Author unit tests and validate service/model behavior
       - Report test outcomes in story notes
@@ -291,7 +291,7 @@ agents:
   - id: testing-agent
     name: Testing Agent
     summary: Performs component/integration testing and records results, gating QA entry.
-    persona_file: RX.CE-Framework/personas/testing_agent.md
+    persona_file: Cortex-Framework/personas/testing_agent.md
     responsibilities:
       - Execute integration and scenario tests
       - Record outcomes and remediation recommendations
@@ -326,7 +326,7 @@ agents:
   - id: qa-agent
     name: QA Agent
     summary: Performs final quality assurance review against acceptance criteria.
-    persona_file: RX.CE-Framework/personas/qa_agent.md
+    persona_file: Cortex-Framework/personas/qa_agent.md
     responsibilities:
       - Validate acceptance criteria and regression risk
       - Document approvals and defects
@@ -355,7 +355,7 @@ agents:
   - id: ask-agent
     name: Ask Agent
     summary: Answers status and context queries, reflecting the current protocol state without modifying it.
-    persona_file: RX.CE-Framework/personas/ask_agent.md
+    persona_file: Cortex-Framework/personas/ask_agent.md
     responsibilities:
       - Report story and project state on demand
       - Provide navigation and context summaries
@@ -381,7 +381,7 @@ agents:
   - id: reflector-agent
     name: Reflector Agent
     summary: Analyzes dual-stream feedback (Context + Issues) every 10 stories and generates evidence-based improvement proposals.
-    persona_file: RX.CE-Framework/personas/reflector_agent.md
+    persona_file: Cortex-Framework/personas/reflector_agent.md
     responsibilities:
       - Analyze Context Feedback (documentation quality: helpful/misleading/missing)
       - Analyze Issues Encountered (execution problems with solutions)
@@ -415,7 +415,7 @@ agents:
   - id: brownfield-architect-agent
     name: Brownfield Architect Agent
     summary: Assesses current codebase and composes a refactor plan into atomic stories.
-    persona_file: RX.CE-Framework/personas/brownfield_architect_agent.md
+    persona_file: Cortex-Framework/personas/brownfield_architect_agent.md
     responsibilities:
       - Analyze existing architecture and constraints
       - Produce refactor plan and safety guidelines

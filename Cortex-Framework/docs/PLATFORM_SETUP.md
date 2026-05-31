@@ -1,6 +1,6 @@
 # Multi-Platform Setup Guide
 
-RX.CE-Framework works with 5 AI coding platforms out of the box.
+Cortex-Framework works with 5 AI coding platforms out of the box.
 
 ## Supported Platforms
 
@@ -21,7 +21,7 @@ All platforms work 100% automatically with zero user configuration.
 ### Claude Code
 **Status**: Pre-configured
 
-**Location**: `RX.CE-Framework/modes/` (workflow presets)
+**Location**: `Cortex-Framework/modes/` (workflow presets)
 
 **How to use**:
 ```
@@ -62,7 +62,7 @@ Copilot will automatically load the agent definitions from root AGENTS.md.
 
 **Locations**:
 - `.agent/rules.md` - Auto-loaded agent definitions
-- `.agent/workflows/rx-framework.md` - Workflow automation
+- `.agent/workflows/cortex-framework.md` - Workflow automation
 
 **How to use**:
 1. Download Antigravity from https://antigravity.google/
@@ -70,7 +70,7 @@ Copilot will automatically load the agent definitions from root AGENTS.md.
 3. Start coding - `.agent/` config loads automatically
 
 **Workflows**:
-Type `/rx-framework` to trigger the Hub-and-Spoke workflow.
+Type `/cortex-framework` to trigger the Hub-and-Spoke workflow.
 
 ---
 
@@ -160,7 +160,7 @@ Check existing tests before creating new ones
 Frontend Agent stays in `frontend/`, Backend Agent stays in `backend/`
 
 ### 5. Never Edit Framework
-`RX.CE-Framework/` is read-only during implementation
+`Cortex-Framework/` is read-only during implementation
 
 ---
 
@@ -205,7 +205,7 @@ Frontend Agent stays in `frontend/`, Backend Agent stays in `backend/`
 
 ## Support
 
-- Framework docs: `RX.CE-Framework/README.md`
-- Protocol: `RX.CE-Framework/PROTOCOL.md`
+- Framework docs: `Cortex-Framework/README.md`
+- Protocol: `Cortex-Framework/PROTOCOL.md`
 - Agent definitions: `AGENTS.md` (root)
 - Platform setup: `docs/PLATFORM_SETUP.md` (this file)

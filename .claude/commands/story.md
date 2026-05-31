@@ -15,7 +15,7 @@ Load Hub Agent instructions and orchestrate incremental workflow:
 
 - `.claude/agents/hub-agent.md` - Your orchestration instructions
 - Mode: `incremental` (brownfield)
-- Workflow reference: `RX.CE-Framework/modes/Brownfield.md`
+- Workflow reference: `Cortex-Framework/modes/Brownfield.md`
 
 ## Usage
 
@@ -62,9 +62,9 @@ If missing, you'll automatically trigger Brownfield Architect (analysis mode, ~3
 
 ## Documentation
 
-- **Complete workflow:** `RX.CE-Framework/modes/Brownfield.md`
+- **Complete workflow:** `Cortex-Framework/modes/Brownfield.md`
 - **Story Composer:** `.claude/agents/story-composer-agent.md`
-- **State machine:** `RX.CE-Framework/PROTOCOL.md`
+- **State machine:** `Cortex-Framework/PROTOCOL.md`
 
 ## Related Commands
 

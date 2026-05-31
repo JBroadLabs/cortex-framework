@@ -16,12 +16,12 @@ from workflow_engine import WorkflowEngine
 
 def ensure_state_machine_initialized():
     """Initialize state machine if it doesn't exist."""
-    db_path = Path('RX.CE-Framework/state/workflow.db')
+    db_path = Path('Cortex-Framework/state/workflow.db')
 
     if not db_path.exists():
         print("[!] State machine not initialized, creating...")
         result = subprocess.run(
-            ['python', 'RX.CE-Framework/scripts/workflow_engine.py', 'init'],
+            ['python', 'Cortex-Framework/scripts/workflow_engine.py', 'init'],
             capture_output=True,
             text=True
         )
@@ -203,7 +203,7 @@ def complete_story_registration():
     print("\n=== Verification ===\n")
     subprocess.run([
         'python',
-        'RX.CE-Framework/scripts/workflow_engine.py',
+        'Cortex-Framework/scripts/workflow_engine.py',
         'status'
     ])
 

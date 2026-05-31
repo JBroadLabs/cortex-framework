@@ -7,7 +7,7 @@ $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $FRAMEWORK_DIR = Split-Path -Parent $SCRIPT_DIR
 $ROOT_DIR = Split-Path -Parent $FRAMEWORK_DIR
 
-Write-Host "=== Setting up RX.CE-Framework Workflow State Machine ===" -ForegroundColor Cyan
+Write-Host "=== Setting up Cortex-Framework Workflow State Machine ===" -ForegroundColor Cyan
 Write-Host ""
 
 # Create state directory
@@ -92,7 +92,7 @@ Write-Host ""
 Write-Host "=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "Quick start:"
-Write-Host "  python3 RX.CE-Framework/scripts/workflow_engine.py status   # View story status"
-Write-Host "  python3 RX.CE-Framework/scripts/workflow_engine.py next     # See next actions"
-Write-Host "  python3 RX.CE-Framework/scripts/workflow_engine.py pending  # Check pending delegations"
+Write-Host "  python3 Cortex-Framework/scripts/workflow_engine.py status   # View story status"
+Write-Host "  python3 Cortex-Framework/scripts/workflow_engine.py next     # See next actions"
+Write-Host "  python3 Cortex-Framework/scripts/workflow_engine.py pending  # Check pending delegations"
 Write-Host ""

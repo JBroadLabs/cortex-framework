@@ -17,7 +17,7 @@ Load Hub Agent instructions and orchestrate refactoring workflow:
 
 - `.claude/agents/hub-agent.md` - Your orchestration instructions
 - Mode: `refactor` (brownfield)
-- Workflow reference: `RX.CE-Framework/modes/Brownfield.md`
+- Workflow reference: `Cortex-Framework/modes/Brownfield.md`
 
 ## Usage
 
@@ -72,9 +72,9 @@ Load Hub Agent instructions and orchestrate refactoring workflow:
 
 ## Documentation
 
-- **Complete workflow:** `RX.CE-Framework/modes/Brownfield.md`
+- **Complete workflow:** `Cortex-Framework/modes/Brownfield.md`
 - **Brownfield Architect:** `.claude/agents/brownfield-architect-agent.md`
-- **State machine:** `RX.CE-Framework/PROTOCOL.md`
+- **State machine:** `Cortex-Framework/PROTOCOL.md`
 
 ## Related Commands
 
